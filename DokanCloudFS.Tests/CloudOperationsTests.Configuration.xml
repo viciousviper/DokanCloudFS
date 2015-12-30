@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Rows>
+  <ConfigRead>
+    <BufferSize>65536</BufferSize>
+    <FileSize>327680</FileSize>
+  </ConfigRead>
+  <ConfigRead>
+    <BufferSize>65536</BufferSize>
+    <FileSize>344064</FileSize>
+  </ConfigRead>
+  <ConfigRead>
+    <BufferSize>65536</BufferSize>
+    <FileSize>360448</FileSize>
+  </ConfigRead>
+  <ConfigRead>
+    <BufferSize>65536</BufferSize>
+    <FileSize>376832</FileSize>
+  </ConfigRead>
+
+  <ConfigWrite>
+    <BufferSize>65536</BufferSize>
+    <FileSize>327680</FileSize>
+  </ConfigWrite>
+  <ConfigWrite>
+    <BufferSize>65536</BufferSize>
+    <FileSize>344064</FileSize>
+  </ConfigWrite>
+  <ConfigWrite>
+    <BufferSize>65536</BufferSize>
+    <FileSize>360448</FileSize>
+  </ConfigWrite>
+  <ConfigWrite>
+    <BufferSize>65536</BufferSize>
+    <FileSize>376832</FileSize>
+  </ConfigWrite>
+</Rows>

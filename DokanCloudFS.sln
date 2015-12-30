@@ -1,0 +1,54 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DokanCloudFS", "DokanCloudFS\DokanCloudFS.csproj", "{87F4BEE8-FE6A-4ACF-9234-FDAEB28C786B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DokanCloudFS.Tests", "DokanCloudFS.Tests\DokanCloudFS.Tests.csproj", "{373B0506-5779-4E1F-AFC2-ABED0F32BAC9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DokanCloudFS.Mounter", "DokanCloudFS.Mounter\DokanCloudFS.Mounter.csproj", "{5127A50B-221A-4AD7-9EF9-B3808CF0E282}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Library", "Library", "{7D6A22CF-022F-49F5-A3E0-FC71148BD28D}"
+	ProjectSection(SolutionItems) = preProject
+		Library\IgorSoft.AppDomainResolver.dll = Library\IgorSoft.AppDomainResolver.dll
+		Library\IgorSoft.AppDomainResolver.pdb = Library\IgorSoft.AppDomainResolver.pdb
+		Library\IgorSoft.CloudFS.Authentication.dll = Library\IgorSoft.CloudFS.Authentication.dll
+		Library\IgorSoft.CloudFS.Authentication.pdb = Library\IgorSoft.CloudFS.Authentication.pdb
+		Library\IgorSoft.CloudFS.Interface.dll = Library\IgorSoft.CloudFS.Interface.dll
+		Library\IgorSoft.CloudFS.Interface.pdb = Library\IgorSoft.CloudFS.Interface.pdb
+		Library\SharpAESCrypt.exe = Library\SharpAESCrypt.exe
+		Library\SharpAESCrypt.license.txt = Library\SharpAESCrypt.license.txt
+		Library\SharpAESCrypt.pdb = Library\SharpAESCrypt.pdb
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0BB1F64B-56CD-4856-A0C4-D35092681ED7}"
+	ProjectSection(SolutionItems) = preProject
+		DokanCloudFS.runsettings = DokanCloudFS.runsettings
+		LICENSE.md = LICENSE.md
+		README.md = README.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{87F4BEE8-FE6A-4ACF-9234-FDAEB28C786B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{87F4BEE8-FE6A-4ACF-9234-FDAEB28C786B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{87F4BEE8-FE6A-4ACF-9234-FDAEB28C786B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{87F4BEE8-FE6A-4ACF-9234-FDAEB28C786B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{373B0506-5779-4E1F-AFC2-ABED0F32BAC9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{373B0506-5779-4E1F-AFC2-ABED0F32BAC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{373B0506-5779-4E1F-AFC2-ABED0F32BAC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{373B0506-5779-4E1F-AFC2-ABED0F32BAC9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5127A50B-221A-4AD7-9EF9-B3808CF0E282}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5127A50B-221A-4AD7-9EF9-B3808CF0E282}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5127A50B-221A-4AD7-9EF9-B3808CF0E282}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5127A50B-221A-4AD7-9EF9-B3808CF0E282}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
