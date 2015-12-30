@@ -67,6 +67,11 @@ artifacts/
 *.svclog
 *.scc
 
+# Override for included library files
+!**/Library/*.dll
+!**/Library/*.pdb
+
+
 # Chutzpah Test files
 _Chutzpah*
 
