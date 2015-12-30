@@ -67,7 +67,7 @@ namespace IgorSoft.DokanCloudFS
 
             [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Debugger Display")]
             [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-            private string DebuggerDisplay => $"{nameof(StreamContext)} {File.Name} [{Access}] [{nameof(Stream.Length)}={Stream?.Length ?? 0}] [{nameof(Task.Status)}={Task?.Status}] {nameof(IsLocked)}={IsLocked}";
+            private string DebuggerDisplay => $"{nameof(StreamContext)} {File.Name} [{Access}] [{nameof(Stream.Length)}={((Stream?.CanSeek ?? false) ? Stream.Length : 0)}] [{nameof(Task.Status)}={Task?.Status}] {nameof(IsLocked)}={IsLocked}";
         }
 
         private ICloudDrive drive;
