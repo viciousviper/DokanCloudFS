@@ -68,6 +68,7 @@ artifacts/
 *.scc
 
 # Override for included library files
+!**/Library/*.exe
 !**/Library/*.dll
 !**/Library/*.pdb
 
