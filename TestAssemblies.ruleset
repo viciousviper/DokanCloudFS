@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RuleSet Name="IgorSoft TestAssemblies" Description="Dieser Regelsatz enthält alle Regeln. Das Ausführen dieses Regelsatzes führt möglicherweise zu einer hohen Anzahl gemeldeter Warnungen. Verwenden Sie diesen Regelsatz, um einen Überblick über alle Probleme in Ihrem Code zu erhalten. Dies kann Ihnen bei der Entscheidung behilflich sein, welche der spezifischeren Regelsätze für Ihre Projekte am besten geeignet sind." ToolsVersion="14.0">
+  <IncludeAll Action="Warning" />
+  <Rules AnalyzerId="Microsoft.Analyzers.ManagedCodeAnalysis" RuleNamespace="Microsoft.Rules.Managed">
+    <Rule Id="CA1305" Action="None" />
+    <Rule Id="CA1506" Action="None" />
+    <Rule Id="CA1703" Action="None" />
+    <Rule Id="CA1707" Action="None" />
+    <Rule Id="CA1806" Action="None" />
+    <Rule Id="CA1811" Action="None" />
+    <Rule Id="CA2000" Action="None" />
+  </Rules>
+</RuleSet>
