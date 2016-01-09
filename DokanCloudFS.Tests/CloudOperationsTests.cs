@@ -51,7 +51,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             fixture = null;
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Online))]
         public void DriveInfo_GetAvailableFreeSpace_Succeeds()
         {
             var sut = fixture.GetDriveInfo();
@@ -61,7 +61,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             Assert.IsTrue(result > 0);
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Online))]
         public void DriveInfo_GetDriveFormat_Succeeds()
         {
             var sut = fixture.GetDriveInfo();
@@ -71,7 +71,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             Assert.AreEqual(nameof(DokanCloudFS), result);
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Online))]
         public void DriveInfo_GetDriveType_Succeeds()
         {
             var sut = fixture.GetDriveInfo();
@@ -81,7 +81,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             Assert.AreEqual(result, DriveType.Removable);
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Online))]
         public void DriveInfo_GetIsReady_Succeeds()
         {
             var sut = fixture.GetDriveInfo();
@@ -91,7 +91,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             Assert.IsTrue(result);
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Online))]
         public void DriveInfo_GetName_Succeeds()
         {
             var sut = fixture.GetDriveInfo();
@@ -101,7 +101,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             Assert.AreEqual(Fixture.MOUNT_POINT + Path.DirectorySeparatorChar, result);
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Online))]
         public void DriveInfo_GetTotalFreeSpace_Succeeds()
         {
             var sut = fixture.GetDriveInfo();
@@ -111,7 +111,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             Assert.IsTrue(result > 0);
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Online))]
         public void DriveInfo_GetTotalSize_Succeeds()
         {
             var sut = fixture.GetDriveInfo();
@@ -121,7 +121,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             Assert.IsTrue(result > 0);
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Online))]
         public void DriveInfo_GetVolumeLabel_Succeeds()
         {
             var sut = fixture.GetDriveInfo();
@@ -131,7 +131,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             Assert.AreEqual($"{Fixture.SCHEMA}@{Fixture.USER_NAME}|{Fixture.MOUNT_POINT}", result);
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Online))]
         public void DriveInfo_GetRootDirectory_Succeeds()
         {
             var sut = fixture.GetDriveInfo();
@@ -142,7 +142,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             Assert.AreEqual(Fixture.MOUNT_POINT + Path.DirectorySeparatorChar, result.Name);
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Online))]
         public void DirectoryInfo_GetDirectories_ReturnsResults()
         {
             using (var testDirectory = fixture.CreateTestDirectory()) {
@@ -158,7 +158,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             }
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Online))]
         public void DirectoryInfo_GetFiles_ReturnsResults()
         {
             using (var testDirectory = fixture.CreateTestDirectory()) {
@@ -172,7 +172,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             }
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Online))]
         public void DirectoryInfo_GetFileSystemInfos_ReturnsResults()
         {
             using (var testDirectory = fixture.CreateTestDirectory()) {
@@ -187,7 +187,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             }
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Online))]
         public void DirectoryInfo_Create_Succeeds()
         {
             using (var testDirectory = fixture.CreateTestDirectory()) {
@@ -201,7 +201,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             }
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Online))]
         public void DirectoryInfo_CreateSubdirectory_Succeeds()
         {
             using (var testDirectory = fixture.CreateTestDirectory()) {
@@ -215,7 +215,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             }
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Online))]
         public void DirectoryInfo_Delete_Succeeds()
         {
             using (var testDirectory = fixture.CreateTestDirectory()) {
@@ -234,7 +234,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             }
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Online))]
         public void DirectoryInfo_MoveToDirectory_Succeeds()
         {
             using (var testDirectory = fixture.CreateTestDirectory()) {
@@ -257,7 +257,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             }
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Online))]
         public void DirectoryInfo_Rename_Succeeds()
         {
             using (var testDirectory = fixture.CreateTestDirectory()) {
@@ -271,7 +271,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             }
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Online))]
         public void FileInfo_Create_Succeeds()
         {
             using (var testDirectory = fixture.CreateTestDirectory()) {
@@ -296,7 +296,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             }
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Online))]
         public void FileInfo_CreateMultiple_Succeeds()
         {
             using (var testDirectory = fixture.CreateTestDirectory())
@@ -329,7 +329,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             }
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Online))]
         public void FileInfo_Delete_Succeeds()
         {
             using (var testDirectory = fixture.CreateTestDirectory()) {
@@ -348,7 +348,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             }
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Online))]
         public void FileInfo_CopyToDirectory_Succeeds()
         {
             using (var testDirectory = fixture.CreateTestDirectory()) {
@@ -364,7 +364,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             }
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Online))]
         public void FileInfo_MoveToDirectory_Succeeds()
         {
             using (var testDirectory = fixture.CreateTestDirectory()) {
@@ -380,7 +380,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             }
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Online))]
         public void FileInfo_Rename_Succeeds()
         {
             using (var testDirectory = fixture.CreateTestDirectory()) {
@@ -393,7 +393,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             }
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Online))]
         [DeploymentItem("CloudOperationsTests.Configuration.xml")]
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\CloudOperationsTests.Configuration.xml", "ConfigRead", DataAccessMethod.Sequential)]
         public void FileInfo_ReadOverlapped_Succeeds()
@@ -412,7 +412,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             }
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Online))]
         [DeploymentItem("CloudOperationsTests.Configuration.xml")]
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\CloudOperationsTests.Configuration.xml", "ConfigWrite", DataAccessMethod.Sequential)]
         public void FileInfo_WriteOverlapped_Succeeds()

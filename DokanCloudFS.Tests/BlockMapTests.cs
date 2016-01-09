@@ -39,7 +39,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             fixture = new Fixture();
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void Assign_WhereBoundariesAreValid_AssignsBlockCorrectly()
         {
             var sut = fixture.CreateMap();
@@ -49,7 +49,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             CollectionAssert.AreEqual(new[] { new BlockMap.Block(8, 4) }, sut.Blocks);
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void Assign_WhereBoundariesAreInvalid_WithNegativeOffset_Throws()
         {
@@ -58,7 +58,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             sut.AssignBytes(-1, 4);
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void Assign_WhereBoundariesAreInvalid_WithZeroCount_Throws()
         {
@@ -67,7 +67,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             sut.AssignBytes(4, 0);
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void Assign_WhereBoundariesAreInvalid_WithExcessiveOffset_Throws()
         {
@@ -76,7 +76,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             sut.AssignBytes(20, 1);
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void Assign_WhereBoundariesAreInvalid_WithExcessiveCount_Throws()
         {
@@ -85,7 +85,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             sut.AssignBytes(19, 2);
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void Assign_WherePredecessorExists_AssignsBlockCorrectly()
         {
             var sut = fixture.CreateMap().WithPredecessor(8, 4);
@@ -95,7 +95,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             CollectionAssert.AreEqual(new[] { new BlockMap.Block(3, 4), new BlockMap.Block(8, 4) }, sut.Blocks);
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void Assign_WhereImmediatePredecessorExists_MergesBlocksCorrectly()
         {
             var sut = fixture.CreateMap().WithImmediatePredecessor(8, 4);
@@ -105,7 +105,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             CollectionAssert.AreEqual(new[] { new BlockMap.Block(4, 8) }, sut.Blocks);
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void Assign_WhereImmediateSuccessorExists_MergesBlocksCorrectly()
         {
             var sut = fixture.CreateMap().WithImmediateSuccessor(8, 4);
@@ -115,7 +115,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             CollectionAssert.AreEqual(new[] { new BlockMap.Block(8, 8) }, sut.Blocks);
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void Assign_WhereSuccessorExists_DoesNotMergeBlocks()
         {
             var sut = fixture.CreateMap().WithSuccessor(8, 4);
@@ -125,7 +125,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             CollectionAssert.AreEqual(new[] { new BlockMap.Block(8, 4), new BlockMap.Block(13, 4) }, sut.Blocks);
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void Assign_WhereImmediatePredecessorAndSuccessorExist_MergesBlocksCorrectly()
         {
             var sut = fixture.CreateMap().WithImmediatePredecessor(8, 4).WithImmediateSuccessor(8, 4);
@@ -135,7 +135,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             CollectionAssert.AreEqual(new[] { new BlockMap.Block(4, 12) }, sut.Blocks);
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void Assign_WherePredecessorAndSuccessorExist_DoesNotMergeBlocks()
         {
             var sut = fixture.CreateMap().WithPredecessor(8, 4).WithSuccessor(8, 4);
@@ -145,7 +145,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             CollectionAssert.AreEqual(new[] { new BlockMap.Block(3, 4), new BlockMap.Block(8, 4), new BlockMap.Block(13, 4) }, sut.Blocks);
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         [ExpectedException(typeof(InvalidOperationException))]
         public void Assign_WherePredecessorIntersects_Throws()
         {
@@ -156,7 +156,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             Assert.Fail();
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         [ExpectedException(typeof(InvalidOperationException))]
         public void Assign_WhereSucccessorIntersects_Throws()
         {
@@ -167,7 +167,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             Assert.Fail();
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         [ExpectedException(typeof(InvalidOperationException))]
         public void Assign_WherePredecessorAndSucccessorIntersects_Throws()
         {
@@ -178,7 +178,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             Assert.Fail();
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void GetAvailableBytes_WhereTargetMatchesBlock_ReturnsCorrectResult()
         {
             var sut = fixture.CreateMap().WithBlock(8, 4);
@@ -186,7 +186,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             Assert.AreEqual(4, sut.GetAvailableBytes(8, 4));
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void GetAvailableBytes_WhereTargetMatchesMergedBlockAndImmediatePredecessor_ReturnsCorrectResult()
         {
             var sut = fixture.CreateMap().WithBlock(8, 4).WithImmediatePredecessor(8, 4);
@@ -194,7 +194,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             Assert.AreEqual(6, sut.GetAvailableBytes(5, 6));
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void GetAvailableBytes_WhereTargetMatchesBlockAndImmediatePredecessor_ReturnsCorrectResult()
         {
             var sut = fixture.CreateMap().WithBlock(8, 4).WithImmediatePredecessor(8, 4);
@@ -202,7 +202,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             Assert.AreEqual(6, sut.GetAvailableBytes(5, 6));
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void GetAvailableBytes_WhereTargetMatchesMergedBlockImmediatePredecessorAndSuccessor_ReturnsCorrectResult()
         {
             var sut = fixture.CreateMap().WithBlock(8, 4).WithImmediatePredecessor(8, 4).WithImmediateSuccessor(8, 4);
@@ -210,7 +210,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             Assert.AreEqual(10, sut.GetAvailableBytes(5, 10));
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void GetAvailableBytes_WhereTargetMatchesBlockImmediatePredecessorAndSuccessor_ReturnsCorrectResult()
         {
             var sut = fixture.CreateMap().WithBlock(8, 4).WithImmediatePredecessor(8, 4).WithImmediateSuccessor(8, 4);
@@ -218,7 +218,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             Assert.AreEqual(10, sut.GetAvailableBytes(5, 10));
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void GetAvailableBytes_WhereTargetMatchesBlockAndLeadingSpace_ReturnsCorrectResult()
         {
             var sut = fixture.CreateMap().WithBlock(8, 4);
@@ -226,7 +226,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             Assert.AreEqual(0, sut.GetAvailableBytes(7, 5));
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void GetAvailableBytes_WhereTargetMatchesBlockAndTrailingSpace_ReturnsCorrectResult()
         {
             var sut = fixture.CreateMap().WithBlock(8, 4);
@@ -234,7 +234,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             Assert.AreEqual(4, sut.GetAvailableBytes(8, 5));
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void GetAvailableBytes_WhereTargetMatchesBlockAndPredecessor_ReturnsCorrectResult()
         {
             var sut = fixture.CreateMap().WithBlock(8, 4).WithPredecessor(8, 4);
@@ -242,7 +242,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             Assert.AreEqual(3, sut.GetAvailableBytes(4, 6));
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void GetAvailableBytes_WhereTargetMatchesBlockPredecessorAndSuccessor_ReturnsCorrectResult()
         {
             var sut = fixture.CreateMap().WithBlock(8, 4).WithPredecessor(8, 4).WithSuccessor(8, 4);

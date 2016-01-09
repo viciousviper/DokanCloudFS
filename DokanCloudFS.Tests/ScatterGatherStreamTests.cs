@@ -45,7 +45,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             fixture = null;
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void CopyBuffersConcurrently_WhereReaderIsFlooded_ReturnsCorrectResult()
         {
             var source = fixture.InitializeBuffer(1000);
@@ -54,7 +54,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             CollectionAssert.AreEqual(source, target, "Unexpected result");
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void CopyBuffersConcurrently_WhereReaderIsSynced_ReturnsCorrectResult()
         {
             var source = fixture.InitializeBuffer(1000);
@@ -63,7 +63,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             CollectionAssert.AreEqual(source, target, "Unexpected result");
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void CopyBuffersConcurrently_WhereReaderIsStarved_ReturnsCorrectResult()
         {
             var source = fixture.InitializeBuffer(1000);
@@ -72,7 +72,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             CollectionAssert.AreEqual(source, target, "Unexpected result");
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void CopyBuffersConcurrently_WhereLimitIsSpecified_ReturnsCorrectResult()
         {
             var source = fixture.InitializeBuffer(1000);
@@ -81,7 +81,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             CollectionAssert.AreEqual(source, target, "Unexpected result");
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void CopyBuffersConcurrently_WithExplicitPermutationRetrograde_ReturnsCorrectResult()
         {
             var source = fixture.InitializeBuffer(1000);
@@ -90,7 +90,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             CollectionAssert.AreEqual(source, target, "Unexpected result");
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void CopyBuffersConcurrently_WithExplicitPermutationInterleaved_ReturnsCorrectResult()
         {
             var source = fixture.InitializeBuffer(1000);
@@ -99,7 +99,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             CollectionAssert.AreEqual(source, target, "Unexpected result");
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void ReadAsync_WhereReaderTimesOut_Throws()
         {
             var source = fixture.InitializeBuffer(1000);
@@ -116,7 +116,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             }
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void WriteAsync_WhereCountExceedsLimit_Throws()
         {
             var source = fixture.InitializeBuffer(1000);

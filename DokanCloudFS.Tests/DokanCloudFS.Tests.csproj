@@ -96,6 +96,7 @@
     <Compile Include="StreamTests.Fixture.cs">
       <DependentUpon>ScatterGatherStreamTests.cs</DependentUpon>
     </Compile>
+    <Compile Include="TestCategories.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DokanCloudFS\DokanCloudFS.csproj">

@@ -1,6 +1,8 @@
 # DokanCloudFS
 **DokanCloudFS** is a virtual filesystem for various publicly accessible Cloud storage services on the Microsoft Windows platform.
 
+[![Build status](https://ci.appveyor.com/api/projects/status/o3q79e7w9xfq5xq9/branch/master?svg=true)](https://ci.appveyor.com/project/viciousviper/dokancloudfs)
+
 ## Objective
 
 **DokanCloudFS** implements a virtual filesystem that allows direct mounting of various publicly accessible Cloud storage services on the Microsoft Windows platform.
@@ -41,14 +43,14 @@ The expected gateway interface types and a set of prefabricated gateways can be 
 ## Local compilation
 
 - Compile the CloudFS solution (see https://github.com/viciousviper/CloudFS)
-- copy all assemblies from the //Gateways// directory in the build output of //CloudFS.GatewayTests// to the //Library// directory of DokanCloudFS
+- copy all assemblies from the *Gateways* directory in the build output of *CloudFS.GatewayTests* to the *Library* directory of DokanCloudFS
 - Compile the DokanCloudFS solution
-- Check that the //Gateways// directory in the build output of //DokanCloudFS.Mounter// contains all desired gateway assemblies and their dependencies (e.g. Newtonsoft.JSON.dll)
+- Check that the *Gateways* directory in the build output of *DokanCloudFS.Mounter* contains all desired gateway assemblies and their dependencies (e.g. Newtonsoft.JSON.dll)
 
 ## Usage
 
-- Configure the desired mount points in DokanCloudFS.Mounter's configuration file
-- Run //IgorSoft.DokanCloudFS.Mounter.exe// from the command line
+- Configure the desired mount points in DokanCloudFS.Mounter's configuration file *App.config*
+- Run *IgorSoft.DokanCloudFS.Mounter.exe* from the command line
 
 ## Remarks
 
