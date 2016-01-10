@@ -28,7 +28,7 @@ Some limitations apply concerning transfer speed, maximum file size, permissions
 
 DokanCloudFS requires a gateway assembly for any cloud storage service to be used as a backend.
 
-The expected gateway interface types and a set of prefabricated gateways can be taken from the GitHub repository of the related [CloudFS](https://github.com/viciousviper/CloudFS) project.<br />The associated NuGet packages [CloudFS](https://www.nuget.org/packages/CloudFS/) and [CloudFS-Signed](https://www.nuget.org/packages/CloudFS-Signed/) include preconfigured APU keys for the included cloud storage services and are ready to use.
+The expected gateway interface types and a set of prefabricated gateways can be taken from the GitHub repository of the related [CloudFS](https://github.com/viciousviper/CloudFS) project.<br />The associated NuGet packages [CloudFS](https://www.nuget.org/packages/CloudFS/) and [CloudFS-Signed](https://www.nuget.org/packages/CloudFS-Signed/) include preconfigured API keys for the included cloud storage services and are ready to use.
 
 ## System Requirements
 
