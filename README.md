@@ -28,21 +28,21 @@ Some limitations apply concerning transfer speed, maximum file size, permissions
 
 DokanCloudFS requires a gateway assembly for any cloud storage service to be used as a backend.
 
-The expected gateway interface types and a set of prefabricated gateways can be taken from the GitHub repository of the related **CloudFS** project located at https://github.com/viciousviper/CloudFS.
+The expected gateway interface types and a set of prefabricated gateways can be taken from the GitHub repository of the related [CloudFS](https://github.com/viciousviper/CloudFS) project.<br />The associated NuGet packages [CloudFS](https://www.nuget.org/packages/CloudFS/) and [CloudFS-Signed](https://www.nuget.org/packages/CloudFS-Signed/) include preconfigured APU keys for the included cloud storage services and are ready to use.
 
 ## System Requirements
 
 - Platform
   - .NET 4.6
 - Drivers
-  - Dokan driver 0.8.0 or greater<br />(see https://github.com/dokan-dev/dokany/releases)
+  - [Dokany](https://github.com/dokan-dev/dokany/releases) driver 0.8.0 or greater
 - Operating system
   - tested on Windows 8.1 x64 and Windows Server 2012 R2
   - expected to run on Windows 7/8/8.1/10 and Windows Server 2008(R2)/2012(R2)
 
 ## Local compilation
 
-- Compile the CloudFS solution<br />(see https://github.com/viciousviper/CloudFS)
+- Compile the [CloudFS](https://github.com/viciousviper/CloudFS) solution
 - Copy all assemblies from the *Gateways* directory in the build output of *CloudFS.GatewayTests* to the *Library* directory of DokanCloudFS
 - Compile the DokanCloudFS solution
 - Check that the *Gateways* directory in the build output of *DokanCloudFS.Mounter* contains all desired gateway assemblies and their dependencies (e.g. *Newtonsoft.JSON.dll*)
@@ -113,8 +113,8 @@ You have been warned.
 
 DokanCloudFS would not have been possible without the expertise and great effort devoted by their respective creators to the following projects:
 
-- **Dokany** - The User mode file system library for windows (see http://dokan-dev.github.io for the entire Dokany ecosystem, https://github.com/dokan-dev/dokany for the specific driver)
-- **Dokan.NET** - The Dokan DotNET wrapper (see https://github.com/dokan-dev/dokan-dotnet)
-- **SharpAESCrypt** - A C# implementation of the AESCrypt file format (see https://github.com/kenkendk/sharpaescrypt)
-- **Moq** - The most popular and friendly mocking framework for .NET (see https://github.com/Moq/moq4)
-- **SemanticTypes** - Support for implementing semantic types (see https://github.com/mperdeck/semantictypes)
+- **Dokany** - The User mode file system library for windows (see [Dokan](http://dokan-dev.github.io) for the entire Dokany ecosystem, [Dokany](https://github.com/dokan-dev/dokany) for the specific driver)
+- **Dokan.NET** - The Dokan DotNET wrapper (see [Dokan.NET Binding](https://github.com/dokan-dev/dokan-dotnet))
+- **SharpAESCrypt** - A C# implementation of the AESCrypt file format (see [SharpAESCrypt](https://github.com/kenkendk/sharpaescrypt))
+- **Moq** - The most popular and friendly mocking framework for .NET (see [Moq](https://github.com/Moq/moq4))
+- **SemanticTypes** - Support for implementing semantic types (see [SemanticTypes](https://github.com/mperdeck/semantictypes))
