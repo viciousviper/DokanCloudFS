@@ -11,6 +11,14 @@ configuration:
 
 platform: Any CPU
 
+install:
+ - ps: | Add-Type -AssemblyName System.IO.Compression.FileSystem
+            (new-object System.Net.WebClient).DownloadFile(
+              'https://github.com/dokan-dev/dokany/releases/download/v0.8.0/DokanInstall_0.8.0_redist.exe',
+              'C:\projects\DokanCloudFS\DokanInstall.exe'
+            )
+ - cmd: C:\projects\DokanCloudFS\DokanInstall.exe /S
+
 before_build:
 - cmd: nuget restore
 
