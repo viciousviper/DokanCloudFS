@@ -24,7 +24,7 @@ before_build:
 
 build:
   project: DokanCloudFS.sln
-  verbosity: normal
+  verbosity: minimal
 
 before_test:
 - cmd: C:\projects\dokancloudfs\DokanInstall.exe /S
