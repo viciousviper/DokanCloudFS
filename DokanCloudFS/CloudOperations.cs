@@ -153,8 +153,10 @@ namespace IgorSoft.DokanCloudFS
             if (string.IsNullOrEmpty(fileName))
                 fileName = @"\";
 
-            if (fileName == @"\")
+            if (fileName == @"\") {
+                info.IsDirectory = true;
                 return Trace(nameof(CreateFile), fileName, info, access, share, mode, options, attributes, DokanResult.Success);
+            }
 
             fileName = fileName.TrimEnd(Path.DirectorySeparatorChar);
 
@@ -182,7 +184,7 @@ namespace IgorSoft.DokanCloudFS
                         if (access.HasFlag(FileAccess.ReadData))
                             info.Context = new StreamContext(fileItem, FileAccess.ReadData) { Stream = Stream.Synchronized(fileItem.GetContent(drive)) };
                         else if (access.HasFlag(FileAccess.WriteData))
-                            info.Context = new StreamContext(fileItem, FileAccess.ReadData);
+                            info.Context = new StreamContext(fileItem, FileAccess.WriteData);
                         else if (access.HasFlag(FileAccess.Delete))
                             info.Context = new StreamContext(fileItem, FileAccess.Delete);
                     } else {
@@ -193,7 +195,7 @@ namespace IgorSoft.DokanCloudFS
                 case FileMode.OpenOrCreate:
                     fileItem = item as CloudFileNode ?? parent.NewFileItem(drive, itemName);
 
-                    if (access.HasFlag(FileAccess.ReadData))
+                    if (access.HasFlag(FileAccess.ReadData) && !access.HasFlag(FileAccess.WriteData))
                         info.Context = new StreamContext(fileItem, FileAccess.ReadData) { Stream = Stream.Synchronized(fileItem.GetContent(drive)) };
                     else
                         info.Context = new StreamContext(fileItem, FileAccess.WriteData);

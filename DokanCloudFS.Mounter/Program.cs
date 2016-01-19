@@ -45,25 +45,25 @@ namespace DokanCloudFS.Mounter
             var factory = new CloudDriveFactory();
             CompositionInitializer.SatisfyImports(factory);
 
-            var configuration = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None).Sections["mount"] as MountSection;
-            if (configuration == null)
+            var mountSection = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None).Sections[MountSection.Name] as MountSection;
+            if (mountSection == null)
                 throw new ConfigurationErrorsException("Mount configuration missing");
 
             try {
                 var logger = new LogFactory().GetCurrentClassLogger();
                 var tokenSource = new CancellationTokenSource();
                 var tasks = new List<Task>();
-                foreach (var drive in configuration.Drives.Cast<DriveElement>()) {
+                foreach (var drive in mountSection.Drives.Cast<DriveElement>()) {
                     var operations = new CloudOperations(factory.CreateCloudDrive(drive.Schema, drive.UserName, drive.Root, new CloudDriveParameters() { EncryptionKey = drive.EncryptionKey }), logger);
 
-                    tasks.Add(Task.Run(() => operations.Mount(drive.Root, DokanOptions.RemovableDrive, configuration.Threads, 800, TimeSpan.FromSeconds(drive.Timeout != 0 ? drive.Timeout : 20)), tokenSource.Token));
+                    tasks.Add(Task.Run(() => operations.Mount(drive.Root, DokanOptions.RemovableDrive, mountSection.Threads, 800, TimeSpan.FromSeconds(drive.Timeout != 0 ? drive.Timeout : 20)), tokenSource.Token));
                 }
 
                 Console.ReadKey(true);
 
                 tokenSource.Cancel();
             } finally {
-                foreach (var drive in configuration.Drives.Cast<DriveElement>())
+                foreach (var drive in mountSection.Drives.Cast<DriveElement>())
                     Dokan.Unmount(drive.Root[0]);
             }
         }

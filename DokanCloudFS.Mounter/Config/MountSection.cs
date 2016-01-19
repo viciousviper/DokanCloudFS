@@ -27,24 +27,40 @@ using System.Configuration;
 
 namespace IgorSoft.DokanCloudFS.Mounter.Config
 {
+    [System.Diagnostics.DebuggerDisplay("{DebuggerDisplay,nq}")]
     public sealed class MountSection : ConfigurationSection
     {
-        private const string drivesPropertyName = "drives";
-        private const string threadsPropertyName = "threads";
+        public const string Name = "mount";
 
-        [ConfigurationProperty(drivesPropertyName)]
-        public DriveElementCollection Drives
+        private const string libPathPropertyName = "libPath";
+        private const string threadsPropertyName = "threads";
+        private const string drivesElementName = "drives";
+
+        [ConfigurationProperty(libPathPropertyName, DefaultValue = ".")]
+        public string LibPath
         {
-            get { return (DriveElementCollection)this[drivesPropertyName]; }
-            set { this[drivesPropertyName] = value; }
+            get { return (string)base[libPathPropertyName]; }
+            set { base[libPathPropertyName] = value; }
         }
 
-        [ConfigurationProperty(threadsPropertyName)]
-        //[IntegerValidator(MinValue = 1, MaxValue = 10)]
+        [ConfigurationProperty(threadsPropertyName, DefaultValue = 5)]
+        [IntegerValidator(MinValue = 1, MaxValue = 20)]
         public int Threads
         {
-            get { return (int)this[threadsPropertyName]; }
-            set { this[threadsPropertyName] = value; }
+            get { return (int)base[threadsPropertyName]; }
+            set { base[threadsPropertyName] = value; }
         }
+
+        [ConfigurationProperty(drivesElementName)]
+        public DriveElementCollection Drives
+        {
+            get { return (DriveElementCollection)base[drivesElementName]; }
+            set { base[drivesElementName] = value; }
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object)", Justification = "Debugger Display")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Debugger Display")]
+        [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+        private string DebuggerDisplay => $"{nameof(MountSection)} libPath='{LibPath}'";
     }
 }

@@ -63,6 +63,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Config\ConfigStringExtensions.cs" />
     <Compile Include="Config\DriveElementCollection.cs" />
     <Compile Include="Config\MountSection.cs" />
     <Compile Include="Config\DriveElement.cs" />

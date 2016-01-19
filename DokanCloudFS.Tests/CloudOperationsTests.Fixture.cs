@@ -23,23 +23,31 @@ SOFTWARE.
 */
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Security.AccessControl;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading;
 using Microsoft.Win32.SafeHandles;
 using DokanNet;
-using IgorSoft.CloudFS.Interface.Composition;
-using IgorSoft.DokanCloudFS.Parameters;
+using Moq;
+using IgorSoft.CloudFS.Interface;
+using IgorSoft.CloudFS.Interface.IO;
 
 namespace IgorSoft.DokanCloudFS.Tests
 {
     public sealed partial class CloudOperationsTests
     {
-        internal static class NativeMethods
+        private static class NativeMethods
         {
             private const string KERNEL_32_DLL = "kernel32.dll";
+
+            private const string SHELL_32_DLL = "shell32.dll";
 
             [Flags]
             public enum DesiredAccess : uint
@@ -165,8 +173,10 @@ namespace IgorSoft.DokanCloudFS.Tests
                 var awaiterThread = new Thread(new ThreadStart(() => WaitHandle.WaitAll(waitHandles)));
                 awaiterThread.Start();
 
-                using (var handle = CreateFile(fileName, DesiredAccess.GENERIC_READ, ShareMode.FILE_SHARE_READ | ShareMode.FILE_SHARE_DELETE, IntPtr.Zero, CreationDisposition.OPEN_EXISTING, FlagsAndAttributes.FILE_FLAG_NO_BUFFERING | FlagsAndAttributes.FILE_FLAG_OVERLAPPED, IntPtr.Zero)) {
-                    for (int i = 0; i < chunks.Length; ++i) {
+                using (var handle = CreateFile(fileName, DesiredAccess.GENERIC_READ, ShareMode.FILE_SHARE_READ | ShareMode.FILE_SHARE_DELETE, IntPtr.Zero, CreationDisposition.OPEN_EXISTING, FlagsAndAttributes.FILE_FLAG_NO_BUFFERING | FlagsAndAttributes.FILE_FLAG_OVERLAPPED, IntPtr.Zero))
+                {
+                    for (int i = 0; i < chunks.Length; ++i)
+                    {
                         var offset = i * bufferSize;
                         var overlapped = new NativeOverlapped() { OffsetHigh = (int)(offset >> 32), OffsetLow = (int)(offset & 0xffffffff), EventHandle = IntPtr.Zero };
 
@@ -195,14 +205,17 @@ namespace IgorSoft.DokanCloudFS.Tests
                 var awaiterThread = new Thread(new ThreadStart(() => WaitHandle.WaitAll(waitHandles)));
                 awaiterThread.Start();
 
-                using (var handle = CreateFile(fileName, DesiredAccess.GENERIC_WRITE, ShareMode.FILE_SHARE_NONE, IntPtr.Zero, CreationDisposition.OPEN_ALWAYS, FlagsAndAttributes.FILE_FLAG_NO_BUFFERING | FlagsAndAttributes.FILE_FLAG_OVERLAPPED, IntPtr.Zero)) {
+                using (var handle = CreateFile(fileName, DesiredAccess.GENERIC_WRITE, ShareMode.FILE_SHARE_NONE, IntPtr.Zero, CreationDisposition.OPEN_ALWAYS, FlagsAndAttributes.FILE_FLAG_NO_BUFFERING | FlagsAndAttributes.FILE_FLAG_OVERLAPPED, IntPtr.Zero))
+                {
                     var offsetHigh = (int)(fileSize >> 32);
-                    if (SetFilePointer(handle, (int)(fileSize & 0xffffffff), out offsetHigh, MoveMethod.FILE_BEGIN) != fileSize || offsetHigh != (int)(fileSize >> 32) || !SetEndOfFile(handle)) {
+                    if (SetFilePointer(handle, (int)(fileSize & 0xffffffff), out offsetHigh, MoveMethod.FILE_BEGIN) != fileSize || offsetHigh != (int)(fileSize >> 32) || !SetEndOfFile(handle))
+                    {
                         chunks[0].Win32Error = Marshal.GetLastWin32Error();
                         return;
                     }
 
-                    for (int i = 0; i < chunks.Length; ++i) {
+                    for (int i = 0; i < chunks.Length; ++i)
+                    {
                         var offset = i * bufferSize;
                         var overlapped = new NativeOverlapped() { OffsetHigh = (int)(offset >> 32), OffsetLow = (int)(offset & 0xffffffff), EventHandle = IntPtr.Zero };
 
@@ -217,84 +230,325 @@ namespace IgorSoft.DokanCloudFS.Tests
             }
         }
 
+        private class DokanOperationsWrapper : IDokanOperations
+        {
+            public IDokanOperations Operations { get; set; }
+
+            void IDokanOperations.Cleanup(string fileName, DokanFileInfo info)
+            {
+                Operations.Cleanup(fileName, info);
+            }
+
+            void IDokanOperations.CloseFile(string fileName, DokanFileInfo info)
+            {
+                Operations.CloseFile(fileName, info);
+            }
+
+            NtStatus IDokanOperations.CreateFile(string fileName, DokanNet.FileAccess access, FileShare share, FileMode mode, FileOptions options, FileAttributes attributes, DokanFileInfo info)
+            {
+                return Operations.CreateFile(fileName, access, share, mode, options, attributes, info);
+            }
+
+            NtStatus IDokanOperations.DeleteDirectory(string fileName, DokanFileInfo info)
+            {
+                return Operations.DeleteDirectory(fileName, info);
+            }
+
+            NtStatus IDokanOperations.DeleteFile(string fileName, DokanFileInfo info)
+            {
+                return Operations.DeleteFile(fileName, info);
+            }
+
+            NtStatus IDokanOperations.FindFiles(string fileName, out IList<FileInformation> files, DokanFileInfo info)
+            {
+                return Operations.FindFiles(fileName, out files, info);
+            }
+
+            NtStatus IDokanOperations.FindStreams(string fileName, out IList<FileInformation> streams, DokanFileInfo info)
+            {
+                return Operations.FindStreams(fileName, out streams, info);
+            }
+
+            NtStatus IDokanOperations.FlushFileBuffers(string fileName, DokanFileInfo info)
+            {
+                return Operations.FlushFileBuffers(fileName, info);
+            }
+
+            NtStatus IDokanOperations.GetDiskFreeSpace(out long freeBytesAvailable, out long totalNumberOfBytes, out long totalNumberOfFreeBytes, DokanFileInfo info)
+            {
+                return Operations.GetDiskFreeSpace(out freeBytesAvailable, out totalNumberOfBytes, out totalNumberOfFreeBytes, info);
+            }
+
+            NtStatus IDokanOperations.GetFileInformation(string fileName, out FileInformation fileInfo, DokanFileInfo info)
+            {
+                return Operations.GetFileInformation(fileName, out fileInfo, info);
+            }
+
+            NtStatus IDokanOperations.GetFileSecurity(string fileName, out FileSystemSecurity security, AccessControlSections sections, DokanFileInfo info)
+            {
+                return Operations.GetFileSecurity(fileName, out security, sections, info);
+            }
+
+            NtStatus IDokanOperations.GetVolumeInformation(out string volumeLabel, out FileSystemFeatures features, out string fileSystemName, DokanFileInfo info)
+            {
+                return Operations.GetVolumeInformation(out volumeLabel, out features, out fileSystemName, info);
+            }
+
+            NtStatus IDokanOperations.LockFile(string fileName, long offset, long length, DokanFileInfo info)
+            {
+                return Operations.LockFile(fileName, offset, length, info);
+            }
+
+            NtStatus IDokanOperations.Mounted(DokanFileInfo info)
+            {
+                return Operations.Mounted(info);
+            }
+
+            NtStatus IDokanOperations.MoveFile(string oldName, string newName, bool replace, DokanFileInfo info)
+            {
+                return Operations.MoveFile(oldName, newName, replace, info);
+            }
+
+            NtStatus IDokanOperations.ReadFile(string fileName, byte[] buffer, out int bytesRead, long offset, DokanFileInfo info)
+            {
+                return Operations.ReadFile(fileName, buffer, out bytesRead, offset, info);
+            }
+
+            NtStatus IDokanOperations.SetAllocationSize(string fileName, long length, DokanFileInfo info)
+            {
+                return Operations.SetAllocationSize(fileName, length, info);
+            }
+
+            NtStatus IDokanOperations.SetEndOfFile(string fileName, long length, DokanFileInfo info)
+            {
+                return Operations.SetEndOfFile(fileName, length, info);
+            }
+
+            NtStatus IDokanOperations.SetFileAttributes(string fileName, FileAttributes attributes, DokanFileInfo info)
+            {
+                return Operations.SetFileAttributes(fileName, attributes, info);
+            }
+
+            NtStatus IDokanOperations.SetFileSecurity(string fileName, FileSystemSecurity security, AccessControlSections sections, DokanFileInfo info)
+            {
+                return Operations.SetFileSecurity(fileName, security, sections, info);
+            }
+
+            NtStatus IDokanOperations.SetFileTime(string fileName, DateTime? creationTime, DateTime? lastAccessTime, DateTime? lastWriteTime, DokanFileInfo info)
+            {
+                return Operations.SetFileTime(fileName, creationTime, lastAccessTime, lastWriteTime, info);
+            }
+
+            NtStatus IDokanOperations.UnlockFile(string fileName, long offset, long length, DokanFileInfo info)
+            {
+                return Operations.UnlockFile(fileName, offset, length, info);
+            }
+
+            NtStatus IDokanOperations.Unmounted(DokanFileInfo info)
+            {
+                return Operations.Unmounted(info);
+            }
+
+            NtStatus IDokanOperations.WriteFile(string fileName, byte[] buffer, out int bytesWritten, long offset, DokanFileInfo info)
+            {
+                return Operations.WriteFile(fileName, buffer, out bytesWritten, offset, info);
+            }
+        }
+
         internal class Fixture : IDisposable
         {
             public const string MOUNT_POINT = "Z:";
 
-            public const string VOLUME_LABEL = "Dokan Volume";
+            //public const string VOLUME_LABEL = "Dokan Volume";
 
-            public const string SCHEMA = "onedrive";
+            public const string SCHEMA = "mock";
 
             public const string USER_NAME = "IgorDev";
 
-            public const string TEST_DIRECTORY_NAME = "FileSystemTests";
+            private const long freeSpace = 64 * 1 << 20;
 
-            internal class TestDirectoryFixture : IDisposable
-            {
-                private readonly DirectoryInfo rootDirectory;
+            private const long usedSpace = 36 * 1 << 20;
 
-                public DirectoryInfo Directory { get; }
+            private static RootDirectoryInfoContract rootDirectory = new RootDirectoryInfoContract(Path.DirectorySeparatorChar.ToString(), new DateTime(2016, 1, 1), new DateTime(2016, 1, 1)) { Drive = new DriveInfoContract(MOUNT_POINT, freeSpace, usedSpace) };
 
-                public TestDirectoryFixture(DirectoryInfo rootDirectory, string path)
-                {
-                    this.rootDirectory = rootDirectory;
+            private static SHA1 sha1 = SHA1.Create();
 
-                    var residualDirectory = rootDirectory.GetDirectories().SingleOrDefault(d => d.Name == path);
-                    residualDirectory?.Delete(true);
-
-                    Directory = rootDirectory.CreateSubdirectory(path);
-                }
-
-                public DirectoryInfo CreateSubdirectory(string directoryName) => Directory.CreateSubdirectory(directoryName);
-
-                public DirectoryInfo CreateDirectory(string directoryName)
-                {
-                    var directory = new DirectoryInfo(Path.Combine(Directory.FullName, directoryName));
-                    directory.Create();
-                    return directory;
-                }
-
-                public FileInfo CreateFile(string fileName, byte[] content, DirectoryInfo parentDirectory = null)
-                {
-                    var file = new FileInfo(Path.Combine(parentDirectory?.FullName ?? Directory.FullName, fileName));
-                    if (content != null)
-                        using (var fileStream = file.Create()) {
-                            fileStream.WriteAsync(content, 0, content.Length).Wait();
-                            fileStream.Close();
-                        }
-                    return file;
-                }
-
-                public void Dispose()
-                {
-                    Directory.Delete(true);
-                }
-            }
+            private DokanOperationsWrapper operations = new DokanOperationsWrapper();
 
             private Thread mounterThread;
+
+            internal Mock<ICloudDrive> Drive { get; private set; }
+
+            public FileSystemInfoContract[] RootDirectoryItems { get; } = new FileSystemInfoContract[] {
+                new DirectoryInfoContract(@"\SubDir", "SubDir", ToDateTime("2015-01-01 10:11:12"), ToDateTime("2015-01-01 20:21:22")),
+                new DirectoryInfoContract(@"\SubDir2", "SubDir2", ToDateTime("2015-01-01 13:14:15"), ToDateTime("2015-01-01 23:24:25")),
+                new FileInfoContract(@"\File.ext", "File.ext", ToDateTime("2015-01-02 10:11:12"), ToDateTime("2015-01-02 20:21:22"), 16384, GetHash("16384")),
+                new FileInfoContract(@"\SecondFile.ext", "SecondFile.ext", ToDateTime("2015-01-03 10:11:12"), ToDateTime("2015-01-03 20:21:22"), 32768, GetHash("32768")),
+                new FileInfoContract(@"\ThirdFile.ext", "ThirdFile.ext", ToDateTime("2015-01-04 10:11:12"), ToDateTime("2015-01-04 20:21:22"), 65536, GetHash("65536"))
+            };
+
+            public FileSystemInfoContract[] SubDirectoryItems { get; } = new FileSystemInfoContract[] {
+                new DirectoryInfoContract(@"\SubDir\SubSubDir", "SubSubDir", ToDateTime("2015-02-01 10:11:12"), ToDateTime("2015-02-01 20:21:22")),
+                new FileInfoContract(@"\SubDir\SubFile.ext", "SubFile.ext", ToDateTime("2015-02-02 10:11:12"), ToDateTime("2015-02-02 20:21:22"), 981256915, GetHash("981256915")),
+                new FileInfoContract(@"\SubDir\SecondSubFile.ext", "SecondSubFile.ext", ToDateTime("2015-02-03 10:11:12"), ToDateTime("2015-02-03 20:21:22"), 30858025, GetHash("30858025")),
+                new FileInfoContract(@"\SubDir\ThirdSubFile.ext", "ThirdSubFile.ext", ToDateTime("2015-02-04 10:11:12"), ToDateTime("2015-02-04 20:21:22"), 45357, GetHash("45357"))
+            };
+
+            public FileSystemInfoContract[] SubDirectory2Items { get; } = new FileSystemInfoContract[] {
+                new DirectoryInfoContract(@"\SubDir2\SubSubDir2", "SubSubDir2", ToDateTime("2015-02-01 10:11:12"), ToDateTime("2015-02-01 20:21:22")),
+                new FileInfoContract(@"\SubDir2\SubFile2.ext", "SubFile2.ext", ToDateTime("2015-02-02 10:11:12"), ToDateTime("2015-02-02 20:21:22"), 981256915, GetHash("981256915")),
+                new FileInfoContract(@"\SubDir2\SecondSubFile2.ext", "SecondSubFile2.ext", ToDateTime("2015-02-03 10:11:12"), ToDateTime("2015-02-03 20:21:22"), 30858025, GetHash("30858025")),
+                new FileInfoContract(@"\SubDir2\ThirdSubFile2.ext", "ThirdSubFile2.ext", ToDateTime("2015-02-04 10:11:12"), ToDateTime("2015-02-04 20:21:22"), 45357, GetHash("45357"))
+            };
+
+            public FileSystemInfoContract[] SubSubDirectoryItems { get; } = new FileSystemInfoContract[] {
+                new FileInfoContract(@"\SubDir\SubSubDir\SubSubFile.ext", "SubSubFile.ext", ToDateTime("2015-03-01 10:11:12"), ToDateTime("2015-03-01 20:21:22"), 7198265, GetHash("7198265")),
+                new FileInfoContract(@"\SubDir\SubSubDir\SecondSubSubFile.ext", "SecondSubSubFile.ext", ToDateTime("2015-03-02 10:11:12"), ToDateTime("2015-03-02 20:21:22"), 5555, GetHash("5555")),
+                new FileInfoContract(@"\SubDir\SubSubDir\ThirdSubSubFile.ext", "ThirdSubSubFile.ext", ToDateTime("2015-03-03 10:11:12"), ToDateTime("2015-03-03 20:21:22"), 102938576, GetHash("102938576"))
+            };
 
             public static Fixture Initialize() => new Fixture();
 
             private Fixture()
             {
-                CompositionInitializer.Preload(typeof(ICloudGateway));
-                CompositionInitializer.Initialize(@"..\..\..\Library", "IgorSoft.CloudFS.Gateways.OneDrive.dll");
-                var factory = new CloudDriveFactory();
-                CompositionInitializer.SatisfyImports(factory);
+                Reset();
+                SetupGetRoot();
 
-                var loggerMock = new Moq.Mock<NLog.ILogger>();
-                loggerMock.Setup(l => l.Trace(Moq.It.IsAny<string>())).Callback((string message) => Console.WriteLine(message));
-
-                var operations = new CloudOperations(factory.CreateCloudDrive(SCHEMA, USER_NAME, MOUNT_POINT, new CloudDriveParameters() { ApiKey = null, EncryptionKey = "MyOneDriveSecret&I" }), loggerMock.Object);
-                (mounterThread = new Thread(new ThreadStart(() => operations.Mount(MOUNT_POINT, DokanOptions.DebugMode | DokanOptions.RemovableDrive, 5, 800, TimeSpan.FromMinutes(5))))).Start();
+                //(mounterThread = new Thread(new ThreadStart(() => operations.Mount(MOUNT_POINT, DokanOptions.DebugMode | DokanOptions.RemovableDrive, 5, 800, TimeSpan.FromMinutes(5))))).Start();
+                (mounterThread = new Thread(new ThreadStart(() => operations.Mount(MOUNT_POINT, DokanOptions.DebugMode | DokanOptions.RemovableDrive, 1, 800, TimeSpan.FromMinutes(5))))).Start();
                 var drive = new DriveInfo(MOUNT_POINT);
                 while (!drive.IsReady)
                     Thread.Sleep(50);
             }
 
+            internal void Reset()
+            {
+                Drive = new Mock<ICloudDrive>(MockBehavior.Strict);
+
+                var loggerMock = new Mock<NLog.ILogger>();
+                loggerMock.Setup(l => l.Trace(It.IsAny<string>())).Callback((string message) => Console.WriteLine(message));
+
+                operations.Operations = new CloudOperations(Drive.Object, loggerMock.Object);
+
+                foreach (var directory in RootDirectoryItems.OfType<DirectoryInfoContract>())
+                    directory.Parent = rootDirectory;
+                foreach (var file in RootDirectoryItems.OfType<FileInfoContract>())
+                    file.Directory = rootDirectory;
+            }
+
             internal DriveInfo GetDriveInfo() => new DriveInfo(MOUNT_POINT);
 
-            internal TestDirectoryFixture CreateTestDirectory() => new TestDirectoryFixture(new DriveInfo(MOUNT_POINT).RootDirectory, TEST_DIRECTORY_NAME);
+            internal void SetupGetRoot()
+            {
+                Drive
+                    .Setup(d => d.GetRoot())
+                    .Returns(rootDirectory);
+            }
+
+            internal void SetupGetDisplayRoot()
+            {
+                Drive
+                    .SetupGet(d => d.DisplayRoot)
+                    .Returns((new RootName(SCHEMA, USER_NAME, MOUNT_POINT)).Value);
+            }
+
+            internal void SetupGetRootDirectoryItems(IEnumerable<FileSystemInfoContract> items = null)
+            {
+                SetupGetRoot();
+
+                Drive
+                    .Setup(drive => drive.GetChildItem(It.Is<DirectoryInfoContract>(directory => directory.Id.Value == Path.DirectorySeparatorChar.ToString())))
+                    .Returns(items ?? RootDirectoryItems);
+            }
+
+            internal void SetupGetSubDirectory2Items(IEnumerable<FileSystemInfoContract> items = null)
+            {
+                Drive
+                    .Setup(drive => drive.GetChildItem(It.Is<DirectoryInfoContract>(directory => directory.Id.Value == @"\SubDir2")))
+                    .Returns(items ?? SubDirectory2Items);
+            }
+
+            internal void SetupGetEmptyDirectoryItems(string directoryId)
+            {
+                Drive
+                    .Setup(drive => drive.GetChildItem(It.Is<DirectoryInfoContract>(directory => directory.Id.Value == directoryId)))
+                    .Returns(Enumerable.Empty<DirectoryInfoContract>());
+            }
+
+            internal DirectoryInfoContract SetupNewDirectory(string parentName, string directoryName)
+            {
+                var parentId = new DirectoryId(parentName);
+                var directory = new DirectoryInfoContract($"{parentId.Value}{directoryName}\\", directoryName, ToDateTime("2016-01-01 12:00:00"), ToDateTime("2016-01-01 12:00:00"));
+                Drive
+                    .Setup(drive => drive.NewDirectoryItem(It.Is<DirectoryInfoContract>(parent => parent.Id == parentId), directoryName))
+                    .Returns(directory);
+                return directory;
+            }
+
+            internal FileInfoContract SetupNewFile(string parentId, string fileName)
+            {
+                return SetupNewFile(new DirectoryId(parentId), fileName);
+            }
+
+            internal FileInfoContract SetupNewFile(DirectoryId parentId, string fileName)
+            {
+                var file = new FileInfoContract($"{parentId.Value.TrimEnd('\\')}\\{fileName}", fileName, ToDateTime("2016-02-01 12:00:00"), ToDateTime("2016-02-01 12:00:00"), 0, null);
+                Drive
+                    .Setup(drive => drive.NewFileItem(It.Is<DirectoryInfoContract>(parent => parent.Id == parentId), fileName, It.Is<Stream>(s => s.Length == 0)))
+                    .Returns(file);
+                return file;
+            }
+
+            internal void SetupSetFileContent(FileInfoContract file, string content)
+            {
+                Drive
+                    .Setup(drive => drive.SetContent(It.Is<FileInfoContract>(f => f.Id == file.Id), It.Is<Stream>(s => Contains(s, content))));
+            }
+
+            internal void SetupGetFileContent(FileInfoContract file, string content)
+            {
+                Drive
+                    .Setup(drive => drive.GetContent(It.Is<FileInfoContract>(f => f.Id == file.Id)))
+                    .Returns(!string.IsNullOrEmpty(content) ? new MemoryStream(Encoding.Default.GetBytes(content)) : new MemoryStream());
+            }
+
+            internal void SetupDeleteDirectoryOrFile(FileSystemInfoContract directoryOrFile, bool recurse = false)
+            {
+                Drive
+                    .Setup(drive => drive.RemoveItem(It.Is<FileSystemInfoContract>(item => item.Id == directoryOrFile.Id), recurse));
+            }
+
+            internal void SetupMoveDirectoryOrFile(FileSystemInfoContract directoryOrFile, DirectoryInfoContract target)
+            {
+                SetupMoveItem(directoryOrFile, directoryOrFile.Name, target);
+            }
+
+            internal void SetupRenameDirectoryOrFile(FileSystemInfoContract directoryOrFile, string name)
+            {
+                SetupMoveItem(directoryOrFile, name, (directoryOrFile as DirectoryInfoContract)?.Parent ?? (directoryOrFile as FileInfoContract)?.Directory ?? null);
+            }
+
+            private void SetupMoveItem(FileSystemInfoContract directoryOrFile, string name, DirectoryInfoContract target)
+            {
+                Drive
+                    .Setup(drive => drive.MoveItem(It.Is<FileSystemInfoContract>(item => item.Id == directoryOrFile.Id), name, target))
+                    .Returns((FileSystemInfoContract source, string movePath, DirectoryInfoContract destination) => {
+                        var directorySource = source as DirectoryInfoContract;
+                        if (directorySource != null)
+                            return new DirectoryInfoContract(source.Id.Value, movePath, source.Created, source.Updated) { Parent = target };
+                        var fileSource = source as FileInfoContract;
+                        if (fileSource != null)
+                            return new FileInfoContract(source.Id.Value, movePath, source.Created, source.Updated, fileSource.Size, fileSource.Hash) { Directory = target };
+                        throw new InvalidOperationException($"Unsupported type '{source.GetType().Name}'");
+                    });
+            }
+
+            internal static bool Contains(Stream stream, string content)
+            {
+                using (var reader = new StreamReader(stream)) {
+                    return reader.ReadToEnd() == content;
+                }
+            }
 
             internal static int BufferSize(long bufferSize, long fileSize, int chunks) => (int)Math.Min(bufferSize, fileSize - chunks * bufferSize);
 
@@ -304,6 +558,20 @@ namespace IgorSoft.DokanCloudFS.Tests
                 var quotient = Math.DivRem(fileSize, bufferSize, out remainder);
                 return (int)quotient + (remainder > 0 ? 1 : 0);
             }
+
+            public static string GetHash(string value) => GetHash(Encoding.Default.GetBytes(value));
+
+            public static string GetHash(byte[] value)
+            {
+                if (value == null)
+                    throw new ArgumentNullException(nameof(value));
+
+                var hashCode = sha1.ComputeHash(value);
+
+                return BitConverter.ToString(hashCode).Replace("-", string.Empty);
+            }
+
+            private static DateTimeOffset ToDateTime(string value) => DateTimeOffset.Parse(value, CultureInfo.InvariantCulture);
 
             public void Dispose()
             {

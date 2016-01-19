@@ -23,24 +23,33 @@ SOFTWARE.
 */
 
 using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 
 namespace IgorSoft.DokanCloudFS.Mounter.Config
 {
     [ConfigurationCollection(typeof(DriveElement), CollectionType = ConfigurationElementCollectionType.BasicMap)]
-    public class DriveElementCollection : ConfigurationElementCollection
+    public class DriveElementCollection : ConfigurationElementCollection, IEnumerable<DriveElement>
     {
+        private const string driveElementName = "drive";
+
         public override ConfigurationElementCollectionType CollectionType => ConfigurationElementCollectionType.BasicMap;
 
         protected override ConfigurationElement CreateNewElement() => new DriveElement();
 
         protected override ConfigurationElement CreateNewElement(string elementName) => new DriveElement() { Root = elementName };
 
-        protected override string ElementName => "drive";
+        protected override string ElementName => driveElementName;
 
         protected override object GetElementKey(ConfigurationElement element) => (element as DriveElement)?.Root ?? null;
 
         protected override bool IsElementName(string elementName) => BaseGetAllKeys().Contains(elementName);
+
+        IEnumerator<DriveElement> IEnumerable<DriveElement>.GetEnumerator()
+        {
+            foreach (var element in this)
+                yield return (DriveElement)element;
+        }
     }
 }

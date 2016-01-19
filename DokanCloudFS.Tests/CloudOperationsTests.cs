@@ -24,9 +24,10 @@ SOFTWARE.
 
 using System;
 using System.IO;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using IgorSoft.AppDomainResolver;
 using System.Linq;
+using System.Text;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using IgorSoft.CloudFS.Interface.IO;
 
 namespace IgorSoft.DokanCloudFS.Tests
 {
@@ -40,7 +41,6 @@ namespace IgorSoft.DokanCloudFS.Tests
         [ClassInitialize]
         public static void ClassInitialize(TestContext context)
         {
-            AssemblyResolver.Initialize();
             fixture = Fixture.Initialize();
         }
 
@@ -51,27 +51,45 @@ namespace IgorSoft.DokanCloudFS.Tests
             fixture = null;
         }
 
-        [TestMethod, TestCategory(nameof(TestCategories.Online))]
+        [TestInitialize]
+        public void Initialize()
+        {
+            fixture.Reset();
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void DriveInfo_GetAvailableFreeSpace_Succeeds()
         {
+            var freeSpace = 64 * 1 << 20;
+            var usedSpace = 36 * 1 << 20;
+
+            fixture.Drive.SetupGet(d => d.Free).Returns(freeSpace);
+            fixture.Drive.SetupGet(d => d.Used).Returns(usedSpace);
+
             var sut = fixture.GetDriveInfo();
 
             var result = sut.AvailableFreeSpace;
 
-            Assert.IsTrue(result > 0);
+            Assert.AreEqual(freeSpace, result);
+
+            fixture.Drive.VerifyAll();
         }
 
-        [TestMethod, TestCategory(nameof(TestCategories.Online))]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void DriveInfo_GetDriveFormat_Succeeds()
         {
+            fixture.Drive.SetupGet(d => d.DisplayRoot).Returns(default(string));
+
             var sut = fixture.GetDriveInfo();
 
             var result = sut.DriveFormat;
 
             Assert.AreEqual(nameof(DokanCloudFS), result);
+
+            fixture.Drive.VerifyAll();
         }
 
-        [TestMethod, TestCategory(nameof(TestCategories.Online))]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void DriveInfo_GetDriveType_Succeeds()
         {
             var sut = fixture.GetDriveInfo();
@@ -79,19 +97,25 @@ namespace IgorSoft.DokanCloudFS.Tests
             var result = sut.DriveType;
 
             Assert.AreEqual(result, DriveType.Removable);
+
+            fixture.Drive.VerifyAll();
         }
 
-        [TestMethod, TestCategory(nameof(TestCategories.Online))]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void DriveInfo_GetIsReady_Succeeds()
         {
+            fixture.SetupGetRoot();
+
             var sut = fixture.GetDriveInfo();
 
             var result = sut.IsReady;
 
             Assert.IsTrue(result);
+
+            fixture.Drive.VerifyAll();
         }
 
-        [TestMethod, TestCategory(nameof(TestCategories.Online))]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void DriveInfo_GetName_Succeeds()
         {
             var sut = fixture.GetDriveInfo();
@@ -99,39 +123,63 @@ namespace IgorSoft.DokanCloudFS.Tests
             var result = sut.Name;
 
             Assert.AreEqual(Fixture.MOUNT_POINT + Path.DirectorySeparatorChar, result);
+
+            fixture.Drive.VerifyAll();
         }
 
-        [TestMethod, TestCategory(nameof(TestCategories.Online))]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void DriveInfo_GetTotalFreeSpace_Succeeds()
         {
+            var freeSpace = 64 * 1 << 20;
+            var usedSpace = 36 * 1 << 20;
+
+            fixture.Drive.SetupGet(d => d.Free).Returns(freeSpace);
+            fixture.Drive.SetupGet(d => d.Used).Returns(usedSpace);
+
             var sut = fixture.GetDriveInfo();
 
             var result = sut.TotalFreeSpace;
 
-            Assert.IsTrue(result > 0);
+            Assert.AreEqual(usedSpace, result);
+
+            fixture.Drive.VerifyAll();
         }
 
-        [TestMethod, TestCategory(nameof(TestCategories.Online))]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void DriveInfo_GetTotalSize_Succeeds()
         {
+            var freeSpace = 64 * 1 << 20;
+            var usedSpace = 36 * 1 << 20;
+
+            fixture.Drive.SetupGet(d => d.Free).Returns(freeSpace);
+            fixture.Drive.SetupGet(d => d.Used).Returns(usedSpace);
+
             var sut = fixture.GetDriveInfo();
 
             var result = sut.TotalSize;
 
-            Assert.IsTrue(result > 0);
+            Assert.AreEqual(freeSpace + usedSpace, result);
+
+            fixture.Drive.VerifyAll();
         }
 
-        [TestMethod, TestCategory(nameof(TestCategories.Online))]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void DriveInfo_GetVolumeLabel_Succeeds()
         {
+            var volumeLabel = "MockVolume";
+
+            fixture.Drive.SetupGet(d => d.DisplayRoot).Returns(volumeLabel);
+
             var sut = fixture.GetDriveInfo();
 
             var result = sut.VolumeLabel;
 
-            Assert.AreEqual($"{Fixture.SCHEMA}@{Fixture.USER_NAME}|{Fixture.MOUNT_POINT}", result);
+            Assert.AreEqual(volumeLabel, result);
+
+            fixture.Drive.VerifyAll();
         }
 
-        [TestMethod, TestCategory(nameof(TestCategories.Online))]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void DriveInfo_GetRootDirectory_Succeeds()
         {
             var sut = fixture.GetDriveInfo();
@@ -140,260 +188,299 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             Assert.IsNotNull(result);
             Assert.AreEqual(Fixture.MOUNT_POINT + Path.DirectorySeparatorChar, result.Name);
+
+            fixture.Drive.VerifyAll();
         }
 
-        [TestMethod, TestCategory(nameof(TestCategories.Online))]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void DirectoryInfo_GetDirectories_ReturnsResults()
         {
-            using (var testDirectory = fixture.CreateTestDirectory()) {
-                testDirectory.Directory.CreateSubdirectory("DirectoryContent");
-                testDirectory.CreateFile("File.ext", new byte[1000]);
+            fixture.SetupGetRootDirectoryItems();
 
-                System.Threading.Thread.Sleep(20);
+            var sut = fixture.GetDriveInfo().RootDirectory;
+            var directories = sut.GetDirectories();
 
-                var items = testDirectory.Directory.GetDirectories();
+            CollectionAssert.AreEqual(fixture.RootDirectoryItems.OfType<DirectoryInfoContract>().Select(d => d.Name).ToList(), directories.Select(i => i.Name).ToList(), "Diverging result");
 
-                Assert.AreEqual(1, items.Count(), "Unexpected number of results");
-                Assert.IsTrue(items.Any(i => i.Name == "DirectoryContent"), "Expected directory is missing");
-            }
+            fixture.Drive.VerifyAll();
         }
 
-        [TestMethod, TestCategory(nameof(TestCategories.Online))]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void DirectoryInfo_GetFiles_ReturnsResults()
         {
-            using (var testDirectory = fixture.CreateTestDirectory()) {
-                testDirectory.Directory.CreateSubdirectory("DirectoryContent");
-                testDirectory.CreateFile("File.ext", new byte[1000]);
+            fixture.SetupGetRootDirectoryItems();
 
-                var items = testDirectory.Directory.GetFiles();
+            var sut = fixture.GetDriveInfo().RootDirectory;
+            var files = sut.GetFiles();
 
-                Assert.AreEqual(1, items.Count(), "Unexpected number of results");
-                Assert.IsTrue(items.Any(i => i.Name == "File.ext"), "Expected file is missing");
-            }
+            CollectionAssert.AreEqual(fixture.RootDirectoryItems.OfType<FileInfoContract>().Select(f => f.Name).ToList(), files.Select(i => i.Name).ToList(), "Diverging result");
+
+            fixture.Drive.VerifyAll();
         }
 
-        [TestMethod, TestCategory(nameof(TestCategories.Online))]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void DirectoryInfo_GetFileSystemInfos_ReturnsResults()
         {
-            using (var testDirectory = fixture.CreateTestDirectory()) {
-                testDirectory.Directory.CreateSubdirectory("DirectoryContent");
-                testDirectory.CreateFile("File.ext", new byte[1000]);
+            fixture.SetupGetRootDirectoryItems();
 
-                var items = testDirectory.Directory.GetFileSystemInfos();
+            var sut = fixture.GetDriveInfo().RootDirectory;
+            var items = sut.GetFileSystemInfos();
 
-                Assert.AreEqual(2, items.Count(), "Unexpected number of results");
-                Assert.IsTrue(items.OfType<DirectoryInfo>().Any(i => i.Name == "DirectoryContent"), "Expected directory is missing");
-                Assert.IsTrue(items.OfType<FileInfo>().Any(i => i.Name == "File.ext"), "Expected file is missing");
-            }
+            CollectionAssert.AreEqual(fixture.RootDirectoryItems.OfType<FileSystemInfoContract>().Select(f => f.Name).ToList(), items.Select(i => i.Name).ToList(), "Diverging result");
+
+            fixture.Drive.VerifyAll();
         }
 
-        [TestMethod, TestCategory(nameof(TestCategories.Online))]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void DirectoryInfo_Create_Succeeds()
         {
-            using (var testDirectory = fixture.CreateTestDirectory()) {
-                var directory = testDirectory.CreateDirectory("Directory");
+            var directoryName = "NewDir";
 
-                Assert.IsTrue(directory.Exists, "Directory was not created");
+            fixture.SetupGetRootDirectoryItems();
+            fixture.SetupNewDirectory(Path.DirectorySeparatorChar.ToString(), directoryName);
 
-                var items = testDirectory.Directory.GetDirectories("Directory");
+            var sut = fixture.GetDriveInfo().RootDirectory;
+            var newDirectory = new DirectoryInfo(sut.FullName + directoryName);
+            newDirectory.Create();
 
-                Assert.AreEqual(1, items.Count(), "Unexpected number of results");
-            }
+            Assert.IsTrue(newDirectory.Exists, "Directory creation failed");
+
+            fixture.Drive.VerifyAll();
         }
 
-        [TestMethod, TestCategory(nameof(TestCategories.Online))]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void DirectoryInfo_CreateSubdirectory_Succeeds()
         {
-            using (var testDirectory = fixture.CreateTestDirectory()) {
-                var directory = testDirectory.CreateSubdirectory("Directory");
+            var directoryName = "NewSubDir";
 
-                Assert.IsTrue(directory.Exists, "Directory was not created");
+            fixture.SetupGetRootDirectoryItems();
+            fixture.SetupNewDirectory(Path.DirectorySeparatorChar.ToString(), directoryName);
 
-                var items = testDirectory.Directory.GetDirectories("Directory");
+            var sut = fixture.GetDriveInfo().RootDirectory;
+            var newDirectory = sut.CreateSubdirectory(directoryName);
 
-                Assert.AreEqual(1, items.Count(), "Unexpected number of results");
-            }
+            Assert.IsTrue(newDirectory.Exists, "Directory creation failed");
+
+            fixture.Drive.VerifyAll();
         }
 
-        [TestMethod, TestCategory(nameof(TestCategories.Online))]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void DirectoryInfo_Delete_Succeeds()
         {
-            using (var testDirectory = fixture.CreateTestDirectory()) {
-                var directory = testDirectory.CreateSubdirectory("Directory");
+            var sutContract = fixture.RootDirectoryItems.OfType<DirectoryInfoContract>().First();
 
-                Assert.IsTrue(directory.Exists, "Directory does not exist");
+            fixture.SetupGetRootDirectoryItems();
+            fixture.SetupGetEmptyDirectoryItems(sutContract.Id.Value);
+            fixture.SetupDeleteDirectoryOrFile(sutContract);
 
-                directory.Delete();
-                directory.Refresh();
+            var root = fixture.GetDriveInfo().RootDirectory;
+            var sut = root.GetDirectories(sutContract.Name).Single();
 
-                Assert.IsFalse(directory.Exists, "Directory still exists");
+            Assert.IsTrue(sut.Exists, "Expected directory missing");
 
-                var items = testDirectory.Directory.GetDirectories("Directory");
+            sut.Delete();
+            sut.Refresh();
 
-                Assert.IsFalse(items.Any(), "Unexpected results");
-            }
+            Assert.IsFalse(sut.Exists, "Directory deletion failed");
+
+            var residualDirectories = root.GetDirectories(sutContract.Name);
+            Assert.IsFalse(residualDirectories.Any(), "Excessive directory found");
+
+            fixture.Drive.VerifyAll();
         }
 
-        [TestMethod, TestCategory(nameof(TestCategories.Online))]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void DirectoryInfo_MoveToDirectory_Succeeds()
         {
-            using (var testDirectory = fixture.CreateTestDirectory()) {
-                var directory = testDirectory.CreateSubdirectory("Directory");
-                testDirectory.CreateFile("File.ext", new byte[1000], directory);
-                var targetDirectory = testDirectory.CreateSubdirectory("TargetDirectory");
+            var sutContract = fixture.RootDirectoryItems.OfType<DirectoryInfoContract>().First();
+            var targetContract = fixture.RootDirectoryItems.OfType<DirectoryInfoContract>().Last();
 
-                directory.MoveTo(targetDirectory.FullName + Path.DirectorySeparatorChar + directory.Name);
-                targetDirectory.Refresh();
+            fixture.SetupGetRootDirectoryItems();
+            fixture.SetupMoveDirectoryOrFile(sutContract, targetContract);
+            fixture.SetupGetSubDirectory2Items(fixture.SubDirectory2Items.Concat(new[] { sutContract }));
 
-                var items = targetDirectory.GetDirectories("Directory");
+            var root = fixture.GetDriveInfo().RootDirectory;
+            var sut = root.GetDirectories(sutContract.Name).Single();
+            var target = root.GetDirectories(targetContract.Name).Single();
 
-                Assert.AreEqual(1, items.Count(), "Directory not moved");
-                Assert.AreEqual(targetDirectory.FullName, directory.Parent.FullName, "File not moved");
-                Assert.AreEqual(0, testDirectory.Directory.GetDirectories("Directory").Count(), "Original directory not removed");
+            sut.MoveTo(target.FullName + Path.DirectorySeparatorChar + sutContract.Name);
+                
+            var residualDirectories = root.GetDirectories(sutContract.Name);
+            Assert.IsFalse(residualDirectories.Any(), "Original directory not removed");
 
-                var files = items.Single().GetFiles("File.ext");
+            var movedDirectories = target.GetDirectories(sutContract.Name);
+            Assert.AreEqual(1, movedDirectories.Count(), "Directory not moved");
+            Assert.AreEqual(target.FullName, sut.Parent.FullName, "Directory not moved");
 
-                Assert.AreEqual(1, files.Count(), "Enclosed file not moved");
-            }
+            fixture.Drive.VerifyAll();
         }
 
-        [TestMethod, TestCategory(nameof(TestCategories.Online))]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void DirectoryInfo_Rename_Succeeds()
         {
-            using (var testDirectory = fixture.CreateTestDirectory()) {
-                var directory = testDirectory.CreateSubdirectory("Directory");
-                testDirectory.CreateFile("File.ext", new byte[1000], directory);
+            var directoryName = "RenamedDirectory";
 
-                directory.MoveTo(testDirectory.Directory.FullName + Path.DirectorySeparatorChar + "RenamedDirectory");
+            var sutContract = fixture.RootDirectoryItems.OfType<DirectoryInfoContract>().First();
 
-                Assert.AreEqual(1, testDirectory.Directory.GetDirectories("RenamedDirectory").Count(), "Directory not renamed");
-                Assert.AreEqual(0, testDirectory.Directory.GetDirectories("Directory").Count(), "Original directory not removed");
-            }
+            fixture.SetupGetRootDirectoryItems();
+            fixture.SetupRenameDirectoryOrFile(sutContract, directoryName);
+
+            var root = fixture.GetDriveInfo().RootDirectory;
+            var sut = root.GetDirectories(sutContract.Name).Single();
+
+            sut.MoveTo(root.FullName + Path.DirectorySeparatorChar + directoryName);
+
+            var residualDirectories = root.GetDirectories(sutContract.Name);
+            Assert.IsFalse(residualDirectories.Any(), "Original directory not removed");
+
+            var renamedDirectories = root.GetDirectories(directoryName);
+            Assert.AreEqual(1, renamedDirectories.Count(), "Directory not renamed");
+
+            fixture.Drive.VerifyAll();
         }
 
-        [TestMethod, TestCategory(nameof(TestCategories.Online))]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void FileInfo_Create_Succeeds()
         {
-            using (var testDirectory = fixture.CreateTestDirectory()) {
-                var testInput = "Why did the chicken cross the road?";
+            var fileName = "NewFile.ext";
+            var fileInput = "Why did the chicken cross the road?";
 
-                var file = testDirectory.CreateFile("File.ext", System.Text.Encoding.Default.GetBytes(testInput));
+            fixture.SetupGetRootDirectoryItems();
+            var file = fixture.SetupNewFile(Path.DirectorySeparatorChar.ToString(), fileName);
+            fixture.SetupSetFileContent(file, fileInput);
+            fixture.SetupGetFileContent(file, fileInput);
 
-                Assert.IsTrue(file.Exists, "File was not created");
-
-                var items = testDirectory.Directory.GetFiles("File.ext");
-
-                Assert.AreEqual(1, items.Count(), "Unexpected number of results");
-
-                var testOutput = default(string);
-                using (var fileStream = file.OpenRead()) {
-                    var buffer = new byte[fileStream.Length];
-                    fileStream.Read(buffer, 0, buffer.Length);
-                    testOutput = System.Text.Encoding.Default.GetString(buffer);
-                }
-
-                Assert.AreEqual(testInput, testOutput, "Unexpected file content");
+            var sut = fixture.GetDriveInfo().RootDirectory;
+            var newFile = new FileInfo(sut.FullName + fileName);
+            using (var fileStream = newFile.Create()) {
+                fileStream.WriteAsync(Encoding.Default.GetBytes(fileInput), 0, Encoding.Default.GetByteCount(fileInput)).Wait();
+                fileStream.Close();
             }
+
+            Assert.IsTrue(newFile.Exists, "File creation failed");
+
+            var fileOutput = default(string);
+            using (var fileStream = newFile.OpenRead()) {
+                var buffer = new byte[fileStream.Length];
+                fileStream.Read(buffer, 0, buffer.Length);
+                fileOutput = Encoding.Default.GetString(buffer);
+            }
+
+            Assert.AreEqual(fileInput, fileOutput, "Unexpected file content");
+
+            fixture.Drive.VerifyAll();
         }
 
-        [TestMethod, TestCategory(nameof(TestCategories.Online))]
-        public void FileInfo_CreateMultiple_Succeeds()
-        {
-            using (var testDirectory = fixture.CreateTestDirectory())
-            {
-                var testInputs = new[] {
-                    new { Name = "File1.ext", Content = "Why did the chicken cross the road?" },
-                    new { Name = "File2.ext", Content = "Mary had a little lamb" },
-                    new { Name = "File3.ext", Content = "Who has been spoken of twofold?" }
-                };
-
-                var files = testInputs.Select(i => testDirectory.CreateFile(i.Name, System.Text.Encoding.Default.GetBytes(i.Content))).ToArray();
-
-                Assert.IsTrue(files.All(f => f.Exists), "One of the specified files was not created");
-
-                var items = testDirectory.Directory.GetFiles("File*.ext");
-
-                Assert.AreEqual(testInputs.Count(), items.Count(), "Unexpected number of results");
-
-                Array.ForEach(files, f => {
-                    var testInput = testInputs.Single(i => i.Name == f.Name).Content;
-                    var testOutput = default(string);
-                    using (var fileStream = f.OpenRead()) {
-                        var buffer = new byte[fileStream.Length];
-                        fileStream.Read(buffer, 0, buffer.Length);
-                        testOutput = System.Text.Encoding.Default.GetString(buffer);
-                    }
-
-                    Assert.AreEqual(testInput, testOutput, "Unexpected file content");
-                });
-            }
-        }
-
-        [TestMethod, TestCategory(nameof(TestCategories.Online))]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void FileInfo_Delete_Succeeds()
         {
-            using (var testDirectory = fixture.CreateTestDirectory()) {
-                var file = testDirectory.CreateFile("File.ext", new byte[1000]);
+            var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
 
-                Assert.IsTrue(file.Exists, "File does not exist");
+            fixture.SetupGetRootDirectoryItems();
+            fixture.SetupDeleteDirectoryOrFile(sutContract);
 
-                file.Delete();
-                file.Refresh();
+            var root = fixture.GetDriveInfo().RootDirectory;
+            var sut = root.GetFiles(sutContract.Name).Single();
 
-                Assert.IsFalse(file.Exists, "File still exists");
+            Assert.IsTrue(sut.Exists, "Expected file missing");
 
-                var items = testDirectory.Directory.GetFiles("File.ext");
+            sut.Delete();
+            sut.Refresh();
 
-                Assert.IsFalse(items.Any(), "Unexpected results");
-            }
+            Assert.IsFalse(sut.Exists, "File deletion failed");
+
+            var residualFiles = root.GetFiles(sutContract.Name);
+            Assert.IsFalse(residualFiles.Any(), "Excessive file found");
+
+            fixture.Drive.VerifyAll();
         }
 
-        [TestMethod, TestCategory(nameof(TestCategories.Online))]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void FileInfo_CopyToDirectory_Succeeds()
         {
-            using (var testDirectory = fixture.CreateTestDirectory()) {
-                var file = testDirectory.CreateFile("File.ext", new byte[1000]);
-                var targetDirectory = testDirectory.CreateSubdirectory("TargetDirectory");
+            var fileContent = "Why did the chicken cross the road?";
 
-                file.CopyTo(targetDirectory.FullName + Path.DirectorySeparatorChar + file.Name);
-                targetDirectory.Refresh();
+            var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
+            var targetContract = fixture.RootDirectoryItems.OfType<DirectoryInfoContract>().Last();
+            var copyContract = new FileInfoContract(targetContract.Id + Path.DirectorySeparatorChar.ToString() + sutContract.Name, sutContract.Name, sutContract.Created, sutContract.Updated, sutContract.Size, sutContract.Hash) {
+                Directory = targetContract
+            };
 
-                Assert.AreEqual(1, targetDirectory.GetFiles("File.ext").Count(), "File not copied");
-                Assert.AreEqual(testDirectory.Directory.FullName, file.DirectoryName, "Original file moved");
-                Assert.AreEqual(1, testDirectory.Directory.GetFiles("File.ext").Count(), "Original file removed");
-            }
+            fixture.SetupGetRootDirectoryItems();
+            fixture.SetupGetSubDirectory2Items(fixture.SubDirectory2Items);
+            fixture.SetupGetFileContent(sutContract, fileContent);
+            fixture.SetupNewFile(targetContract.Id.Value, copyContract.Name);
+            fixture.SetupSetFileContent(copyContract, fileContent);
+            fixture.SetupGetDisplayRoot();
+
+            var root = fixture.GetDriveInfo().RootDirectory;
+            var sut = root.GetFiles(sutContract.Name).Single();
+            var target = root.GetDirectories(targetContract.Name).Single();
+
+            sut.CopyTo(target.FullName + Path.DirectorySeparatorChar + copyContract.Name);
+
+            var residualFiles = root.GetFiles(sutContract.Name);
+            Assert.AreEqual(1, residualFiles.Count(), "Original file removed");
+            Assert.AreEqual(root.FullName, sut.Directory.FullName, "Original file relocated");
+
+            var copiedFiles = target.GetFiles(copyContract.Name);
+            Assert.AreEqual(1, copiedFiles.Count(), "File not copied");
+            Assert.AreEqual(target.FullName, copiedFiles[0].Directory.FullName, "Unexpected copy location");
+
+            fixture.Drive.VerifyAll();
         }
 
-        [TestMethod, TestCategory(nameof(TestCategories.Online))]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void FileInfo_MoveToDirectory_Succeeds()
         {
-            using (var testDirectory = fixture.CreateTestDirectory()) {
-                var file = testDirectory.CreateFile("File.ext", new byte[1000]);
-                var targetDirectory = testDirectory.CreateSubdirectory("TargetDirectory");
+            var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
+            var targetContract = fixture.RootDirectoryItems.OfType<DirectoryInfoContract>().Last();
 
-                file.MoveTo(targetDirectory.FullName + Path.DirectorySeparatorChar + file.Name);
-                targetDirectory.Refresh();
+            fixture.SetupGetRootDirectoryItems();
+            fixture.SetupMoveDirectoryOrFile(sutContract, targetContract);
+            fixture.SetupGetSubDirectory2Items(fixture.SubDirectory2Items.Concat(new[] { sutContract }));
 
-                Assert.AreEqual(1, targetDirectory.GetFiles("File.ext").Count(), "File not moved");
-                Assert.AreEqual(targetDirectory.FullName, file.DirectoryName, "File not moved");
-                Assert.AreEqual(0, testDirectory.Directory.GetFiles("File.ext").Count(), "Original file not removed");
-            }
+            var root = fixture.GetDriveInfo().RootDirectory;
+            var sut = root.GetFiles(sutContract.Name).Single();
+            var target = root.GetDirectories(targetContract.Name).Single();
+
+            sut.MoveTo(target.FullName + Path.DirectorySeparatorChar + sutContract.Name);
+
+            var residualFiles = root.GetFiles(sutContract.Name);
+            Assert.IsFalse(residualFiles.Any(), "Original file not removed");
+
+            var movedFiles = target.GetFiles(sutContract.Name);
+            Assert.AreEqual(1, movedFiles.Count(), "File not moved");
+            Assert.AreEqual(target.FullName, sut.Directory.FullName, "File not moved");
+
+            fixture.Drive.VerifyAll();
         }
 
-        [TestMethod, TestCategory(nameof(TestCategories.Online))]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void FileInfo_Rename_Succeeds()
         {
-            using (var testDirectory = fixture.CreateTestDirectory()) {
-                var file = testDirectory.CreateFile("File.ext", new byte[1000]);
+            var fileName = "RenamedFile";
 
-                file.MoveTo(testDirectory.Directory.FullName + Path.DirectorySeparatorChar + "RenamedFile.ext");
+            var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
 
-                Assert.AreEqual(1, testDirectory.Directory.GetFiles("RenamedFile.ext").Count(), "File not moved");
-                Assert.AreEqual(0, testDirectory.Directory.GetFiles("File.ext").Count(), "Original file not removed");
-            }
+            fixture.SetupGetRootDirectoryItems();
+            fixture.SetupRenameDirectoryOrFile(sutContract, fileName);
+
+            var root = fixture.GetDriveInfo().RootDirectory;
+            var sut = root.GetFiles(sutContract.Name).Single();
+
+            sut.MoveTo(root.FullName + Path.DirectorySeparatorChar + fileName);
+
+            var residualFiles = root.GetFiles(sutContract.Name);
+            Assert.IsFalse(residualFiles.Any(), "Original file not removed");
+
+            var renamedFiles = root.GetFiles(fileName);
+            Assert.AreEqual(1, renamedFiles.Count(), "File not renamed");
+
+            fixture.Drive.VerifyAll();
         }
 
-        [TestMethod, TestCategory(nameof(TestCategories.Online))]
+        /*[TestMethod, TestCategory(nameof(TestCategories.Offline))]
         [DeploymentItem("CloudOperationsTests.Configuration.xml")]
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\CloudOperationsTests.Configuration.xml", "ConfigRead", DataAccessMethod.Sequential)]
         public void FileInfo_ReadOverlapped_Succeeds()
@@ -412,7 +499,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             }
         }
 
-        [TestMethod, TestCategory(nameof(TestCategories.Online))]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         [DeploymentItem("CloudOperationsTests.Configuration.xml")]
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\CloudOperationsTests.Configuration.xml", "ConfigWrite", DataAccessMethod.Sequential)]
         public void FileInfo_WriteOverlapped_Succeeds()
@@ -436,6 +523,6 @@ namespace IgorSoft.DokanCloudFS.Tests
 
                 CollectionAssert.AreEqual(testInput, testOutput, "Unexpected file content");
             }
-        }
+        }*/
     }
 }
