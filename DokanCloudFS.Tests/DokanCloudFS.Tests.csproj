@@ -45,9 +45,6 @@
     <Reference Include="IgorSoft.AppDomainResolver">
       <HintPath>..\Library\IgorSoft.AppDomainResolver.dll</HintPath>
     </Reference>
-    <Reference Include="IgorSoft.CloudFS.Gateways.OneDrive">
-      <HintPath>..\Library\IgorSoft.CloudFS.Gateways.OneDrive.dll</HintPath>
-    </Reference>
     <Reference Include="IgorSoft.CloudFS.Interface">
       <HintPath>..\Library\IgorSoft.CloudFS.Interface.dll</HintPath>
     </Reference>
