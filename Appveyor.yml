@@ -12,13 +12,12 @@ configuration:
 platform: Any CPU
 
 install:
-- ps: |
-  Add-Type -AssemblyName System.IO.Compression.FileSystem
-    (new-object System.Net.WebClient).DownloadFile(
-      'https://github.com/dokan-dev/dokany/releases/download/v0.8.0/DokanInstall_0.8.0_redist.exe',
-      'C:\projects\dokancloudfs\DokanInstall.exe'
-    )
-- cmd: C:\projects\dokancloudfs\DokanInstall.exe /S
+- ps: >-
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+      (New-Object System.Net.WebClient).DownloadFile(
+        'https://github.com/dokan-dev/dokany/releases/download/v0.8.0/DokanInstall_0.8.0_redist.exe',
+        'C:\projects\dokancloudfs\DokanInstall.exe'
+      )
 
 before_build:
 - cmd: nuget restore
@@ -26,6 +25,9 @@ before_build:
 build:
   project: DokanCloudFS.sln
   verbosity: normal
+
+before_test:
+- cmd: C:\projects\dokancloudfs\DokanInstall.exe /S
 
 test:
   categories:
