@@ -11,6 +11,10 @@ configuration:
 
 platform: Any CPU
 
+environment:
+  CODECOV_TOKEN:
+    secure: 1253r8dPEiTvtAxdeEPP24riRPa4/7G2ivnvbB/xXi2CTu+YindCPHASfuA2PF4t
+
 install:
 - ps: >-
     Add-Type -AssemblyName System.IO.Compression.FileSystem
@@ -18,6 +22,8 @@ install:
         'https://github.com/dokan-dev/dokany/releases/download/v0.8.0/DokanInstall_0.8.0_redist.exe',
         'C:\projects\dokancloudfs\DokanInstall.exe'
       )
+
+cache: packages -> **\packages.config
 
 before_build:
 - cmd: nuget restore
@@ -36,7 +42,7 @@ test:
 
 after_test: 
 - cmd: >-
-    .\packages\OpenCover.4.6.434-rc\tools\OpenCover.Console.exe -register:user -target:"C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\MSTest.exe" -targetargs:"/noresults /noisolation /testcontainer:"".\DokanCloudFS.Tests\bin\$(configuration)\IgorSoft.DokanCloudFS.Tests.dll" -filter:"+[IgorSoft.DokanCloudFS*]* -[IgorSoft.DokanCloudFS*]IgorSoft.DokanCloudFS.Properties.*" -excludebyattribute:*.ExcludeFromCodeCoverage* -hideskipped:All -output:.\DokanCloudFS_coverage.xml
-    "SET PATH=C:\\Python34;C:\\Python34\\Scripts;%PATH%"
+    .\packages\OpenCover.4.6.434-rc\tools\OpenCover.Console.exe -register:user -target:"C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\MSTest.exe" -targetargs:"/noresults /noisolation /testcontainer:.\DokanCloudFS.Tests\bin\%CONFIGURATION%\IgorSoft.DokanCloudFS.Tests.dll" -filter:"+[IgorSoft.DokanCloudFS*]*" -excludebyattribute:*.ExcludeFromCodeCoverage* -hideskipped:All -output:.\DokanCloudFS_coverage.xml
+    SET PATH=C:\\Python34;C:\\Python34\\Scripts;%PATH%
     pip install codecov
-    codecov -f "DokanCloudFS_coverage.xml"
+    codecov -f .\DokanCloudFS_coverage.xml -X gcov
