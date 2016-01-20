@@ -304,7 +304,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             var target = root.GetDirectories(targetContract.Name).Single();
 
             sut.MoveTo(target.FullName + Path.DirectorySeparatorChar + sutContract.Name);
-                
+
             var residualDirectories = root.GetDirectories(sutContract.Name);
             Assert.IsFalse(residualDirectories.Any(), "Original directory not removed");
 
@@ -480,23 +480,31 @@ namespace IgorSoft.DokanCloudFS.Tests
             fixture.Drive.VerifyAll();
         }
 
-        /*[TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         [DeploymentItem("CloudOperationsTests.Configuration.xml")]
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\CloudOperationsTests.Configuration.xml", "ConfigRead", DataAccessMethod.Sequential)]
         public void FileInfo_ReadOverlapped_Succeeds()
         {
             var bufferSize = int.Parse((string)TestContext.DataRow["BufferSize"]);
             var fileSize = int.Parse((string)TestContext.DataRow["FileSize"]);
+            var testInput = Enumerable.Range(0, fileSize).Select(i => (byte)(i % 251)).ToArray();
+            var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
 
-            using (var testDirectory = fixture.CreateTestDirectory()) {
-                var testInput = Enumerable.Range(0, fileSize).Select(i => (byte)(i % 251)).ToArray();
+            fixture.SetupGetRootDirectoryItems();
+            var file = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
+            fixture.SetupGetFileContent(file, Encoding.Default.GetString(testInput));
 
-                var file = testDirectory.CreateFile("File.ext", testInput);
-
-                var chunks = NativeMethods.ReadEx(file.FullName, bufferSize, fileSize);
+            var root = fixture.GetDriveInfo().RootDirectory;
+            var sut = new FileInfo(root.FullName + sutContract.Name);
+            using (var fileStream = sut.OpenRead()) {
+                var chunks = NativeMethods.ReadEx(root.FullName + file.Name, bufferSize, fileSize);
 
                 CollectionAssert.AreEqual(testInput, chunks.Aggregate(Enumerable.Empty<byte>(), (b, c) => b.Concat(c.Buffer), b => b.ToArray()), "Unexpected file content");
             }
+
+            System.Threading.Thread.Yield();
+
+            fixture.Drive.VerifyAll();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -506,23 +514,26 @@ namespace IgorSoft.DokanCloudFS.Tests
         {
             var bufferSize = int.Parse((string)TestContext.DataRow["BufferSize"]);
             var fileSize = int.Parse((string)TestContext.DataRow["FileSize"]);
-            using (var testDirectory = fixture.CreateTestDirectory()) {
-                var file = testDirectory.CreateFile("File.ext", new[] { (byte)0 });
+            //var testInput = Enumerable.Range(0, fileSize).Select(i => (byte)(i % 251)).ToArray();
+            var testInput = Enumerable.Range(0, fileSize).Select(i => (byte)(i / bufferSize + 'A')).ToArray();
+            var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
 
-                var testInput = Enumerable.Range(0, fileSize).Select(i => (byte)(i % 251)).ToArray();
+            fixture.SetupGetRootDirectoryItems();
+            var file = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
+            fixture.SetupSetFileContent(file, Encoding.Default.GetString(testInput));
 
+            var root = fixture.GetDriveInfo().RootDirectory;
+            var sut = new FileInfo(root.FullName + sutContract.Name);
+            using (var fileStream = sut.OpenWrite()) {
                 var chunks = Enumerable.Range(0, Fixture.NumberOfChunks(bufferSize, fileSize))
                     .Select(i => new NativeMethods.OverlappedChunk(testInput.Skip(i * bufferSize).Take(NativeMethods.BufferSize(bufferSize, fileSize, i)).ToArray())).ToArray();
 
-                NativeMethods.WriteEx(file.FullName, bufferSize, fileSize, chunks);
-
-                var testOutput = new byte[fileSize];
-                using (var fileStream = file.OpenRead()) {
-                    fileStream.Read(testOutput, 0, testOutput.Length);
-                }
-
-                CollectionAssert.AreEqual(testInput, testOutput, "Unexpected file content");
+                NativeMethods.WriteEx(root.FullName + file.Name, bufferSize, fileSize, chunks);
             }
-        }*/
+
+            System.Threading.Thread.Yield();
+
+            fixture.Drive.VerifyAll();
+        }
     }
 }

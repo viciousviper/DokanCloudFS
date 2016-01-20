@@ -1,36 +1,164 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Rows>
   <ConfigRead>
-    <BufferSize>65536</BufferSize>
-    <FileSize>327680</FileSize>
+    <BufferSize>32768</BufferSize>
+    <FileSize>163840</FileSize>
+  </ConfigRead>
+  <ConfigRead>
+    <BufferSize>32768</BufferSize>
+    <FileSize>167936</FileSize>
+  </ConfigRead>
+  <ConfigRead>
+    <BufferSize>32768</BufferSize>
+    <FileSize>172032</FileSize>
+  </ConfigRead>
+  <ConfigRead>
+    <BufferSize>32768</BufferSize>
+    <FileSize>176128</FileSize>
+  </ConfigRead>
+  <ConfigRead>
+    <BufferSize>32768</BufferSize>
+    <FileSize>180224</FileSize>
+  </ConfigRead>
+  <ConfigRead>
+    <BufferSize>32768</BufferSize>
+    <FileSize>184320</FileSize>
+  </ConfigRead>
+  <ConfigRead>
+    <BufferSize>32768</BufferSize>
+    <FileSize>188416</FileSize>
+  </ConfigRead>
+  <ConfigRead>
+    <BufferSize>32768</BufferSize>
+    <FileSize>192512</FileSize>
   </ConfigRead>
   <ConfigRead>
     <BufferSize>65536</BufferSize>
-    <FileSize>344064</FileSize>
+    <FileSize>262144</FileSize>
   </ConfigRead>
   <ConfigRead>
     <BufferSize>65536</BufferSize>
-    <FileSize>360448</FileSize>
+    <FileSize>270336</FileSize>
   </ConfigRead>
   <ConfigRead>
     <BufferSize>65536</BufferSize>
-    <FileSize>376832</FileSize>
+    <FileSize>278528</FileSize>
+  </ConfigRead>
+  <ConfigRead>
+    <BufferSize>65536</BufferSize>
+    <FileSize>286720</FileSize>
+  </ConfigRead>
+  <ConfigRead>
+    <BufferSize>65536</BufferSize>
+    <FileSize>294912</FileSize>
+  </ConfigRead>
+  <ConfigRead>
+    <BufferSize>65536</BufferSize>
+    <FileSize>303104</FileSize>
+  </ConfigRead>
+  <ConfigRead>
+    <BufferSize>65536</BufferSize>
+    <FileSize>311296</FileSize>
+  </ConfigRead>
+  <ConfigRead>
+    <BufferSize>65536</BufferSize>
+    <FileSize>319488</FileSize>
+  </ConfigRead>
+  <ConfigRead>
+    <BufferSize>131072</BufferSize>
+    <FileSize>393216</FileSize>
+  </ConfigRead>
+  <ConfigRead>
+    <BufferSize>131072</BufferSize>
+    <FileSize>425984</FileSize>
+  </ConfigRead>
+  <ConfigRead>
+    <BufferSize>131072</BufferSize>
+    <FileSize>458752</FileSize>
+  </ConfigRead>
+  <ConfigRead>
+    <BufferSize>131072</BufferSize>
+    <FileSize>491520</FileSize>
   </ConfigRead>
 
   <ConfigWrite>
-    <BufferSize>65536</BufferSize>
-    <FileSize>327680</FileSize>
+    <BufferSize>32768</BufferSize>
+    <FileSize>163840</FileSize>
+  </ConfigWrite>
+  <ConfigWrite>
+    <BufferSize>32768</BufferSize>
+    <FileSize>167936</FileSize>
+  </ConfigWrite>
+  <ConfigWrite>
+    <BufferSize>32768</BufferSize>
+    <FileSize>172032</FileSize>
+  </ConfigWrite>
+  <ConfigWrite>
+    <BufferSize>32768</BufferSize>
+    <FileSize>176128</FileSize>
+  </ConfigWrite>
+  <ConfigWrite>
+    <BufferSize>32768</BufferSize>
+    <FileSize>180224</FileSize>
+  </ConfigWrite>
+  <ConfigWrite>
+    <BufferSize>32768</BufferSize>
+    <FileSize>184320</FileSize>
+  </ConfigWrite>
+  <ConfigWrite>
+    <BufferSize>32768</BufferSize>
+    <FileSize>188416</FileSize>
+  </ConfigWrite>
+  <ConfigWrite>
+    <BufferSize>32768</BufferSize>
+    <FileSize>192512</FileSize>
   </ConfigWrite>
   <ConfigWrite>
     <BufferSize>65536</BufferSize>
-    <FileSize>344064</FileSize>
+    <FileSize>262144</FileSize>
   </ConfigWrite>
   <ConfigWrite>
     <BufferSize>65536</BufferSize>
-    <FileSize>360448</FileSize>
+    <FileSize>270336</FileSize>
   </ConfigWrite>
   <ConfigWrite>
     <BufferSize>65536</BufferSize>
-    <FileSize>376832</FileSize>
+    <FileSize>278528</FileSize>
+  </ConfigWrite>
+  <ConfigWrite>
+    <BufferSize>65536</BufferSize>
+    <FileSize>286720</FileSize>
+  </ConfigWrite>
+  <ConfigWrite>
+    <BufferSize>65536</BufferSize>
+    <FileSize>294912</FileSize>
+  </ConfigWrite>
+  <ConfigWrite>
+    <BufferSize>65536</BufferSize>
+    <FileSize>303104</FileSize>
+  </ConfigWrite>
+  <ConfigWrite>
+    <BufferSize>65536</BufferSize>
+    <FileSize>311296</FileSize>
+  </ConfigWrite>
+  <ConfigWrite>
+    <BufferSize>65536</BufferSize>
+    <FileSize>319488</FileSize>
+  </ConfigWrite>
+  <ConfigWrite>
+    <BufferSize>131072</BufferSize>
+    <FileSize>393216</FileSize>
+  </ConfigWrite>
+  <ConfigWrite>
+    <BufferSize>131072</BufferSize>
+    <FileSize>425984</FileSize>
+  </ConfigWrite>
+  <ConfigWrite>
+    <BufferSize>131072</BufferSize>
+    <FileSize>458752</FileSize>
+  </ConfigWrite>
+  <ConfigWrite>
+    <BufferSize>131072</BufferSize>
+    <FileSize>491520</FileSize>
   </ConfigWrite>
 </Rows>

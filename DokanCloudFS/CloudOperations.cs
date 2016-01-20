@@ -257,10 +257,10 @@ namespace IgorSoft.DokanCloudFS
             var childItems = parent.GetChildItems(drive).ToList();
             files = childItems.Any()
                 ? childItems.Select(i => new FileInformation() {
-                        FileName = i.Name, Length = (i as CloudFileNode)?.Contract.Size ?? 0,
-                        Attributes = i is CloudDirectoryNode ? FileAttributes.Directory : FileAttributes.ReadOnly | FileAttributes.NotContentIndexed,
-                        CreationTime = i.Contract.Created.DateTime, LastWriteTime = i.Contract.Updated.DateTime, LastAccessTime = i.Contract.Updated.DateTime
-                    }).ToList()
+                    FileName = i.Name, Length = (i as CloudFileNode)?.Contract.Size ?? 0,
+                    Attributes = i is CloudDirectoryNode ? FileAttributes.Directory : FileAttributes.ReadOnly | FileAttributes.NotContentIndexed,
+                    CreationTime = i.Contract.Created.DateTime, LastWriteTime = i.Contract.Updated.DateTime, LastAccessTime = i.Contract.Updated.DateTime
+                }).ToList()
                 : emptyDirectoryDefaultFiles;
 
             return Trace(nameof(FindFiles), fileName, info, DokanResult.Success);
@@ -378,8 +378,10 @@ namespace IgorSoft.DokanCloudFS
                 info.Context = context = new StreamContext(item, FileAccess.ReadData) { Stream = Stream.Synchronized(item.GetContent(drive)) };
             }
 
-            context.Stream.Position = offset;
-            bytesRead = context.Stream.Read(buffer, 0, buffer.Length);
+            lock (context.Stream) {
+                context.Stream.Position = offset;
+                bytesRead = context.Stream.Read(buffer, 0, buffer.Length);
+            }
 
             return Trace(nameof(ReadFile), fileName, info, DokanResult.Success, $"out {bytesRead}", offset.ToString(CultureInfo.InvariantCulture));
         }
