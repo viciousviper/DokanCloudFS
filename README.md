@@ -1,7 +1,7 @@
 # DokanCloudFS
 **DokanCloudFS** is a virtual filesystem for various publicly accessible cloud storage services on the Microsoft Windows platform.
 
-[![Build status](https://ci.appveyor.com/api/projects/status/o3q79e7w9xfq5xq9/branch/master?svg=true)](https://ci.appveyor.com/project/viciousviper/dokancloudfs)
+[![Build status](https://ci.appveyor.com/api/projects/status/fynac58uetvtt43t/branch/master?svg=true)](https://ci.appveyor.com/project/viciousviper/dokancloudfs)
 [![codecov.io](https://codecov.io/github/viciousviper/DokanCloudFS/coverage.svg?branch=master)](https://codecov.io/github/viciousviper/DokanCloudFS?branch=master)
 
 ## Objective

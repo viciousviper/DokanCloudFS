@@ -29,11 +29,11 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Security.AccessControl;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using Microsoft.Win32.SafeHandles;
+using Castle.DynamicProxy;
 using DokanNet;
 using Moq;
 using IgorSoft.CloudFS.Interface;
@@ -173,10 +173,8 @@ namespace IgorSoft.DokanCloudFS.Tests
                 var awaiterThread = new Thread(new ThreadStart(() => WaitHandle.WaitAll(waitHandles)));
                 awaiterThread.Start();
 
-                using (var handle = CreateFile(fileName, DesiredAccess.GENERIC_READ, ShareMode.FILE_SHARE_READ | ShareMode.FILE_SHARE_DELETE, IntPtr.Zero, CreationDisposition.OPEN_EXISTING, FlagsAndAttributes.FILE_FLAG_NO_BUFFERING | FlagsAndAttributes.FILE_FLAG_OVERLAPPED, IntPtr.Zero))
-                {
-                    for (int i = 0; i < chunks.Length; ++i)
-                    {
+                using (var handle = CreateFile(fileName, DesiredAccess.GENERIC_READ, ShareMode.FILE_SHARE_READ | ShareMode.FILE_SHARE_DELETE, IntPtr.Zero, CreationDisposition.OPEN_EXISTING, FlagsAndAttributes.FILE_FLAG_NO_BUFFERING | FlagsAndAttributes.FILE_FLAG_OVERLAPPED, IntPtr.Zero)) {
+                    for (int i = 0; i < chunks.Length; ++i) {
                         var offset = i * bufferSize;
                         var overlapped = new NativeOverlapped() { OffsetHigh = (int)(offset >> 32), OffsetLow = (int)(offset & 0xffffffff), EventHandle = IntPtr.Zero };
 
@@ -205,17 +203,14 @@ namespace IgorSoft.DokanCloudFS.Tests
                 var awaiterThread = new Thread(new ThreadStart(() => WaitHandle.WaitAll(waitHandles)));
                 awaiterThread.Start();
 
-                using (var handle = CreateFile(fileName, DesiredAccess.GENERIC_WRITE, ShareMode.FILE_SHARE_NONE, IntPtr.Zero, CreationDisposition.OPEN_ALWAYS, FlagsAndAttributes.FILE_FLAG_NO_BUFFERING | FlagsAndAttributes.FILE_FLAG_OVERLAPPED, IntPtr.Zero))
-                {
+                using (var handle = CreateFile(fileName, DesiredAccess.GENERIC_WRITE, ShareMode.FILE_SHARE_NONE, IntPtr.Zero, CreationDisposition.OPEN_ALWAYS, FlagsAndAttributes.FILE_FLAG_NO_BUFFERING | FlagsAndAttributes.FILE_FLAG_OVERLAPPED, IntPtr.Zero)) {
                     var offsetHigh = (int)(fileSize >> 32);
-                    if (SetFilePointer(handle, (int)(fileSize & 0xffffffff), out offsetHigh, MoveMethod.FILE_BEGIN) != fileSize || offsetHigh != (int)(fileSize >> 32) || !SetEndOfFile(handle))
-                    {
+                    if (SetFilePointer(handle, (int)(fileSize & 0xffffffff), out offsetHigh, MoveMethod.FILE_BEGIN) != fileSize || offsetHigh != (int)(fileSize >> 32) || !SetEndOfFile(handle)) {
                         chunks[0].Win32Error = Marshal.GetLastWin32Error();
                         return;
                     }
 
-                    for (int i = 0; i < chunks.Length; ++i)
-                    {
+                    for (int i = 0; i < chunks.Length; ++i) {
                         var offset = i * bufferSize;
                         var overlapped = new NativeOverlapped() { OffsetHigh = (int)(offset >> 32), OffsetLow = (int)(offset & 0xffffffff), EventHandle = IntPtr.Zero };
 
@@ -230,128 +225,24 @@ namespace IgorSoft.DokanCloudFS.Tests
             }
         }
 
-        private class DokanOperationsWrapper : IDokanOperations
+        private class RetargetingInterceptor<TInterface> : IInterceptor
         {
-            public IDokanOperations Operations { get; set; }
+            private TInterface invocationTarget;
 
-            void IDokanOperations.Cleanup(string fileName, DokanFileInfo info)
+            public void RedirectInvocationsTo(TInterface invocationTarget)
             {
-                Operations.Cleanup(fileName, info);
+                this.invocationTarget = invocationTarget;
             }
 
-            void IDokanOperations.CloseFile(string fileName, DokanFileInfo info)
+            public void Intercept(IInvocation invocation)
             {
-                Operations.CloseFile(fileName, info);
-            }
+                if (!object.Equals(invocation.InvocationTarget, invocationTarget)) {
+                    var changeProxyTarget = (IChangeProxyTarget)invocation;
+                    changeProxyTarget.ChangeInvocationTarget(invocationTarget);
+                    changeProxyTarget.ChangeProxyTarget(invocationTarget);
+                }
 
-            NtStatus IDokanOperations.CreateFile(string fileName, DokanNet.FileAccess access, FileShare share, FileMode mode, FileOptions options, FileAttributes attributes, DokanFileInfo info)
-            {
-                return Operations.CreateFile(fileName, access, share, mode, options, attributes, info);
-            }
-
-            NtStatus IDokanOperations.DeleteDirectory(string fileName, DokanFileInfo info)
-            {
-                return Operations.DeleteDirectory(fileName, info);
-            }
-
-            NtStatus IDokanOperations.DeleteFile(string fileName, DokanFileInfo info)
-            {
-                return Operations.DeleteFile(fileName, info);
-            }
-
-            NtStatus IDokanOperations.FindFiles(string fileName, out IList<FileInformation> files, DokanFileInfo info)
-            {
-                return Operations.FindFiles(fileName, out files, info);
-            }
-
-            NtStatus IDokanOperations.FindStreams(string fileName, out IList<FileInformation> streams, DokanFileInfo info)
-            {
-                return Operations.FindStreams(fileName, out streams, info);
-            }
-
-            NtStatus IDokanOperations.FlushFileBuffers(string fileName, DokanFileInfo info)
-            {
-                return Operations.FlushFileBuffers(fileName, info);
-            }
-
-            NtStatus IDokanOperations.GetDiskFreeSpace(out long freeBytesAvailable, out long totalNumberOfBytes, out long totalNumberOfFreeBytes, DokanFileInfo info)
-            {
-                return Operations.GetDiskFreeSpace(out freeBytesAvailable, out totalNumberOfBytes, out totalNumberOfFreeBytes, info);
-            }
-
-            NtStatus IDokanOperations.GetFileInformation(string fileName, out FileInformation fileInfo, DokanFileInfo info)
-            {
-                return Operations.GetFileInformation(fileName, out fileInfo, info);
-            }
-
-            NtStatus IDokanOperations.GetFileSecurity(string fileName, out FileSystemSecurity security, AccessControlSections sections, DokanFileInfo info)
-            {
-                return Operations.GetFileSecurity(fileName, out security, sections, info);
-            }
-
-            NtStatus IDokanOperations.GetVolumeInformation(out string volumeLabel, out FileSystemFeatures features, out string fileSystemName, DokanFileInfo info)
-            {
-                return Operations.GetVolumeInformation(out volumeLabel, out features, out fileSystemName, info);
-            }
-
-            NtStatus IDokanOperations.LockFile(string fileName, long offset, long length, DokanFileInfo info)
-            {
-                return Operations.LockFile(fileName, offset, length, info);
-            }
-
-            NtStatus IDokanOperations.Mounted(DokanFileInfo info)
-            {
-                return Operations.Mounted(info);
-            }
-
-            NtStatus IDokanOperations.MoveFile(string oldName, string newName, bool replace, DokanFileInfo info)
-            {
-                return Operations.MoveFile(oldName, newName, replace, info);
-            }
-
-            NtStatus IDokanOperations.ReadFile(string fileName, byte[] buffer, out int bytesRead, long offset, DokanFileInfo info)
-            {
-                return Operations.ReadFile(fileName, buffer, out bytesRead, offset, info);
-            }
-
-            NtStatus IDokanOperations.SetAllocationSize(string fileName, long length, DokanFileInfo info)
-            {
-                return Operations.SetAllocationSize(fileName, length, info);
-            }
-
-            NtStatus IDokanOperations.SetEndOfFile(string fileName, long length, DokanFileInfo info)
-            {
-                return Operations.SetEndOfFile(fileName, length, info);
-            }
-
-            NtStatus IDokanOperations.SetFileAttributes(string fileName, FileAttributes attributes, DokanFileInfo info)
-            {
-                return Operations.SetFileAttributes(fileName, attributes, info);
-            }
-
-            NtStatus IDokanOperations.SetFileSecurity(string fileName, FileSystemSecurity security, AccessControlSections sections, DokanFileInfo info)
-            {
-                return Operations.SetFileSecurity(fileName, security, sections, info);
-            }
-
-            NtStatus IDokanOperations.SetFileTime(string fileName, DateTime? creationTime, DateTime? lastAccessTime, DateTime? lastWriteTime, DokanFileInfo info)
-            {
-                return Operations.SetFileTime(fileName, creationTime, lastAccessTime, lastWriteTime, info);
-            }
-
-            NtStatus IDokanOperations.UnlockFile(string fileName, long offset, long length, DokanFileInfo info)
-            {
-                return Operations.UnlockFile(fileName, offset, length, info);
-            }
-
-            NtStatus IDokanOperations.Unmounted(DokanFileInfo info)
-            {
-                return Operations.Unmounted(info);
-            }
-
-            NtStatus IDokanOperations.WriteFile(string fileName, byte[] buffer, out int bytesWritten, long offset, DokanFileInfo info)
-            {
-                return Operations.WriteFile(fileName, buffer, out bytesWritten, offset, info);
+                invocation.Proceed();
             }
         }
 
@@ -373,7 +264,11 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             private static SHA1 sha1 = SHA1.Create();
 
-            private DokanOperationsWrapper operations = new DokanOperationsWrapper();
+            private IDokanOperations operations;
+
+            private NLog.ILogger logger;
+
+            private RetargetingInterceptor<IDokanOperations> interceptor = new RetargetingInterceptor<IDokanOperations>();
 
             private Thread mounterThread;
 
@@ -411,6 +306,12 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             private Fixture()
             {
+                operations = new ProxyGenerator().CreateInterfaceProxyWithTargetInterface<IDokanOperations>(null, interceptor);
+
+                var loggerMock = new Mock<NLog.ILogger>();
+                loggerMock.Setup(l => l.Trace(It.IsAny<string>())).Callback((string message) => Console.WriteLine(message));
+                logger = loggerMock.Object;
+
                 Reset();
                 SetupGetRoot();
 
@@ -424,10 +325,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             {
                 Drive = new Mock<ICloudDrive>(MockBehavior.Strict);
 
-                var loggerMock = new Mock<NLog.ILogger>();
-                loggerMock.Setup(l => l.Trace(It.IsAny<string>())).Callback((string message) => Console.WriteLine(message));
-
-                operations.Operations = new CloudOperations(Drive.Object, loggerMock.Object);
+                interceptor.RedirectInvocationsTo(new CloudOperations(Drive.Object, logger));
 
                 foreach (var directory in RootDirectoryItems.OfType<DirectoryInfoContract>())
                     directory.Parent = rootDirectory;
