@@ -414,8 +414,7 @@ namespace IgorSoft.DokanCloudFS.Tests
                 Reset();
                 SetupGetRoot();
 
-                //(mounterThread = new Thread(new ThreadStart(() => operations.Mount(MOUNT_POINT, DokanOptions.DebugMode | DokanOptions.RemovableDrive, 5, 800, TimeSpan.FromMinutes(5))))).Start();
-                (mounterThread = new Thread(new ThreadStart(() => operations.Mount(MOUNT_POINT, DokanOptions.DebugMode | DokanOptions.RemovableDrive, 1, 800, TimeSpan.FromMinutes(5))))).Start();
+                (mounterThread = new Thread(new ThreadStart(() => operations.Mount(MOUNT_POINT, DokanOptions.DebugMode | DokanOptions.RemovableDrive, 5, 800, TimeSpan.FromMinutes(5))))).Start();
                 var drive = new DriveInfo(MOUNT_POINT);
                 while (!drive.IsReady)
                     Thread.Sleep(50);
