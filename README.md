@@ -56,7 +56,7 @@ The expected gateway interface types and a set of prefabricated gateways can be 
 ### Sample configuration
 
 ```xml
-  <mount threads="5">
+  <mount libPath="..\..\..\Library" threads="5">
     <drives>
       <drive schema="onedrive" userName="OneDriveUser" root="Q:" encryptionKey="MyOneDriveSecret&amp;I" timeout="300" />
       <!--<drive schema="box" userName="BoxUser" root="R:" encryptionKey="MyBoxSecret&amp;I" timeout="300" />
@@ -71,6 +71,7 @@ The expected gateway interface types and a set of prefabricated gateways can be 
 Configuration options:
 
   - Global
+    - **libPath**: Path to search for gateway plugin assemblies (relative to the location of *DokanCloudFS.exe*).<br/>All plugin dependencies not covered directly by DokanCloudFS should be placed in this path as well.
     - **threads**: Number of concurrent threads used by the Dokan driver.<br />Defaults to 5.
   - Per drive
     - **schema**: Selects the cloud storage service gateway to be used.<br />Must correspond to one of the *CloudFS* gateways installed in the *Gateways\\* subdirectory. Presently supports the following values:
