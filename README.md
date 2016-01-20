@@ -38,7 +38,7 @@ The expected gateway interface types and a set of prefabricated gateways can be 
 - Drivers
   - [Dokany](https://github.com/dokan-dev/dokany/releases) driver 0.8.0 or greater
 - Operating system
-  - tested on Windows 8.1 x64 and Windows Server 2012 R2
+  - tested on Windows 8.1 x64 and Windows Server 2012 R2 (until version 1.0.0-alpha) /<br/>Windows 10 x64 (from version 1.0.1-alpha)
   - expected to run on Windows 7/8/8.1/10 and Windows Server 2008(R2)/2012(R2)
 
 ## Local compilation
@@ -100,7 +100,9 @@ You have been warned.
 
 ## Release Notes
 
-  - 2015-12-30 Version 1.0.0.0 - Initial release. This version has not been extensively tested apart from the OneDrive gateway - **expect bugs**.
+  - 2016-01-20 Version 1.0.1-alpha - NuGet dependencies updated, tests for CloudOperations made offline executable, code coverage analysis via codecov configured.
+  - 2016-01-10 Version 1.0.0-alpha - Initial release.
+  - 2015-12-30 Version 1.0.0.0 - Initial commit. This version has not been extensively tested apart from the OneDrive gateway - **expect bugs**.
 
 ## Future plans
 
