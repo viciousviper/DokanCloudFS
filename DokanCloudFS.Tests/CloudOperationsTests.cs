@@ -481,6 +481,44 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void FileStream_Lock_Succeeds()
+        {
+            var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
+
+            fixture.SetupGetRootDirectoryItems();
+            var file = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
+            fixture.SetupGetFileContent(file, null);
+
+            var root = fixture.GetDriveInfo().RootDirectory;
+            var sut = new FileInfo(root.FullName + sutContract.Name);
+            using (var fileStream = sut.OpenRead()) {
+                fileStream.Lock(0, 65536);
+            }
+
+            fixture.Drive.VerifyAll();
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void FileStream_Unlock_Succeeds()
+        {
+            var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
+
+            fixture.SetupGetRootDirectoryItems();
+            var file = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
+            fixture.SetupGetFileContent(file, null);
+
+            var root = fixture.GetDriveInfo().RootDirectory;
+            var sut = new FileInfo(root.FullName + sutContract.Name);
+            using (var fileStream = sut.OpenRead()) {
+                fileStream.Lock(0, 65536);
+
+                fileStream.Unlock(0, 65536);
+            }
+
+            fixture.Drive.VerifyAll();
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         [DeploymentItem("CloudOperationsTests.Configuration.xml")]
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\CloudOperationsTests.Configuration.xml", "ConfigRead", DataAccessMethod.Sequential)]
         public void FileInfo_ReadOverlapped_Succeeds()
@@ -501,8 +539,6 @@ namespace IgorSoft.DokanCloudFS.Tests
 
                 CollectionAssert.AreEqual(testInput, chunks.Aggregate(Enumerable.Empty<byte>(), (b, c) => b.Concat(c.Buffer), b => b.ToArray()), "Unexpected file content");
             }
-
-            System.Threading.Thread.Yield();
 
             fixture.Drive.VerifyAll();
         }
@@ -530,8 +566,6 @@ namespace IgorSoft.DokanCloudFS.Tests
 
                 NativeMethods.WriteEx(root.FullName + file.Name, bufferSize, fileSize, chunks);
             }
-
-            System.Threading.Thread.Yield();
 
             fixture.Drive.VerifyAll();
         }
