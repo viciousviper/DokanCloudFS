@@ -129,7 +129,11 @@ namespace IgorSoft.DokanCloudFS
                 if (context != null && context.Access.HasFlag(FileAccess.WriteData) && (context.Stream?.CanRead ?? false)) {
                     context.Stream.Seek(0, SeekOrigin.Begin);
                     context.Task = Task.Run(() => context.File.SetContent(drive, context.Stream))
-                        .ContinueWith(t => logger.Trace($"{nameof(context.File.SetContent)} finished on file '{fileName}' with status {context.Task.Status}"));
+                        .ContinueWith(t => {
+                            if (t.IsFaulted)
+                                context.File.Remove(drive);
+                            logger.Trace($"{nameof(context.File.SetContent)} finished on file '{fileName}' (IsFaulted={t.IsFaulted})");
+                        });
                 }
 
                 if (context?.Task != null) {
@@ -182,7 +186,7 @@ namespace IgorSoft.DokanCloudFS
                     fileItem = item as CloudFileNode;
                     if (fileItem != null) {
                         if (access.HasFlag(FileAccess.ReadData))
-                            info.Context = new StreamContext(fileItem, FileAccess.ReadData) { Stream = Stream.Synchronized(fileItem.GetContent(drive)) };
+                            info.Context = new StreamContext(fileItem, FileAccess.ReadData);
                         else if (access.HasFlag(FileAccess.WriteData))
                             info.Context = new StreamContext(fileItem, FileAccess.WriteData);
                         else if (access.HasFlag(FileAccess.Delete))
@@ -196,7 +200,7 @@ namespace IgorSoft.DokanCloudFS
                     fileItem = item as CloudFileNode ?? parent.NewFileItem(drive, itemName);
 
                     if (access.HasFlag(FileAccess.ReadData) && !access.HasFlag(FileAccess.WriteData))
-                        info.Context = new StreamContext(fileItem, FileAccess.ReadData) { Stream = Stream.Synchronized(fileItem.GetContent(drive)) };
+                        info.Context = new StreamContext(fileItem, FileAccess.ReadData);
                     else
                         info.Context = new StreamContext(fileItem, FileAccess.WriteData);
 
@@ -275,7 +279,7 @@ namespace IgorSoft.DokanCloudFS
         public NtStatus FlushFileBuffers(string fileName, DokanFileInfo info)
         {
             try {
-                ((StreamContext)info.Context).Stream.Flush();
+                ((StreamContext)info.Context).Stream?.Flush();
 
                 return Trace(nameof(FlushFileBuffers), fileName, info, DokanResult.Success);
             } catch (IOException) {
@@ -367,18 +371,17 @@ namespace IgorSoft.DokanCloudFS
 
         public NtStatus ReadFile(string fileName, byte[] buffer, out int bytesRead, long offset, DokanFileInfo info)
         {
-            var context = info.Context as StreamContext;
-            if (context == null) {
-                var item = GetItem(fileName) as CloudFileNode;
-                if (item == null) {
-                    bytesRead = 0;
-                    return Trace(nameof(ReadFile), fileName, info, DokanResult.FileNotFound);
-                }
+            var context = (StreamContext)info.Context;
 
-                info.Context = context = new StreamContext(item, FileAccess.ReadData) { Stream = Stream.Synchronized(item.GetContent(drive)) };
-            }
+            lock (context) {
+                if (context.Stream == null)
+                    try {
+                        context.Stream = Stream.Synchronized(context.File.GetContent(drive));
+                    } catch (Exception ex) {
+                        bytesRead = 0;
+                        return Trace(nameof(ReadFile), fileName, info, DokanResult.Error, $"out {bytesRead}", offset.ToString(CultureInfo.InvariantCulture));
+                    }
 
-            lock (context.Stream) {
                 context.Stream.Position = offset;
                 bytesRead = context.Stream.Read(buffer, 0, buffer.Length);
             }
@@ -444,10 +447,11 @@ namespace IgorSoft.DokanCloudFS
         public NtStatus WriteFile(string fileName, byte[] buffer, out int bytesWritten, long offset, DokanFileInfo info)
         {
             var context = ((StreamContext)info.Context);
-            if (context.Stream == null)
-                context.Stream = Stream.Synchronized(new MemoryStream());
 
-            lock (context.Stream) {
+            lock (context) {
+                if (context.Stream == null)
+                    context.Stream = Stream.Synchronized(new MemoryStream());
+
                 context.Stream.Position = offset;
                 context.Stream.Write(buffer, 0, buffer.Length);
                 bytesWritten = (int)(context.Stream.Position - offset);

@@ -31,6 +31,7 @@ using System.Threading.Tasks;
 namespace IgorSoft.DokanCloudFS.IO
 {
     [System.Diagnostics.DebuggerDisplay("{DebuggerDisplay,nq}")]
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public class TraceStream : Stream
     {
         private string name;

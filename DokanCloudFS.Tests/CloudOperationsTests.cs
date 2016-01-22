@@ -343,30 +343,20 @@ namespace IgorSoft.DokanCloudFS.Tests
         public void FileInfo_Create_Succeeds()
         {
             var fileName = "NewFile.ext";
-            var fileInput = "Why did the chicken cross the road?";
+            var fileContent = "Why did the chicken cross the road?";
 
             fixture.SetupGetRootDirectoryItems();
             var file = fixture.SetupNewFile(Path.DirectorySeparatorChar.ToString(), fileName);
-            fixture.SetupSetFileContent(file, fileInput);
-            fixture.SetupGetFileContent(file, fileInput);
+            fixture.SetupSetFileContent(file, fileContent);
 
             var sut = fixture.GetDriveInfo().RootDirectory;
             var newFile = new FileInfo(sut.FullName + fileName);
             using (var fileStream = newFile.Create()) {
-                fileStream.WriteAsync(Encoding.Default.GetBytes(fileInput), 0, Encoding.Default.GetByteCount(fileInput)).Wait();
+                fileStream.WriteAsync(Encoding.Default.GetBytes(fileContent), 0, Encoding.Default.GetByteCount(fileContent)).Wait();
                 fileStream.Close();
             }
 
             Assert.IsTrue(newFile.Exists, "File creation failed");
-
-            var fileOutput = default(string);
-            using (var fileStream = newFile.OpenRead()) {
-                var buffer = new byte[fileStream.Length];
-                fileStream.Read(buffer, 0, buffer.Length);
-                fileOutput = Encoding.Default.GetString(buffer);
-            }
-
-            Assert.AreEqual(fileInput, fileOutput, "Unexpected file content");
 
             fixture.Drive.VerifyAll();
         }
@@ -481,13 +471,91 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void FileStream_Read_Succeeds()
+        {
+            var fileContent = "Why did the chicken cross the road?";
+            var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
+
+            fixture.SetupGetRootDirectoryItems();
+            fixture.SetupGetFileContent(sutContract, fileContent);
+
+            var root = fixture.GetDriveInfo().RootDirectory;
+            var sut = new FileInfo(root.FullName + sutContract.Name);
+            var buffer = default(byte[]);
+            using (var fileStream = sut.OpenRead()) {
+                var i = fileStream.Length;
+                buffer = new byte[fileStream.Length];
+                fileStream.Read(buffer, 0, buffer.Length);
+            }
+
+            Assert.AreEqual(sut.Length, buffer.Length, "Invalid file size");
+            StringAssert.StartsWith(Encoding.Default.GetString(buffer), fileContent, "Unexpected file content");
+
+            fixture.Drive.VerifyAll();
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void FileStream_Write_Succeeds()
+        {
+            var fileContent = "Why did the chicken cross the road?";
+            var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
+
+            fixture.SetupGetRootDirectoryItems();
+            fixture.SetupSetFileContent(sutContract, fileContent);
+
+            var root = fixture.GetDriveInfo().RootDirectory;
+            var sut = new FileInfo(root.FullName + sutContract.Name);
+            using (var fileStream = sut.OpenWrite()) {
+                fileStream.WriteAsync(Encoding.Default.GetBytes(fileContent), 0, Encoding.Default.GetByteCount(fileContent)).Wait();
+                fileStream.Close();
+            }
+
+            fixture.Drive.VerifyAll();
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void FileStream_Flush_Succeeds()
+        {
+            var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
+
+            fixture.SetupGetRootDirectoryItems();
+
+            var root = fixture.GetDriveInfo().RootDirectory;
+            var sut = new FileInfo(root.FullName + sutContract.Name);
+            using (var fileStream = sut.OpenWrite()) {
+                fileStream.FlushAsync().Wait();
+                fileStream.Close();
+            }
+
+            fixture.Drive.VerifyAll();
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void FileStream_FlushAfterWrite_Succeeds()
+        {
+            var fileContent = "Why did the chicken cross the road?";
+            var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
+
+            fixture.SetupGetRootDirectoryItems();
+            fixture.SetupSetFileContent(sutContract, fileContent);
+
+            var root = fixture.GetDriveInfo().RootDirectory;
+            var sut = new FileInfo(root.FullName + sutContract.Name);
+            using (var fileStream = sut.OpenWrite()) {
+                fileStream.WriteAsync(Encoding.Default.GetBytes(fileContent), 0, Encoding.Default.GetByteCount(fileContent)).Wait();
+                fileStream.FlushAsync().Wait();
+                fileStream.Close();
+            }
+
+            fixture.Drive.VerifyAll();
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void FileStream_Lock_Succeeds()
         {
             var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
 
             fixture.SetupGetRootDirectoryItems();
-            var file = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
-            fixture.SetupGetFileContent(file, null);
 
             var root = fixture.GetDriveInfo().RootDirectory;
             var sut = new FileInfo(root.FullName + sutContract.Name);
@@ -504,8 +572,6 @@ namespace IgorSoft.DokanCloudFS.Tests
             var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
 
             fixture.SetupGetRootDirectoryItems();
-            var file = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
-            fixture.SetupGetFileContent(file, null);
 
             var root = fixture.GetDriveInfo().RootDirectory;
             var sut = new FileInfo(root.FullName + sutContract.Name);
@@ -514,6 +580,48 @@ namespace IgorSoft.DokanCloudFS.Tests
 
                 fileStream.Unlock(0, 65536);
             }
+
+            fixture.Drive.VerifyAll();
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        [ExpectedException(typeof(IOException))]
+        public void FileStream_ExceptionDuringRead_Throws()
+        {
+            var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
+
+            fixture.SetupGetRootDirectoryItems();
+            fixture.SetupGetFileContentWithError(sutContract);
+
+            var root = fixture.GetDriveInfo().RootDirectory;
+            var sut = new FileInfo(root.FullName + sutContract.Name);
+            var buffer = default(byte[]);
+            using (var fileStream = sut.OpenRead()) {
+                buffer = new byte[fileStream.Length];
+                fileStream.Read(buffer, 0, buffer.Length);
+            }
+
+            fixture.Drive.VerifyAll();
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void FileStream_ExceptionDuringWrite_Throws()
+        {
+            var fileContent = "Why did the chicken cross the road?";
+            var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
+
+            fixture.SetupGetRootDirectoryItems();
+            fixture.SetupSetFileContentWithError(sutContract, fileContent);
+            fixture.SetupDeleteDirectoryOrFile(sutContract);
+
+            var root = fixture.GetDriveInfo().RootDirectory;
+            var sut = new FileInfo(root.FullName + sutContract.Name);
+            using (var fileStream = sut.OpenWrite()) {
+                fileStream.WriteAsync(Encoding.Default.GetBytes(fileContent), 0, Encoding.Default.GetByteCount(fileContent)).Wait();
+                fileStream.Close();
+            }
+
+            Assert.IsFalse(sut.Exists, "Defective file found");
 
             fixture.Drive.VerifyAll();
         }

@@ -396,17 +396,31 @@ namespace IgorSoft.DokanCloudFS.Tests
                 return file;
             }
 
+            internal void SetupGetFileContent(FileInfoContract file, string content)
+            {
+                Drive
+                    .Setup(drive => drive.GetContent(It.Is<FileInfoContract>(f => f.Id == file.Id)))
+                    .Returns(!string.IsNullOrEmpty(content) ? new MemoryStream(Encoding.Default.GetBytes(content)) : new MemoryStream());
+            }
+
             internal void SetupSetFileContent(FileInfoContract file, string content)
             {
                 Drive
                     .Setup(drive => drive.SetContent(It.Is<FileInfoContract>(f => f.Id == file.Id), It.Is<Stream>(s => Contains(s, content))));
             }
 
-            internal void SetupGetFileContent(FileInfoContract file, string content)
+            internal void SetupGetFileContentWithError(FileInfoContract file)
             {
                 Drive
                     .Setup(drive => drive.GetContent(It.Is<FileInfoContract>(f => f.Id == file.Id)))
-                    .Returns(!string.IsNullOrEmpty(content) ? new MemoryStream(Encoding.Default.GetBytes(content)) : new MemoryStream());
+                    .Throws(new IOException("Error during GetContent"));
+            }
+
+            internal void SetupSetFileContentWithError(FileInfoContract file, string content)
+            {
+                Drive
+                    .Setup(drive => drive.SetContent(It.Is<FileInfoContract>(f => f.Id == file.Id), It.Is<Stream>(s => Contains(s, content))))
+                    .Throws(new IOException("Error during SetContent"));
             }
 
             internal void SetupDeleteDirectoryOrFile(FileSystemInfoContract directoryOrFile, bool recurse = false)
