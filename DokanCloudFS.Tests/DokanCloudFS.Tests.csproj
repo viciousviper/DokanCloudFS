@@ -93,6 +93,14 @@
     <Compile Include="BlockMapTests.Fixture.cs">
       <DependentUpon>BlockMapTests.cs</DependentUpon>
     </Compile>
+    <Compile Include="CloudDirectoryNodeTests.cs" />
+    <Compile Include="CloudDirectoryNodeTests.Fixture.cs">
+      <DependentUpon>CloudDirectoryNodeTests.cs</DependentUpon>
+    </Compile>
+    <Compile Include="CloudFileNodeTests.cs" />
+    <Compile Include="CloudFileNodeTests.Fixture.cs">
+      <DependentUpon>CloudFileNodeTests.cs</DependentUpon>
+    </Compile>
     <Compile Include="CloudOperationsTests.cs" />
     <Compile Include="CloudOperationsTests.Fixture.cs">
       <DependentUpon>CloudOperationsTests.cs</DependentUpon>
@@ -105,6 +113,9 @@
     <Compile Include="StreamTests.Fixture.cs">
       <DependentUpon>ScatterGatherStreamTests.cs</DependentUpon>
     </Compile>
+    <Compile Include="ArrayExtensions.cs" />
+    <Compile Include="StreamExtensions.cs" />
+    <Compile Include="StringExtensions.cs" />
     <Compile Include="TestCategories.cs" />
   </ItemGroup>
   <ItemGroup>

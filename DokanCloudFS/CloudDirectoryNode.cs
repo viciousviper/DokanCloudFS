@@ -51,6 +51,9 @@ namespace IgorSoft.DokanCloudFS
 
         public IEnumerable<CloudItemNode> GetChildItems(ICloudDrive drive)
         {
+            if (drive == null)
+                throw new ArgumentNullException(nameof(drive));
+
             if (children == null) {
                 lock (Contract) {
                     if (children == null) {
@@ -74,9 +77,12 @@ namespace IgorSoft.DokanCloudFS
             return result;
         }
 
-        public CloudDirectoryNode NewDirectoryItem(ICloudDrive drive, string fileName)
+        public CloudDirectoryNode NewDirectoryItem(ICloudDrive drive, string directoryName)
         {
-            var newItem = new CloudDirectoryNode(drive.NewDirectoryItem(Contract, fileName));
+            if (drive == null)
+                throw new ArgumentNullException(nameof(drive));
+
+            var newItem = new CloudDirectoryNode(drive.NewDirectoryItem(Contract, directoryName));
             children.Add(newItem.Name, newItem);
             newItem.SetParent(this);
             return newItem;
@@ -84,6 +90,9 @@ namespace IgorSoft.DokanCloudFS
 
         public CloudFileNode NewFileItem(ICloudDrive drive, string fileName)
         {
+            if (drive == null)
+                throw new ArgumentNullException(nameof(drive));
+
             var newItem = new CloudFileNode(drive.NewFileItem(Contract, fileName, new MemoryStream()));
             children.Add(newItem.Name, newItem);
             newItem.SetParent(this);

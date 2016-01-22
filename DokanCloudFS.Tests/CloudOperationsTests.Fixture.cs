@@ -25,11 +25,9 @@ SOFTWARE.
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using Microsoft.Win32.SafeHandles;
@@ -262,8 +260,6 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             private static RootDirectoryInfoContract rootDirectory = new RootDirectoryInfoContract(Path.DirectorySeparatorChar.ToString(), new DateTime(2016, 1, 1), new DateTime(2016, 1, 1)) { Drive = new DriveInfoContract(MOUNT_POINT, freeSpace, usedSpace) };
 
-            private static SHA1 sha1 = SHA1.Create();
-
             private IDokanOperations operations;
 
             private NLog.ILogger logger;
@@ -272,34 +268,34 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             private Thread mounterThread;
 
-            internal Mock<ICloudDrive> Drive { get; private set; }
+            private Mock<ICloudDrive> drive;
 
             public FileSystemInfoContract[] RootDirectoryItems { get; } = new FileSystemInfoContract[] {
-                new DirectoryInfoContract(@"\SubDir", "SubDir", ToDateTime("2015-01-01 10:11:12"), ToDateTime("2015-01-01 20:21:22")),
-                new DirectoryInfoContract(@"\SubDir2", "SubDir2", ToDateTime("2015-01-01 13:14:15"), ToDateTime("2015-01-01 23:24:25")),
-                new FileInfoContract(@"\File.ext", "File.ext", ToDateTime("2015-01-02 10:11:12"), ToDateTime("2015-01-02 20:21:22"), 16384, GetHash("16384")),
-                new FileInfoContract(@"\SecondFile.ext", "SecondFile.ext", ToDateTime("2015-01-03 10:11:12"), ToDateTime("2015-01-03 20:21:22"), 32768, GetHash("32768")),
-                new FileInfoContract(@"\ThirdFile.ext", "ThirdFile.ext", ToDateTime("2015-01-04 10:11:12"), ToDateTime("2015-01-04 20:21:22"), 65536, GetHash("65536"))
+                new DirectoryInfoContract(@"\SubDir", "SubDir", "2015-01-01 10:11:12".ToDateTime(), "2015-01-01 20:21:22".ToDateTime()),
+                new DirectoryInfoContract(@"\SubDir2", "SubDir2", "2015-01-01 13:14:15".ToDateTime(), "2015-01-01 23:24:25".ToDateTime()),
+                new FileInfoContract(@"\File.ext", "File.ext", "2015-01-02 10:11:12".ToDateTime(), "2015-01-02 20:21:22".ToDateTime(), 16384, "16384".ToHash()),
+                new FileInfoContract(@"\SecondFile.ext", "SecondFile.ext", "2015-01-03 10:11:12".ToDateTime(), "2015-01-03 20:21:22".ToDateTime(), 32768, "32768".ToHash()),
+                new FileInfoContract(@"\ThirdFile.ext", "ThirdFile.ext", "2015-01-04 10:11:12".ToDateTime(), "2015-01-04 20:21:22".ToDateTime(), 65536, "65536".ToHash())
             };
 
             public FileSystemInfoContract[] SubDirectoryItems { get; } = new FileSystemInfoContract[] {
-                new DirectoryInfoContract(@"\SubDir\SubSubDir", "SubSubDir", ToDateTime("2015-02-01 10:11:12"), ToDateTime("2015-02-01 20:21:22")),
-                new FileInfoContract(@"\SubDir\SubFile.ext", "SubFile.ext", ToDateTime("2015-02-02 10:11:12"), ToDateTime("2015-02-02 20:21:22"), 981256915, GetHash("981256915")),
-                new FileInfoContract(@"\SubDir\SecondSubFile.ext", "SecondSubFile.ext", ToDateTime("2015-02-03 10:11:12"), ToDateTime("2015-02-03 20:21:22"), 30858025, GetHash("30858025")),
-                new FileInfoContract(@"\SubDir\ThirdSubFile.ext", "ThirdSubFile.ext", ToDateTime("2015-02-04 10:11:12"), ToDateTime("2015-02-04 20:21:22"), 45357, GetHash("45357"))
+                new DirectoryInfoContract(@"\SubDir\SubSubDir", "SubSubDir", "2015-02-01 10:11:12".ToDateTime(), "2015-02-01 20:21:22".ToDateTime()),
+                new FileInfoContract(@"\SubDir\SubFile.ext", "SubFile.ext", "2015-02-02 10:11:12".ToDateTime(), "2015-02-02 20:21:22".ToDateTime(), 981256915, "981256915".ToHash()),
+                new FileInfoContract(@"\SubDir\SecondSubFile.ext", "SecondSubFile.ext", "2015-02-03 10:11:12".ToDateTime(), "2015-02-03 20:21:22".ToDateTime(), 30858025, "30858025".ToHash()),
+                new FileInfoContract(@"\SubDir\ThirdSubFile.ext", "ThirdSubFile.ext", "2015-02-04 10:11:12".ToDateTime(), "2015-02-04 20:21:22".ToDateTime(), 45357, "45357".ToHash())
             };
 
             public FileSystemInfoContract[] SubDirectory2Items { get; } = new FileSystemInfoContract[] {
-                new DirectoryInfoContract(@"\SubDir2\SubSubDir2", "SubSubDir2", ToDateTime("2015-02-01 10:11:12"), ToDateTime("2015-02-01 20:21:22")),
-                new FileInfoContract(@"\SubDir2\SubFile2.ext", "SubFile2.ext", ToDateTime("2015-02-02 10:11:12"), ToDateTime("2015-02-02 20:21:22"), 981256915, GetHash("981256915")),
-                new FileInfoContract(@"\SubDir2\SecondSubFile2.ext", "SecondSubFile2.ext", ToDateTime("2015-02-03 10:11:12"), ToDateTime("2015-02-03 20:21:22"), 30858025, GetHash("30858025")),
-                new FileInfoContract(@"\SubDir2\ThirdSubFile2.ext", "ThirdSubFile2.ext", ToDateTime("2015-02-04 10:11:12"), ToDateTime("2015-02-04 20:21:22"), 45357, GetHash("45357"))
+                new DirectoryInfoContract(@"\SubDir2\SubSubDir2", "SubSubDir2", "2015-02-01 10:11:12".ToDateTime(), "2015-02-01 20:21:22".ToDateTime()),
+                new FileInfoContract(@"\SubDir2\SubFile2.ext", "SubFile2.ext", "2015-02-02 10:11:12".ToDateTime(), "2015-02-02 20:21:22".ToDateTime(), 981256915, "981256915".ToHash()),
+                new FileInfoContract(@"\SubDir2\SecondSubFile2.ext", "SecondSubFile2.ext", "2015-02-03 10:11:12".ToDateTime(), "2015-02-03 20:21:22".ToDateTime(), 30858025, "30858025".ToHash()),
+                new FileInfoContract(@"\SubDir2\ThirdSubFile2.ext", "ThirdSubFile2.ext", "2015-02-04 10:11:12".ToDateTime(), "2015-02-04 20:21:22".ToDateTime(), 45357, "45357".ToHash())
             };
 
             public FileSystemInfoContract[] SubSubDirectoryItems { get; } = new FileSystemInfoContract[] {
-                new FileInfoContract(@"\SubDir\SubSubDir\SubSubFile.ext", "SubSubFile.ext", ToDateTime("2015-03-01 10:11:12"), ToDateTime("2015-03-01 20:21:22"), 7198265, GetHash("7198265")),
-                new FileInfoContract(@"\SubDir\SubSubDir\SecondSubSubFile.ext", "SecondSubSubFile.ext", ToDateTime("2015-03-02 10:11:12"), ToDateTime("2015-03-02 20:21:22"), 5555, GetHash("5555")),
-                new FileInfoContract(@"\SubDir\SubSubDir\ThirdSubSubFile.ext", "ThirdSubSubFile.ext", ToDateTime("2015-03-03 10:11:12"), ToDateTime("2015-03-03 20:21:22"), 102938576, GetHash("102938576"))
+                new FileInfoContract(@"\SubDir\SubSubDir\SubSubFile.ext", "SubSubFile.ext", "2015-03-01 10:11:12".ToDateTime(), "2015-03-01 20:21:22".ToDateTime(), 7198265, "7198265".ToHash()),
+                new FileInfoContract(@"\SubDir\SubSubDir\SecondSubSubFile.ext", "SecondSubSubFile.ext", "2015-03-02 10:11:12".ToDateTime(), "2015-03-02 20:21:22".ToDateTime(), 5555, "5555".ToHash()),
+                new FileInfoContract(@"\SubDir\SubSubDir\ThirdSubSubFile.ext", "ThirdSubSubFile.ext", "2015-03-03 10:11:12".ToDateTime(), "2015-03-03 20:21:22".ToDateTime(), 102938576, "102938576".ToHash())
             };
 
             public static Fixture Initialize() => new Fixture();
@@ -323,9 +319,9 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             internal void Reset()
             {
-                Drive = new Mock<ICloudDrive>(MockBehavior.Strict);
+                drive = new Mock<ICloudDrive>(MockBehavior.Strict);
 
-                interceptor.RedirectInvocationsTo(new CloudOperations(Drive.Object, logger));
+                interceptor.RedirectInvocationsTo(new CloudOperations(drive.Object, logger));
 
                 foreach (var directory in RootDirectoryItems.OfType<DirectoryInfoContract>())
                     directory.Parent = rootDirectory;
@@ -337,37 +333,51 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             internal void SetupGetRoot()
             {
-                Drive
+                drive
                     .Setup(d => d.GetRoot())
                     .Returns(rootDirectory);
             }
 
-            internal void SetupGetDisplayRoot()
+            internal void SetupGetDisplayRoot(string root = null)
             {
-                Drive
+                drive
                     .SetupGet(d => d.DisplayRoot)
-                    .Returns((new RootName(SCHEMA, USER_NAME, MOUNT_POINT)).Value);
+                    .Returns(root ?? (new RootName(SCHEMA, USER_NAME, MOUNT_POINT)).Value);
+            }
+
+            internal void SetupGetFree(long free)
+            {
+                drive
+                    .SetupGet(d => d.Free)
+                    .Returns(free);
+            }
+
+            internal void SetupGetUsed(long used)
+            {
+                drive
+                    .SetupGet(d => d.Used)
+                    .Returns(used);
             }
 
             internal void SetupGetRootDirectoryItems(IEnumerable<FileSystemInfoContract> items = null)
             {
                 SetupGetRoot();
 
-                Drive
+                drive
                     .Setup(drive => drive.GetChildItem(It.Is<DirectoryInfoContract>(directory => directory.Id.Value == Path.DirectorySeparatorChar.ToString())))
                     .Returns(items ?? RootDirectoryItems);
             }
 
             internal void SetupGetSubDirectory2Items(IEnumerable<FileSystemInfoContract> items = null)
             {
-                Drive
+                drive
                     .Setup(drive => drive.GetChildItem(It.Is<DirectoryInfoContract>(directory => directory.Id.Value == @"\SubDir2")))
                     .Returns(items ?? SubDirectory2Items);
             }
 
             internal void SetupGetEmptyDirectoryItems(string directoryId)
             {
-                Drive
+                drive
                     .Setup(drive => drive.GetChildItem(It.Is<DirectoryInfoContract>(directory => directory.Id.Value == directoryId)))
                     .Returns(Enumerable.Empty<DirectoryInfoContract>());
             }
@@ -375,8 +385,8 @@ namespace IgorSoft.DokanCloudFS.Tests
             internal DirectoryInfoContract SetupNewDirectory(string parentName, string directoryName)
             {
                 var parentId = new DirectoryId(parentName);
-                var directory = new DirectoryInfoContract($"{parentId.Value}{directoryName}\\", directoryName, ToDateTime("2016-01-01 12:00:00"), ToDateTime("2016-01-01 12:00:00"));
-                Drive
+                var directory = new DirectoryInfoContract($"{parentId.Value}{directoryName}\\", directoryName, "2016-01-01 12:00:00".ToDateTime(), "2016-01-01 12:00:00".ToDateTime());
+                drive
                     .Setup(drive => drive.NewDirectoryItem(It.Is<DirectoryInfoContract>(parent => parent.Id == parentId), directoryName))
                     .Returns(directory);
                 return directory;
@@ -389,8 +399,8 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             internal FileInfoContract SetupNewFile(DirectoryId parentId, string fileName)
             {
-                var file = new FileInfoContract($"{parentId.Value.TrimEnd('\\')}\\{fileName}", fileName, ToDateTime("2016-02-01 12:00:00"), ToDateTime("2016-02-01 12:00:00"), 0, null);
-                Drive
+                var file = new FileInfoContract($"{parentId.Value.TrimEnd('\\')}\\{fileName}", fileName, "2016-02-01 12:00:00".ToDateTime(), "2016-02-01 12:00:00".ToDateTime(), 0, null);
+                drive
                     .Setup(drive => drive.NewFileItem(It.Is<DirectoryInfoContract>(parent => parent.Id == parentId), fileName, It.Is<Stream>(s => s.Length == 0)))
                     .Returns(file);
                 return file;
@@ -398,34 +408,34 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             internal void SetupGetFileContent(FileInfoContract file, string content)
             {
-                Drive
+                drive
                     .Setup(drive => drive.GetContent(It.Is<FileInfoContract>(f => f.Id == file.Id)))
                     .Returns(!string.IsNullOrEmpty(content) ? new MemoryStream(Encoding.Default.GetBytes(content)) : new MemoryStream());
             }
 
             internal void SetupSetFileContent(FileInfoContract file, string content)
             {
-                Drive
-                    .Setup(drive => drive.SetContent(It.Is<FileInfoContract>(f => f.Id == file.Id), It.Is<Stream>(s => Contains(s, content))));
+                drive
+                    .Setup(drive => drive.SetContent(It.Is<FileInfoContract>(f => f.Id == file.Id), It.Is<Stream>(s => s.Contains(content))));
             }
 
             internal void SetupGetFileContentWithError(FileInfoContract file)
             {
-                Drive
+                drive
                     .Setup(drive => drive.GetContent(It.Is<FileInfoContract>(f => f.Id == file.Id)))
                     .Throws(new IOException("Error during GetContent"));
             }
 
             internal void SetupSetFileContentWithError(FileInfoContract file, string content)
             {
-                Drive
-                    .Setup(drive => drive.SetContent(It.Is<FileInfoContract>(f => f.Id == file.Id), It.Is<Stream>(s => Contains(s, content))))
+                drive
+                    .Setup(drive => drive.SetContent(It.Is<FileInfoContract>(f => f.Id == file.Id), It.Is<Stream>(s => s.Contains(content))))
                     .Throws(new IOException("Error during SetContent"));
             }
 
             internal void SetupDeleteDirectoryOrFile(FileSystemInfoContract directoryOrFile, bool recurse = false)
             {
-                Drive
+                drive
                     .Setup(drive => drive.RemoveItem(It.Is<FileSystemInfoContract>(item => item.Id == directoryOrFile.Id), recurse));
             }
 
@@ -441,7 +451,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             private void SetupMoveItem(FileSystemInfoContract directoryOrFile, string name, DirectoryInfoContract target)
             {
-                Drive
+                drive
                     .Setup(drive => drive.MoveItem(It.Is<FileSystemInfoContract>(item => item.Id == directoryOrFile.Id), name, target))
                     .Returns((FileSystemInfoContract source, string movePath, DirectoryInfoContract destination) => {
                         var directorySource = source as DirectoryInfoContract;
@@ -453,12 +463,9 @@ namespace IgorSoft.DokanCloudFS.Tests
                         throw new InvalidOperationException($"Unsupported type '{source.GetType().Name}'");
                     });
             }
-
-            internal static bool Contains(Stream stream, string content)
+            internal void VerifyAll()
             {
-                using (var reader = new StreamReader(stream)) {
-                    return reader.ReadToEnd() == content;
-                }
+                drive.VerifyAll();
             }
 
             internal static int BufferSize(long bufferSize, long fileSize, int chunks) => (int)Math.Min(bufferSize, fileSize - chunks * bufferSize);
@@ -469,20 +476,6 @@ namespace IgorSoft.DokanCloudFS.Tests
                 var quotient = Math.DivRem(fileSize, bufferSize, out remainder);
                 return (int)quotient + (remainder > 0 ? 1 : 0);
             }
-
-            public static string GetHash(string value) => GetHash(Encoding.Default.GetBytes(value));
-
-            public static string GetHash(byte[] value)
-            {
-                if (value == null)
-                    throw new ArgumentNullException(nameof(value));
-
-                var hashCode = sha1.ComputeHash(value);
-
-                return BitConverter.ToString(hashCode).Replace("-", string.Empty);
-            }
-
-            private static DateTimeOffset ToDateTime(string value) => DateTimeOffset.Parse(value, CultureInfo.InvariantCulture);
 
             public void Dispose()
             {

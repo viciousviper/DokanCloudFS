@@ -64,6 +64,15 @@ namespace IgorSoft.DokanCloudFS
 
         public void Move(ICloudDrive drive, string newName, CloudDirectoryNode destinationDirectory)
         {
+            if (drive == null)
+                throw new ArgumentNullException(nameof(drive));
+            if (newName == null)
+                throw new ArgumentNullException(nameof(newName));
+            if (destinationDirectory == null)
+                throw new ArgumentNullException(nameof(destinationDirectory));
+            if (parent == null)
+                throw new InvalidOperationException($"{nameof(parent)} of {GetType().Name} '{Name}' is null");
+
             var moveItem = CreateNew(drive.MoveItem(Contract, newName, destinationDirectory.Contract));
             if (destinationDirectory.children != null) {
                 destinationDirectory.children.Add(moveItem.Name, moveItem);
@@ -77,6 +86,9 @@ namespace IgorSoft.DokanCloudFS
 
         public void Remove(ICloudDrive drive)
         {
+            if (drive == null)
+                throw new ArgumentNullException(nameof(drive));
+
             parent.children.Remove(Name);
             drive.RemoveItem(Contract, false);
             SetParent(null);

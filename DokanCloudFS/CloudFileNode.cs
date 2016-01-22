@@ -46,16 +46,25 @@ namespace IgorSoft.DokanCloudFS
 
         public Stream GetContent(ICloudDrive drive)
         {
+            if (drive == null)
+                throw new ArgumentNullException(nameof(drive));
+
             return drive.GetContent(Contract);
         }
 
         public void SetContent(ICloudDrive drive, Stream stream)
         {
+            if (drive == null)
+                throw new ArgumentNullException(nameof(drive));
+
             drive.SetContent(Contract, stream);
         }
 
         public void Truncate(ICloudDrive drive)
         {
+            if (drive == null)
+                throw new ArgumentNullException(nameof(drive));
+
             drive.SetContent(Contract, new MemoryStream());
         }
 
