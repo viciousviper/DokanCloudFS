@@ -25,14 +25,22 @@ SOFTWARE.
 using System;
 using System.Collections.Generic;
 
-namespace IgorSoft.DokanCloudFS.Parameters
+namespace IgorSoft.DokanCloudFS.Mounter.Config
 {
-    public class CloudDriveParameters
+    public static class DriveElementExtensions
     {
-        public string ApiKey { get; set; }
+        public static IDictionary<string, string> GetParameters(this DriveElement config)
+        {
+            if (string.IsNullOrEmpty(config.Parameters))
+                return null;
 
-        public string EncryptionKey { get; set; }
+            var result = new Dictionary<string, string>();
+            foreach (var parameter in config.Parameters.Split('|')) {
+                var components = parameter.Split(new[] { '=' }, 2);
+                result.Add(components[0], components.Length == 2 ? components[1] : null);
+            }
 
-        public IDictionary<string, string> Parameters { get; set; }
+            return result;
+        }
     }
 }

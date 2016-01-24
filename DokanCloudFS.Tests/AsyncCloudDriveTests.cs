@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -40,12 +41,14 @@ namespace IgorSoft.DokanCloudFS.Tests
 
         private string encryptionKey = "<MyEncryptionKey>";
 
+        private IDictionary<string, string> parameters = null;
+
         [TestInitialize]
         public void Initialize()
         {
             fixture = Fixture.Initialize();
         }
-        
+
         [TestMethod]
         public void CloudDrive_Create_Succeeds()
         {
@@ -57,7 +60,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod]
         public void CloudDrive_GetFree_Succeeds()
         {
-            fixture.SetupGetDriveAsync(apiKey);
+            fixture.SetupGetDriveAsync(apiKey, parameters);
 
             var sut = fixture.Create(apiKey, encryptionKey);
             var result = sut.Free;
@@ -68,7 +71,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod]
         public void CloudDrive_GetUsed_Succeeds()
         {
-            fixture.SetupGetDriveAsync(apiKey);
+            fixture.SetupGetDriveAsync(apiKey, parameters);
 
             var sut = fixture.Create(apiKey, encryptionKey);
             var result = sut.Used;
@@ -79,7 +82,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod]
         public void CloudDrive_GetRoot_Succeeds()
         {
-            fixture.SetupGetDriveAsync(apiKey);
+            fixture.SetupGetDriveAsync(apiKey, parameters);
             fixture.SetupGetRootAsync(apiKey);
 
             var sut = fixture.Create(apiKey, encryptionKey);
@@ -91,7 +94,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod]
         public void CloudDrive_GetDisplayRoot_Succeeds()
         {
-            fixture.SetupGetDriveAsync(apiKey);
+            fixture.SetupGetDriveAsync(apiKey, parameters);
             fixture.SetupGetRootAsync(apiKey);
 
             var sut = fixture.Create(apiKey, encryptionKey);
@@ -103,7 +106,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod]
         public void CloudDrive_GetChildItem_Succeeds()
         {
-            fixture.SetupGetDriveAsync(apiKey);
+            fixture.SetupGetDriveAsync(apiKey, parameters);
             fixture.SetupGetRootAsync(apiKey);
             fixture.SetupGetRootDirectoryItemsAsync();
 

@@ -54,7 +54,7 @@ namespace DokanCloudFS.Mounter
                 var tokenSource = new CancellationTokenSource();
                 var tasks = new List<Task>();
                 foreach (var drive in mountSection.Drives.Cast<DriveElement>()) {
-                    var operations = new CloudOperations(factory.CreateCloudDrive(drive.Schema, drive.UserName, drive.Root, new CloudDriveParameters() { EncryptionKey = drive.EncryptionKey }), logger);
+                    var operations = new CloudOperations(factory.CreateCloudDrive(drive.Schema, drive.UserName, drive.Root, new CloudDriveParameters() { EncryptionKey = drive.EncryptionKey, Parameters = drive.GetParameters() }), logger);
 
                     tasks.Add(Task.Run(() => operations.Mount(drive.Root, DokanOptions.RemovableDrive, mountSection.Threads, 800, TimeSpan.FromSeconds(drive.Timeout != 0 ? drive.Timeout : 20)), tokenSource.Token));
                 }

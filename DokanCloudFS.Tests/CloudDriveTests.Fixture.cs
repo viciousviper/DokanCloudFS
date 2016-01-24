@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Moq;
@@ -80,10 +81,10 @@ namespace IgorSoft.DokanCloudFS.Tests
                 return new CloudDrive(new RootName(SCHEMA, USER_NAME, MOUNT_POINT), gateway.Object, new CloudDriveParameters() { ApiKey = apiKey, EncryptionKey = encryptionKey });
             }
 
-            public void SetupGetDrive(string apiKey)
+            public void SetupGetDrive(string apiKey, IDictionary<string, string> parameters)
             {
                 gateway
-                    .Setup(g => g.GetDrive(rootName, apiKey))
+                    .Setup(g => g.GetDrive(rootName, apiKey, parameters))
                     .Returns(root.Drive);
             }
 

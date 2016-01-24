@@ -82,10 +82,10 @@ namespace IgorSoft.DokanCloudFS.Tests
                 return new AsyncCloudDrive(new RootName(SCHEMA, USER_NAME, MOUNT_POINT), gateway.Object, new CloudDriveParameters() { ApiKey = apiKey, EncryptionKey = encryptionKey });
             }
 
-            public void SetupGetDriveAsync(string apiKey)
+            public void SetupGetDriveAsync(string apiKey, IDictionary<string, string> parameters)
             {
                 gateway
-                    .Setup(g => g.GetDriveAsync(rootName, apiKey))
+                    .Setup(g => g.GetDriveAsync(rootName, apiKey, parameters))
                     .Returns(Task.FromResult(root.Drive));
             }
 

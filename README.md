@@ -31,7 +31,7 @@ Some limitations apply concerning transfer speed, maximum file size, permissions
 
 DokanCloudFS requires a gateway assembly for any cloud storage service to be used as a backend.
 
-The expected gateway interface types and a set of prefabricated gateways can be taken from the GitHub repository of the related [CloudFS](https://github.com/viciousviper/CloudFS) project.<br />The associated NuGet packages [CloudFS](https://www.nuget.org/packages/CloudFS/) and [CloudFS-Signed](https://www.nuget.org/packages/CloudFS-Signed/) include preconfigured API keys for the included cloud storage services and are ready to use.
+The expected gateway interface types and a set of prefabricated gateways can be taken from the GitHub repository of the related [CloudFS](https://github.com/viciousviper/CloudFS) project.<br />The associated NuGet packages [CloudFS](https://www.nuget.org/packages/CloudFS/) and [CloudFS-Signed](https://www.nuget.org/packages/CloudFS-Signed/) include preconfigured API keys for the included cloud storage services and are ready to use. Unless marked otherwise, CloudFS NuGet packages should be used in a version matching the DokanCloudFS version.
 
 ## System Requirements
 
@@ -61,11 +61,12 @@ The expected gateway interface types and a set of prefabricated gateways can be 
   <mount libPath="..\..\..\Library" threads="5">
     <drives>
       <drive schema="onedrive" userName="OneDriveUser" root="Q:" encryptionKey="MyOneDriveSecret&amp;I" timeout="300" />
-      <!--<drive schema="box" userName="BoxUser" root="R:" encryptionKey="MyBoxSecret&amp;I" timeout="300" />
-      <drive schema="copy" userName="CopyUser" root="S:" encryptionKey="MyCopySecret&amp;I" timeout="300" />
-      <drive schema="gdrive" userName="GDriveUser" root="T:" encryptionKey="MyGDriveSecret&amp;I" timeout="300" />
-      <drive schema="mega" userName="MegaUser" root="U:" encryptionKey="MyMegaSecret&amp;I" timeout="300" />
-      <drive schema="pcloud" userName="pCloudUser" root="V:" encryptionKey="MypCloudSecret&amp;I" timeout="300" />-->
+      <!--<drive schema="box" userName="BoxUser" root="R:" encryptionKey="MyBoxSecret&amp;I" timeout="300" />-->
+      <!--<drive schema="copy" userName="CopyUser" root="S:" encryptionKey="MyCopySecret&amp;I" timeout="300" />-->
+      <drive schema="file" root="T:" encryptionKey="MyFileSecret&amp;I" parameters="root=..\..\..\TestData" />
+      <!--<drive schema="gdrive" userName="GDriveUser" root="U:" encryptionKey="MyGDriveSecret&amp;I" timeout="300" />-->
+      <!--<drive schema="mega" userName="MegaUser" root="V:" encryptionKey="MyMegaSecret&amp;I" timeout="300" />-->
+      <!--<drive schema="pcloud" userName="pCloudUser" root="W:" encryptionKey="MypCloudSecret&amp;I" timeout="300" />-->
     </drives>
   </mount>
 ```
@@ -76,12 +77,16 @@ Configuration options:
     - **libPath**: Path to search for gateway plugin assemblies (relative to the location of *DokanCloudFS.exe*).<br/>All plugin dependencies not covered directly by DokanCloudFS should be placed in this path as well.
     - **threads**: Number of concurrent threads used by the Dokan driver.<br />Defaults to 5.
   - Per drive
-    - **schema**: Selects the cloud storage service gateway to be used.<br />Must correspond to one of the *CloudFS* gateways installed in the *Gateways\\* subdirectory. Presently supports the following values:
-      - onedrive (tested)
-      - box, copy, gdrive, mega, pcloud (test pending)
+    - **schema**: Selects the cloud storage service gateway to be used.<br />Must correspond to one of the *CloudFS* gateways installed in the *libPath* subdirectory. Presently supports the following values:
+      - *onedrive* (tested)
+      - *box*, *copy*, *gdrive*, *mega*, *pcloud* (test pending)
+      - *file* (tested - mounting of local folders only)
     - **userName**: User account to be displayed in the mounted drive label.
     - **root**: The drive letter to be used as mount point for the cloud drive.<br />Choose a free drive letter such as *L:*.
     - **encryptionKey**: An arbitrary symmetric key for the transparent client-side AES encryption.<br />Leave this empty only if you *really* want to store content without encryption.
+    - **parameters**: Custom parameters as required by the specific cloud storage service gateway. Multiple parameters are separated by a pipe-character `|`.
+      - *file* gateway - requires a *root*-parameter specifying the target directory (e.g. `parameters="root=X:\Encrypted"`)
+      - other gateways - no custom parameters supported so far
     - **timeout:** The timeout value for file operations on this drive measured in seconds.<br />A value of *300* should suffice for all but the slowest connections.
 
 ## Limitations
@@ -103,9 +108,12 @@ You have been warned.
 
 ## Release Notes
 
-  - 2016-01-20 Version 1.0.1-alpha - NuGet dependencies updated, tests for CloudOperations made offline executable, code coverage analysis via codecov configured.
-  - 2016-01-10 Version 1.0.0-alpha - Initial release.
-  - 2015-12-30 Version 1.0.0.0 - Initial commit. This version has not been extensively tested apart from the OneDrive gateway - **expect bugs**.
+| Date       | Version     | Comments                                                                       |
+| :--------- | :---------- | :----------------------------------------------------------------------------- |
+| 2016-01-24 | 1.0.2-alpha | - Gateway configuration extended to accept custom parameters. This change **breaks compatibility** with earlier API versions.<br/>- File Gateway configuration added in App.config |
+| 2016-01-20 | 1.0.1-alpha | - NuGet dependencies updated, tests for CloudOperations made offline executable, code coverage analysis via codecov configured |
+| 2016-01-10 | 1.0.0-alpha | - Initial release                                                              |
+| 2015-12-30 | 1.0.0.0     | - Initial commit<br/>This version has not been extensively tested apart from the OneDrive gateway - **expect bugs**. |
 
 ## Future plans
 

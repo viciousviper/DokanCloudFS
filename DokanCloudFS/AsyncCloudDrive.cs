@@ -40,16 +40,19 @@ namespace IgorSoft.DokanCloudFS
 
         private IAsyncCloudGateway gateway;
 
+        private IDictionary<string, string> parameters;
+
         public AsyncCloudDrive(RootName rootName, IAsyncCloudGateway gateway, CloudDriveParameters parameters) : base(rootName, parameters)
         {
             this.gateway = gateway;
+            this.parameters = parameters.Parameters;
         }
 
         protected override DriveInfoContract GetDrive()
         {
             try {
                 if (drive == null) {
-                    drive = gateway.GetDriveAsync(rootName, apiKey).Result;
+                    drive = gateway.GetDriveAsync(rootName, apiKey, parameters).Result;
                     drive.Name = DisplayRoot + Path.VolumeSeparatorChar;
                 }
                 return drive;
@@ -61,8 +64,9 @@ namespace IgorSoft.DokanCloudFS
         public RootDirectoryInfoContract GetRoot()
         {
             return ExecuteInSemaphore(() => {
+                var drive = GetDrive();
                 var root = gateway.GetRootAsync(rootName, apiKey).Result;
-                root.Drive = GetDrive();
+                root.Drive = drive;
                 return root;
             }, nameof(GetRoot));
         }

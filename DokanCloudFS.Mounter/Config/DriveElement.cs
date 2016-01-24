@@ -35,6 +35,7 @@ namespace IgorSoft.DokanCloudFS.Mounter.Config
         private const string rootPropertyName = "root";
         private const string apiKeyPropertyName = "apiKey";
         private const string encryptionKeyPropertyName = "encryptionKey";
+        private const string parametersPropertyName = "parameters";
         private const string timeoutPropertyName = "timeout";
 
         [ConfigurationProperty(schemaPropertyName, IsRequired = true)]
@@ -70,6 +71,13 @@ namespace IgorSoft.DokanCloudFS.Mounter.Config
         {
             get { return (string)this[encryptionKeyPropertyName]; }
             set { this[encryptionKeyPropertyName] = value; }
+        }
+
+        [ConfigurationProperty(parametersPropertyName)]
+        public string Parameters
+        {
+            get { return (string)this[parametersPropertyName]; }
+            set { this[parametersPropertyName] = value; }
         }
 
         [ConfigurationProperty(timeoutPropertyName)]

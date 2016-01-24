@@ -40,15 +40,18 @@ namespace IgorSoft.DokanCloudFS
 
         private ICloudGateway gateway;
 
+        private IDictionary<string, string> parameters;
+
         public CloudDrive(RootName rootName, ICloudGateway gateway, CloudDriveParameters parameters) : base(rootName, parameters)
         {
             this.gateway = gateway;
+            this.parameters = parameters.Parameters;
         }
 
         protected override DriveInfoContract GetDrive()
         {
             if (drive == null) {
-                drive = gateway.GetDrive(rootName, apiKey);
+                drive = gateway.GetDrive(rootName, apiKey, parameters);
                 drive.Name = DisplayRoot + Path.VolumeSeparatorChar;
             }
             return drive;
@@ -57,8 +60,9 @@ namespace IgorSoft.DokanCloudFS
         public RootDirectoryInfoContract GetRoot()
         {
             return ExecuteInSemaphore(() => {
+                var drive = GetDrive();
                 var root = gateway.GetRoot(rootName, apiKey);
-                root.Drive = GetDrive();
+                root.Drive = drive;
                 return root;
             }, nameof(GetRoot));
         }
