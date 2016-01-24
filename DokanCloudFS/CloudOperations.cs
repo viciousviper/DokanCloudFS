@@ -147,6 +147,8 @@ namespace IgorSoft.DokanCloudFS
                     Trace(nameof(Cleanup), fileName, info, context.Task.IsCompleted ? DokanResult.Success : DokanResult.Error);
                     return;
                 }
+
+                context?.Dispose();
             }
 
             Trace(nameof(Cleanup), fileName, info, DokanResult.Success);
