@@ -135,6 +135,27 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod]
+        public void CloudDrive_GetContent_WhereContentIsUnencrypted_Succeeds()
+        {
+            var fileContent = Encoding.Default.GetBytes("Why did the chicken cross the road?");
+            var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
+
+            fixture.SetupGetContentAsync(sutContract, fileContent);
+
+            var sut = fixture.Create(apiKey, encryptionKey);
+            var buffer = default(byte[]);
+            using (var stream = sut.GetContent(sutContract)) {
+                buffer = new byte[stream.Length];
+                stream.Read(buffer, 0, buffer.Length);
+            }
+
+            Assert.AreEqual(fileContent.Length, buffer.Length, "Invalid content size");
+            CollectionAssert.AreEqual(fileContent, buffer.ToArray(), "Unexpected content");
+
+            fixture.VerifyAll();
+        }
+
+        [TestMethod]
         public void CloudDrive_MoveDirectoryItem_Succeeds()
         {
             var sutContract = fixture.RootDirectoryItems.OfType<DirectoryInfoContract>().Last();

@@ -103,7 +103,7 @@ namespace IgorSoft.DokanCloudFS.Tests
                     .Returns(Task.FromResult((IEnumerable<FileSystemInfoContract>)RootDirectoryItems));
             }
 
-            public void SetupGetContentAsync(FileInfoContract source, byte[] content, string encryptionKey)
+            public void SetupGetContentAsync(FileInfoContract source, byte[] content, string encryptionKey = null)
             {
                 var stream = new MemoryStream(content);
                 if (!string.IsNullOrEmpty(encryptionKey)) {

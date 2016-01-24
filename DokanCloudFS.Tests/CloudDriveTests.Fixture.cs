@@ -101,7 +101,7 @@ namespace IgorSoft.DokanCloudFS.Tests
                     .Returns(RootDirectoryItems);
             }
 
-            public void SetupGetContent(FileInfoContract source, byte[] content, string encryptionKey)
+            public void SetupGetContent(FileInfoContract source, byte[] content, string encryptionKey = null)
             {
                 var stream = new MemoryStream(content);
                 if (!string.IsNullOrEmpty(encryptionKey)) {

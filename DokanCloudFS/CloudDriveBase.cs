@@ -30,7 +30,7 @@ using IgorSoft.CloudFS.Interface.IO;
 
 namespace IgorSoft.DokanCloudFS
 {
-    internal abstract class CloudDriveBase
+    internal abstract class CloudDriveBase : IDisposable
     {
         protected RootName rootName;
 
@@ -89,5 +89,11 @@ namespace IgorSoft.DokanCloudFS
         }
 
         protected abstract DriveInfoContract GetDrive();
+
+        public void Dispose()
+        {
+            semaphore?.Dispose();
+            semaphore = null;
+        }
     }
 }

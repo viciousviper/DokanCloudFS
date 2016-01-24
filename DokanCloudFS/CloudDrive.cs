@@ -85,7 +85,12 @@ namespace IgorSoft.DokanCloudFS
                 }
 
                 if (!string.IsNullOrEmpty(encryptionKey))
-                    result = result.Decrypt(encryptionKey);
+                    try {
+                        result = result.Decrypt(encryptionKey);
+                    } catch (InvalidDataException) {
+                        // Ignore InvalidDataException to enable reading of unencrypted content from cloud volumes
+                        result.Seek(0, SeekOrigin.Begin);
+                    }
 
 #if DEBUG
                 result = new TraceStream(nameof(source), source.Name, result);
