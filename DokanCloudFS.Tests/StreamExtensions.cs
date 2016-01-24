@@ -23,17 +23,44 @@ SOFTWARE.
 */
 
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace IgorSoft.DokanCloudFS.Tests
 {
     internal static class StreamExtensions
     {
-        public static bool Contains(this Stream stream, string content)
+        public static bool Contains(this Stream stream, byte[] content)
         {
-            using (var reader = new StreamReader(stream)) {
-                return reader.ReadToEnd() == content;
-            }
+            var position = stream.Position;
+            stream.Seek(0, SeekOrigin.Begin);
+            var buffer = new byte[stream.Length];
+            var result = (stream.Read(buffer, 0, buffer.Length) == stream.Length && buffer.SequenceEqual(content));
+            stream.Seek(position, SeekOrigin.Begin);
+            return result;
+        }
+
+        public static void FindDifferences(this Stream stream, byte[] content, ICollection<Tuple<int, int, byte[], byte[]>> differences)
+        {
+            var position = stream.Position;
+            stream.Seek(0, SeekOrigin.Begin);
+            var buffer = new byte[stream.Length];
+            if (stream.Read(buffer, 0, buffer.Length) != stream.Length)
+                throw new InvalidOperationException("Failure reading from Stream");
+            stream.Seek(position, SeekOrigin.Begin);
+
+            for (int i = 0; i < buffer.Length;)
+                if (buffer[i] == content[i]) {
+                    ++i;
+                } else {
+                    var j = i + 1;
+                    while (j < buffer.Length && buffer[j] != content[j])
+                        ++j;
+                    var length = j - i;
+                    differences.Add(new Tuple<int, int, byte[], byte[]>(i, length, buffer.Skip(i).Take(length).ToArray(), content.Skip(i).Take(length).ToArray()));
+                    i = j;
+                }
         }
     }
 }

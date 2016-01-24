@@ -66,9 +66,8 @@ namespace IgorSoft.DokanCloudFS.Tests
             fixture.SetupGetContent(contract, fileContent);
 
             var sut = fixture.GetFile(contract);
-            var result = sut.GetContent(fixture.Drive);
-
-            using (var reader = new StreamReader(result)) {
+            using (var stream = sut.GetContent(fixture.Drive))
+            using (var reader = new StreamReader(stream)) {
                 Assert.AreEqual(fileContent, reader.ReadToEnd(), "Diverging result");
             }
 
@@ -122,13 +121,13 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void CloudFileNode_SetContent_Succeeds()
         {
-            var fileContent = "Mary had a little lamb";
+            var fileContent = Encoding.Default.GetBytes("Mary had a little lamb");
             var contract = fixture.TestFile;
 
             fixture.SetupSetContent(contract, fileContent);
 
             var sut = fixture.GetFile(contract);
-            using (var stream = new MemoryStream(Encoding.Default.GetBytes(fileContent))) {
+            using (var stream = new MemoryStream(fileContent)) {
                 sut.SetContent(fixture.Drive, stream);
             }
 

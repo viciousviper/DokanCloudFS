@@ -317,7 +317,7 @@ namespace IgorSoft.DokanCloudFS.Tests
                     Thread.Sleep(50);
             }
 
-            internal void Reset()
+            public void Reset()
             {
                 drive = new Mock<ICloudDrive>(MockBehavior.Strict);
 
@@ -329,37 +329,37 @@ namespace IgorSoft.DokanCloudFS.Tests
                     file.Directory = rootDirectory;
             }
 
-            internal DriveInfo GetDriveInfo() => new DriveInfo(MOUNT_POINT);
+            public DriveInfo GetDriveInfo() => new DriveInfo(MOUNT_POINT);
 
-            internal void SetupGetRoot()
+            public void SetupGetRoot()
             {
                 drive
                     .Setup(d => d.GetRoot())
                     .Returns(rootDirectory);
             }
 
-            internal void SetupGetDisplayRoot(string root = null)
+            public void SetupGetDisplayRoot(string root = null)
             {
                 drive
                     .SetupGet(d => d.DisplayRoot)
                     .Returns(root ?? (new RootName(SCHEMA, USER_NAME, MOUNT_POINT)).Value);
             }
 
-            internal void SetupGetFree(long free)
+            public void SetupGetFree(long free)
             {
                 drive
                     .SetupGet(d => d.Free)
                     .Returns(free);
             }
 
-            internal void SetupGetUsed(long used)
+            public void SetupGetUsed(long used)
             {
                 drive
                     .SetupGet(d => d.Used)
                     .Returns(used);
             }
 
-            internal void SetupGetRootDirectoryItems(IEnumerable<FileSystemInfoContract> items = null)
+            public void SetupGetRootDirectoryItems(IEnumerable<FileSystemInfoContract> items = null)
             {
                 SetupGetRoot();
 
@@ -368,21 +368,21 @@ namespace IgorSoft.DokanCloudFS.Tests
                     .Returns(items ?? RootDirectoryItems);
             }
 
-            internal void SetupGetSubDirectory2Items(IEnumerable<FileSystemInfoContract> items = null)
+            public void SetupGetSubDirectory2Items(IEnumerable<FileSystemInfoContract> items = null)
             {
                 drive
                     .Setup(drive => drive.GetChildItem(It.Is<DirectoryInfoContract>(directory => directory.Id.Value == @"\SubDir2")))
                     .Returns(items ?? SubDirectory2Items);
             }
 
-            internal void SetupGetEmptyDirectoryItems(string directoryId)
+            public void SetupGetEmptyDirectoryItems(string directoryId)
             {
                 drive
                     .Setup(drive => drive.GetChildItem(It.Is<DirectoryInfoContract>(directory => directory.Id.Value == directoryId)))
                     .Returns(Enumerable.Empty<DirectoryInfoContract>());
             }
 
-            internal DirectoryInfoContract SetupNewDirectory(string parentName, string directoryName)
+            public DirectoryInfoContract SetupNewDirectory(string parentName, string directoryName)
             {
                 var parentId = new DirectoryId(parentName);
                 var directory = new DirectoryInfoContract($"{parentId.Value}{directoryName}\\", directoryName, "2016-01-01 12:00:00".ToDateTime(), "2016-01-01 12:00:00".ToDateTime());
@@ -392,12 +392,12 @@ namespace IgorSoft.DokanCloudFS.Tests
                 return directory;
             }
 
-            internal FileInfoContract SetupNewFile(string parentId, string fileName)
+            public FileInfoContract SetupNewFile(string parentId, string fileName)
             {
                 return SetupNewFile(new DirectoryId(parentId), fileName);
             }
 
-            internal FileInfoContract SetupNewFile(DirectoryId parentId, string fileName)
+            public FileInfoContract SetupNewFile(DirectoryId parentId, string fileName)
             {
                 var file = new FileInfoContract($"{parentId.Value.TrimEnd('\\')}\\{fileName}", fileName, "2016-02-01 12:00:00".ToDateTime(), "2016-02-01 12:00:00".ToDateTime(), 0, null);
                 drive
@@ -406,45 +406,53 @@ namespace IgorSoft.DokanCloudFS.Tests
                 return file;
             }
 
-            internal void SetupGetFileContent(FileInfoContract file, string content)
+            public void SetupGetFileContent(FileInfoContract file, byte[] content)
             {
                 drive
                     .Setup(drive => drive.GetContent(It.Is<FileInfoContract>(f => f.Id == file.Id)))
-                    .Returns(!string.IsNullOrEmpty(content) ? new MemoryStream(Encoding.Default.GetBytes(content)) : new MemoryStream());
+                    .Returns(new MemoryStream(content));
             }
 
-            internal void SetupSetFileContent(FileInfoContract file, string content)
+            public void SetupSetFileContent(FileInfoContract file, byte[] content)
             {
                 drive
                     .Setup(drive => drive.SetContent(It.Is<FileInfoContract>(f => f.Id == file.Id), It.Is<Stream>(s => s.Contains(content))));
             }
 
-            internal void SetupGetFileContentWithError(FileInfoContract file)
+            public void SetupSetFileContent(FileInfoContract file, byte[] content, ICollection<Tuple<int, int, byte[], byte[]>> differences)
+            {
+                drive
+                    .Setup(drive => drive.SetContent(It.Is<FileInfoContract>(f => f.Id == file.Id), It.IsAny<Stream>()))
+                    .Callback((FileInfoContract _file, Stream _stream) => _stream.FindDifferences(content, differences));
+            }
+
+            public void SetupGetFileContentWithError(FileInfoContract file)
             {
                 drive
                     .Setup(drive => drive.GetContent(It.Is<FileInfoContract>(f => f.Id == file.Id)))
                     .Throws(new IOException("Error during GetContent"));
             }
 
-            internal void SetupSetFileContentWithError(FileInfoContract file, string content)
+            public void SetupSetFileContentWithError<TException>(FileInfoContract file, byte[] content)
+                where TException : Exception, new()
             {
                 drive
                     .Setup(drive => drive.SetContent(It.Is<FileInfoContract>(f => f.Id == file.Id), It.Is<Stream>(s => s.Contains(content))))
-                    .Throws(new IOException("Error during SetContent"));
+                    .Throws<TException>();
             }
 
-            internal void SetupDeleteDirectoryOrFile(FileSystemInfoContract directoryOrFile, bool recurse = false)
+            public void SetupDeleteDirectoryOrFile(FileSystemInfoContract directoryOrFile, bool recurse = false)
             {
                 drive
                     .Setup(drive => drive.RemoveItem(It.Is<FileSystemInfoContract>(item => item.Id == directoryOrFile.Id), recurse));
             }
 
-            internal void SetupMoveDirectoryOrFile(FileSystemInfoContract directoryOrFile, DirectoryInfoContract target)
+            public void SetupMoveDirectoryOrFile(FileSystemInfoContract directoryOrFile, DirectoryInfoContract target)
             {
                 SetupMoveItem(directoryOrFile, directoryOrFile.Name, target);
             }
 
-            internal void SetupRenameDirectoryOrFile(FileSystemInfoContract directoryOrFile, string name)
+            public void SetupRenameDirectoryOrFile(FileSystemInfoContract directoryOrFile, string name)
             {
                 SetupMoveItem(directoryOrFile, name, (directoryOrFile as DirectoryInfoContract)?.Parent ?? (directoryOrFile as FileInfoContract)?.Directory ?? null);
             }
@@ -463,14 +471,15 @@ namespace IgorSoft.DokanCloudFS.Tests
                         throw new InvalidOperationException($"Unsupported type '{source.GetType().Name}'");
                     });
             }
-            internal void VerifyAll()
+
+            public void VerifyAll()
             {
                 drive.VerifyAll();
             }
 
-            internal static int BufferSize(long bufferSize, long fileSize, int chunks) => (int)Math.Min(bufferSize, fileSize - chunks * bufferSize);
+            public static int BufferSize(long bufferSize, long fileSize, int chunks) => (int)Math.Min(bufferSize, fileSize - chunks * bufferSize);
 
-            internal static int NumberOfChunks(long bufferSize, long fileSize)
+            public static int NumberOfChunks(long bufferSize, long fileSize)
             {
                 var remainder = default(long);
                 var quotient = Math.DivRem(fileSize, bufferSize, out remainder);

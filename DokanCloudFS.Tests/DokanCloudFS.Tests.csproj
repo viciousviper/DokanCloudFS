@@ -65,6 +65,10 @@
       <SpecificVersion>False</SpecificVersion>
       <Private>True</Private>
     </Reference>
+    <Reference Include="SharpAESCrypt, Version=1.0.1.0, Culture=neutral, PublicKeyToken=da45da0a7b8da0d2, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Library\SharpAESCrypt.exe</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
@@ -86,6 +90,9 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="AsyncCloudDriveTests.Fixture.cs">
+      <DependentUpon>AsyncCloudDriveTests.cs</DependentUpon>
+    </Compile>
     <Compile Include="BlockMapExtensions.cs">
       <DependentUpon>BlockMapTests.cs</DependentUpon>
     </Compile>
@@ -97,6 +104,12 @@
     <Compile Include="CloudDirectoryNodeTests.Fixture.cs">
       <DependentUpon>CloudDirectoryNodeTests.cs</DependentUpon>
     </Compile>
+    <Compile Include="AsyncCloudDriveTests.cs" />
+    <Compile Include="CloudDriveTests.cs" />
+    <Compile Include="CloudDriveTests.Fixture.cs">
+      <DependentUpon>CloudDriveTests.cs</DependentUpon>
+    </Compile>
+    <Compile Include="StreamExtensionsTest.cs" />
     <Compile Include="CloudFileNodeTests.cs" />
     <Compile Include="CloudFileNodeTests.Fixture.cs">
       <DependentUpon>CloudFileNodeTests.cs</DependentUpon>

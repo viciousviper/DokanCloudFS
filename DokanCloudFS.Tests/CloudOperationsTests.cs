@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -343,7 +344,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         public void FileInfo_Create_Succeeds()
         {
             var fileName = "NewFile.ext";
-            var fileContent = "Why did the chicken cross the road?";
+            var fileContent = Encoding.Default.GetBytes("Why did the chicken cross the road?");
 
             fixture.SetupGetRootDirectoryItems();
             var file = fixture.SetupNewFile(Path.DirectorySeparatorChar.ToString(), fileName);
@@ -352,7 +353,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             var sut = fixture.GetDriveInfo().RootDirectory;
             var newFile = new FileInfo(sut.FullName + fileName);
             using (var fileStream = newFile.Create()) {
-                fileStream.WriteAsync(Encoding.Default.GetBytes(fileContent), 0, Encoding.Default.GetByteCount(fileContent)).Wait();
+                fileStream.WriteAsync(fileContent, 0, fileContent.Length).Wait();
                 fileStream.Close();
             }
 
@@ -388,7 +389,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void FileInfo_CopyToDirectory_Succeeds()
         {
-            var fileContent = "Why did the chicken cross the road?";
+            var fileContent = Encoding.Default.GetBytes("Why did the chicken cross the road?");
 
             var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
             var targetContract = fixture.RootDirectoryItems.OfType<DirectoryInfoContract>().Last();
@@ -473,7 +474,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void FileStream_Read_Succeeds()
         {
-            var fileContent = "Why did the chicken cross the road?";
+            var fileContent = Encoding.Default.GetBytes("Why did the chicken cross the road?");
             var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
 
             fixture.SetupGetRootDirectoryItems();
@@ -483,13 +484,12 @@ namespace IgorSoft.DokanCloudFS.Tests
             var sut = new FileInfo(root.FullName + sutContract.Name);
             var buffer = default(byte[]);
             using (var fileStream = sut.OpenRead()) {
-                var i = fileStream.Length;
                 buffer = new byte[fileStream.Length];
                 fileStream.Read(buffer, 0, buffer.Length);
             }
 
             Assert.AreEqual(sut.Length, buffer.Length, "Invalid file size");
-            StringAssert.StartsWith(Encoding.Default.GetString(buffer), fileContent, "Unexpected file content");
+            CollectionAssert.AreEqual(fileContent, buffer.Take(fileContent.Length).ToArray(), "Unexpected file content");
 
             fixture.VerifyAll();
         }
@@ -497,7 +497,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void FileStream_Write_Succeeds()
         {
-            var fileContent = "Why did the chicken cross the road?";
+            var fileContent = Encoding.Default.GetBytes("Why did the chicken cross the road?");
             var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
 
             fixture.SetupGetRootDirectoryItems();
@@ -506,7 +506,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             var root = fixture.GetDriveInfo().RootDirectory;
             var sut = new FileInfo(root.FullName + sutContract.Name);
             using (var fileStream = sut.OpenWrite()) {
-                fileStream.WriteAsync(Encoding.Default.GetBytes(fileContent), 0, Encoding.Default.GetByteCount(fileContent)).Wait();
+                fileStream.WriteAsync(fileContent, 0, fileContent.Length).Wait();
                 fileStream.Close();
             }
 
@@ -533,7 +533,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void FileStream_FlushAfterWrite_Succeeds()
         {
-            var fileContent = "Why did the chicken cross the road?";
+            var fileContent = Encoding.Default.GetBytes("Why did the chicken cross the road?");
             var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
 
             fixture.SetupGetRootDirectoryItems();
@@ -542,7 +542,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             var root = fixture.GetDriveInfo().RootDirectory;
             var sut = new FileInfo(root.FullName + sutContract.Name);
             using (var fileStream = sut.OpenWrite()) {
-                fileStream.WriteAsync(Encoding.Default.GetBytes(fileContent), 0, Encoding.Default.GetByteCount(fileContent)).Wait();
+                fileStream.WriteAsync(fileContent, 0, fileContent.Length).Wait();
                 fileStream.FlushAsync().Wait();
                 fileStream.Close();
             }
@@ -586,7 +586,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         [ExpectedException(typeof(IOException))]
-        public void FileStream_ExceptionDuringRead_Throws()
+        public void FileStream_ExceptionDuringRead_ReturnsEmptyBuffer()
         {
             var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
 
@@ -598,30 +598,54 @@ namespace IgorSoft.DokanCloudFS.Tests
             var buffer = default(byte[]);
             using (var fileStream = sut.OpenRead()) {
                 buffer = new byte[fileStream.Length];
-                fileStream.Read(buffer, 0, buffer.Length);
+                var bytesRead = fileStream.Read(buffer, 0, buffer.Length);
+
+                Assert.AreEqual(0, bytesRead, "Unexpected bytes read");
+                Assert.IsTrue(buffer.All(b => b == default(byte)), "Returned buffer is not empty");
             }
 
             fixture.VerifyAll();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
-        public void FileStream_ExceptionDuringWrite_Throws()
+        public void FileStream_IOExceptionDuringWrite_RemovesFile()
         {
-            var fileContent = "Why did the chicken cross the road?";
+            var fileContent = Encoding.Default.GetBytes("Why did the chicken cross the road?");
             var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
 
             fixture.SetupGetRootDirectoryItems();
-            fixture.SetupSetFileContentWithError(sutContract, fileContent);
+            fixture.SetupSetFileContentWithError<IOException>(sutContract, fileContent);
             fixture.SetupDeleteDirectoryOrFile(sutContract);
 
             var root = fixture.GetDriveInfo().RootDirectory;
             var sut = new FileInfo(root.FullName + sutContract.Name);
             using (var fileStream = sut.OpenWrite()) {
-                fileStream.WriteAsync(Encoding.Default.GetBytes(fileContent), 0, Encoding.Default.GetByteCount(fileContent)).Wait();
+                fileStream.WriteAsync(fileContent, 0, fileContent.Length).Wait();
                 fileStream.Close();
             }
 
             Assert.IsFalse(sut.Exists, "Defective file found");
+
+            fixture.VerifyAll();
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void FileStream_UnauthorizedAccessExceptionDuringWrite_KeepsFile()
+        {
+            var fileContent = Encoding.Default.GetBytes("Why did the chicken cross the road?");
+            var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
+
+            fixture.SetupGetRootDirectoryItems();
+            fixture.SetupSetFileContentWithError<UnauthorizedAccessException>(sutContract, fileContent);
+
+            var root = fixture.GetDriveInfo().RootDirectory;
+            var sut = new FileInfo(root.FullName + sutContract.Name);
+            using (var fileStream = sut.OpenWrite()) {
+                fileStream.WriteAsync(fileContent, 0, fileContent.Length).Wait();
+                fileStream.Close();
+            }
+
+            Assert.IsTrue(sut.Exists, "File removed");
 
             fixture.VerifyAll();
         }
@@ -633,19 +657,22 @@ namespace IgorSoft.DokanCloudFS.Tests
         {
             var bufferSize = int.Parse((string)TestContext.DataRow["BufferSize"]);
             var fileSize = int.Parse((string)TestContext.DataRow["FileSize"]);
-            var testInput = Enumerable.Range(0, fileSize).Select(i => (byte)(i % 251)).ToArray();
+            var testInput = Enumerable.Range(0, fileSize).Select(i => (byte)(i % 251 + 1)).ToArray();
             var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
 
             fixture.SetupGetRootDirectoryItems();
             var file = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
-            fixture.SetupGetFileContent(file, Encoding.Default.GetString(testInput));
+            fixture.SetupGetFileContent(file, testInput);
 
             var root = fixture.GetDriveInfo().RootDirectory;
             var sut = new FileInfo(root.FullName + sutContract.Name);
             using (var fileStream = sut.OpenRead()) {
                 var chunks = NativeMethods.ReadEx(root.FullName + file.Name, bufferSize, fileSize);
 
-                CollectionAssert.AreEqual(testInput, chunks.Aggregate(Enumerable.Empty<byte>(), (b, c) => b.Concat(c.Buffer), b => b.ToArray()), "Unexpected file content");
+                Assert.IsTrue(chunks.All(c => c.Win32Error == 0), "Win32Error occured");
+                var result = chunks.Aggregate(Enumerable.Empty<byte>(), (b, c) => b.Concat(c.Buffer), b => b.ToArray());
+                Assert.IsFalse(result.Any(b => b == default(byte)), "Uninitialized data detected");
+                CollectionAssert.AreEqual(testInput, result, "Unexpected file content");
             }
 
             fixture.VerifyAll();
@@ -658,12 +685,13 @@ namespace IgorSoft.DokanCloudFS.Tests
         {
             var bufferSize = int.Parse((string)TestContext.DataRow["BufferSize"]);
             var fileSize = int.Parse((string)TestContext.DataRow["FileSize"]);
-            var testInput = Enumerable.Range(0, fileSize).Select(i => (byte)(i % 251)).ToArray();
+            var testInput = Enumerable.Range(0, fileSize).Select(i => (byte)(i % 251 + 1)).ToArray();
             var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
+            var differences = new SynchronizedCollection<Tuple<int, int, byte[], byte[]>>();
 
             fixture.SetupGetRootDirectoryItems();
             var file = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
-            fixture.SetupSetFileContent(file, Encoding.Default.GetString(testInput));
+            fixture.SetupSetFileContent(file, testInput, differences);
 
             var root = fixture.GetDriveInfo().RootDirectory;
             var sut = new FileInfo(root.FullName + sutContract.Name);
@@ -672,7 +700,11 @@ namespace IgorSoft.DokanCloudFS.Tests
                     .Select(i => new NativeMethods.OverlappedChunk(testInput.Skip(i * bufferSize).Take(NativeMethods.BufferSize(bufferSize, fileSize, i)).ToArray())).ToArray();
 
                 NativeMethods.WriteEx(root.FullName + file.Name, bufferSize, fileSize, chunks);
+
+                Assert.IsTrue(chunks.All(c => c.Win32Error == 0), "Win32Error occured");
             }
+
+            Assert.IsFalse(differences.Any(), "Diverging data detected");
 
             fixture.VerifyAll();
         }

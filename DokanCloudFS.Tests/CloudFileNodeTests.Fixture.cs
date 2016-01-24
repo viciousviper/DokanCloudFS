@@ -35,7 +35,7 @@ namespace IgorSoft.DokanCloudFS.Tests
     {
         internal class Fixture
         {
-            public const string mountPoint = "Z:";
+            private const string mountPoint = "Z:";
 
             private const long freeSpace = 64 * 1 << 20;
 
@@ -103,7 +103,7 @@ namespace IgorSoft.DokanCloudFS.Tests
                     .Setup(d => d.RemoveItem(target, false));
             }
 
-            public void SetupSetContent(FileInfoContract file, string content)
+            public void SetupSetContent(FileInfoContract file, byte[] content)
             {
                 drive
                     .Setup(d => d.SetContent(file, It.Is<Stream>(s => s.Contains(content))));

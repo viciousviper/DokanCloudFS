@@ -122,24 +122,30 @@ namespace IgorSoft.DokanCloudFS
 
         public void Cleanup(string fileName, DokanFileInfo info)
         {
-            if (info.DeleteOnClose)
+            if (info.DeleteOnClose) {
                 (GetItem(fileName) as CloudFileNode)?.Remove(drive);
-            else if (!info.IsDirectory) {
+            } else if (!info.IsDirectory) {
                 var context = info.Context as StreamContext;
                 if (context != null && context.Access.HasFlag(FileAccess.WriteData) && (context.Stream?.CanRead ?? false)) {
                     context.Stream.Seek(0, SeekOrigin.Begin);
-                    context.Task = Task.Run(() => context.File.SetContent(drive, context.Stream))
-                        .ContinueWith(t => {
-                            if (t.IsFaulted)
-                                context.File.Remove(drive);
-                            logger.Trace($"{nameof(context.File.SetContent)} finished on file '{fileName}' (IsFaulted={t.IsFaulted})");
-                        });
+                    context.Task = Task.Run(() => {
+                            try {
+                                context.File.SetContent(drive, context.Stream);
+                            } catch (Exception ex) {
+                                if (!(ex is UnauthorizedAccessException))
+                                    context.File.Remove(drive);
+                                logger.Trace($"{nameof(context.File.SetContent)} failed on file '{fileName}' with {ex.GetType().Name} '{ex.Message}'");
+                                throw;
+                            }
+                        })
+                        .ContinueWith(t => logger.Trace($"{nameof(context.File.SetContent)} finished on file '{fileName}'"), TaskContinuationOptions.OnlyOnRanToCompletion);
                 }
 
                 if (context?.Task != null) {
                     context.Task.Wait();
 
                     Trace(nameof(Cleanup), fileName, info, context.Task.IsCompleted ? DokanResult.Success : DokanResult.Error);
+                    return;
                 }
             }
 
@@ -379,7 +385,7 @@ namespace IgorSoft.DokanCloudFS
                         context.Stream = Stream.Synchronized(context.File.GetContent(drive));
                     } catch (Exception ex) {
                         bytesRead = 0;
-                        return Trace(nameof(ReadFile), fileName, info, DokanResult.Error, $"out {bytesRead}", offset.ToString(CultureInfo.InvariantCulture));
+                        return Trace(nameof(ReadFile), fileName, info, DokanResult.Error, $"out {bytesRead}", offset.ToString(CultureInfo.InvariantCulture), $"{ex.GetType().Name} '{ex.Message}'");
                     }
 
                 context.Stream.Position = offset;
@@ -398,8 +404,17 @@ namespace IgorSoft.DokanCloudFS
             var context = (StreamContext)info.Context;
             context.Stream = scatterStream;
 
-            context.Task = Task.Run(() => context.File.SetContent(drive, gatherStream))
-                .ContinueWith(t => logger.Trace($"{nameof(context.File.SetContent)} finished on file '{fileName}' with status {context.Task.Status}"));
+            context.Task = Task.Run(() => {
+                    try {
+                        context.File.SetContent(drive, gatherStream);
+                    } catch (Exception ex) {
+                        if (!(ex is UnauthorizedAccessException))
+                            context.File.Remove(drive);
+                        logger.Trace($"{nameof(context.File.SetContent)} failed on file '{fileName}' with {ex.GetType().Name} '{ex.Message}'");
+                        throw;
+                    }
+                })
+                .ContinueWith(t => logger.Trace($"{nameof(context.File.SetContent)} finished on file '{fileName}'"), TaskContinuationOptions.OnlyOnRanToCompletion);
 
             return Trace(nameof(SetAllocationSize), fileName, info, DokanResult.Success, length.ToString(CultureInfo.InvariantCulture));
         }
