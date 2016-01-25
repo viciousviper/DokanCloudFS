@@ -145,6 +145,7 @@ namespace IgorSoft.DokanCloudFS
                     context.Task.Wait();
 
                     Trace(nameof(Cleanup), fileName, info, context.Task.IsCompleted ? DokanResult.Success : DokanResult.Error);
+                    context.Dispose();
                     return;
                 }
 
@@ -399,24 +400,26 @@ namespace IgorSoft.DokanCloudFS
 
         public NtStatus SetAllocationSize(string fileName, long length, DokanFileInfo info)
         {
-            var scatterStream = default(Stream);
-            var gatherStream = default(Stream);
-            new ScatterGatherStreamFactory().CreateScatterGatherStreams((int)length, out scatterStream, out gatherStream);
+            if (length > 0) {
+                var scatterStream = default(Stream);
+                var gatherStream = default(Stream);
+                new ScatterGatherStreamFactory().CreateScatterGatherStreams((int)length, out scatterStream, out gatherStream);
 
-            var context = (StreamContext)info.Context;
-            context.Stream = scatterStream;
+                var context = (StreamContext)info.Context;
+                context.Stream = scatterStream;
 
-            context.Task = Task.Run(() => {
-                    try {
-                        context.File.SetContent(drive, gatherStream);
-                    } catch (Exception ex) {
-                        if (!(ex is UnauthorizedAccessException))
-                            context.File.Remove(drive);
-                        logger.Trace($"{nameof(context.File.SetContent)} failed on file '{fileName}' with {ex.GetType().Name} '{ex.Message}'");
-                        throw;
-                    }
-                })
-                .ContinueWith(t => logger.Trace($"{nameof(context.File.SetContent)} finished on file '{fileName}'"), TaskContinuationOptions.OnlyOnRanToCompletion);
+                context.Task = Task.Run(() => {
+                        try {
+                            context.File.SetContent(drive, gatherStream);
+                        } catch (Exception ex) {
+                            if (!(ex is UnauthorizedAccessException))
+                                context.File.Remove(drive);
+                            logger.Trace($"{nameof(context.File.SetContent)} failed on file '{fileName}' with {ex.GetType().Name} '{ex.Message}'");
+                            throw;
+                        }
+                    })
+                    .ContinueWith(t => logger.Trace($"{nameof(context.File.SetContent)} finished on file '{fileName}'"), TaskContinuationOptions.OnlyOnRanToCompletion);
+            }
 
             return Trace(nameof(SetAllocationSize), fileName, info, DokanResult.Success, length.ToString(CultureInfo.InvariantCulture));
         }

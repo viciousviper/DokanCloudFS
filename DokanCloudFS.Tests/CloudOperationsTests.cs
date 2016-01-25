@@ -352,6 +352,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             var sut = fixture.GetDriveInfo().RootDirectory;
             var newFile = new FileInfo(sut.FullName + fileName);
+
             using (var fileStream = newFile.Create()) {
                 fileStream.WriteAsync(fileContent, 0, fileContent.Length).Wait();
                 fileStream.Close();
@@ -472,7 +473,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
-        public void FileStream_Read_Succeeds()
+        public void FileStream_Read_OnOpenRead_Succeeds()
         {
             var fileContent = Encoding.Default.GetBytes("Why did the chicken cross the road?");
             var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
@@ -482,6 +483,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             var root = fixture.GetDriveInfo().RootDirectory;
             var sut = new FileInfo(root.FullName + sutContract.Name);
+
             var buffer = default(byte[]);
             using (var fileStream = sut.OpenRead()) {
                 buffer = new byte[fileStream.Length];
@@ -495,7 +497,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
-        public void FileStream_Write_Succeeds()
+        public void FileStream_Write_OnOpenWrite_Succeeds()
         {
             var fileContent = Encoding.Default.GetBytes("Why did the chicken cross the road?");
             var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
@@ -505,7 +507,132 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             var root = fixture.GetDriveInfo().RootDirectory;
             var sut = new FileInfo(root.FullName + sutContract.Name);
+
             using (var fileStream = sut.OpenWrite()) {
+                fileStream.WriteAsync(fileContent, 0, fileContent.Length).Wait();
+                fileStream.Close();
+            }
+
+            fixture.VerifyAll();
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void FileStream_Write_OnOpen_WhereModeIsAppend_Succeeds()
+        {
+            var fileContent = Encoding.Default.GetBytes("Why did the chicken cross the road?");
+            var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
+
+            fixture.SetupGetRootDirectoryItems();
+            fixture.SetupSetFileContent(sutContract, Enumerable.Repeat<byte>(0, 16384).Concat(fileContent).ToArray());
+
+            var root = fixture.GetDriveInfo().RootDirectory;
+            var sut = root.GetFiles(sutContract.Name).Single();
+
+            using (var fileStream = sut.Open(FileMode.Append, FileAccess.Write)) {
+                fileStream.WriteAsync(fileContent, 0, fileContent.Length).Wait();
+                fileStream.Close();
+            }
+
+            fixture.VerifyAll();
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void FileStream_Write_OnOpen_WhereModeIsCreate_Succeeds()
+        {
+            var fileContent = Encoding.Default.GetBytes("Why did the chicken cross the road?");
+            var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
+
+            fixture.SetupGetRootDirectoryItems();
+            fixture.SetupSetFileContent(sutContract, Array.Empty<byte>());
+            fixture.SetupSetFileContent(sutContract, fileContent);
+
+            var root = fixture.GetDriveInfo().RootDirectory;
+            var sut = root.GetFiles(sutContract.Name).Single();
+
+            using (var fileStream = sut.Open(FileMode.Create)) {
+                fileStream.WriteAsync(fileContent, 0, fileContent.Length).Wait();
+                fileStream.Close();
+            }
+
+            fixture.VerifyAll();
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void FileStream_Write_OnOpen_WhereModeIsCreateNew_Succeeds()
+        {
+            var fileName = "NewFile.ext";
+            var fileContent = Encoding.Default.GetBytes("Why did the chicken cross the road?");
+
+            fixture.SetupGetRootDirectoryItems();
+            var sutContract = fixture.SetupNewFile(Path.DirectorySeparatorChar.ToString(), fileName);
+
+            fixture.SetupGetRootDirectoryItems();
+            fixture.SetupSetFileContent(sutContract, fileContent);
+
+            var root = fixture.GetDriveInfo().RootDirectory;
+            var sut = new FileInfo(root.FullName + fileName);
+
+            using (var fileStream = sut.Open(FileMode.CreateNew)) {
+                fileStream.WriteAsync(fileContent, 0, fileContent.Length).Wait();
+                fileStream.Close();
+            }
+
+            fixture.VerifyAll();
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void FileStream_Write_OnOpen_WhereModeIsOpen_Succeeds()
+        {
+            var fileContent = Encoding.Default.GetBytes("Why did the chicken cross the road?");
+            var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
+
+            fixture.SetupGetRootDirectoryItems();
+            fixture.SetupSetFileContent(sutContract, fileContent);
+
+            var root = fixture.GetDriveInfo().RootDirectory;
+            var sut = root.GetFiles(sutContract.Name).Single();
+
+            using (var fileStream = sut.Open(FileMode.Open, FileAccess.Write)) {
+                fileStream.WriteAsync(fileContent, 0, fileContent.Length).Wait();
+                fileStream.Close();
+            }
+
+            fixture.VerifyAll();
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void FileStream_Write_OnOpen_WhereModeIsOpenOrCreate_Succeeds()
+        {
+            var fileContent = Encoding.Default.GetBytes("Why did the chicken cross the road?");
+            var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
+
+            fixture.SetupGetRootDirectoryItems();
+            fixture.SetupSetFileContent(sutContract, fileContent);
+
+            var root = fixture.GetDriveInfo().RootDirectory;
+            var sut = root.GetFiles(sutContract.Name).Single();
+
+            using (var fileStream = sut.Open(FileMode.OpenOrCreate)) {
+                fileStream.WriteAsync(fileContent, 0, fileContent.Length).Wait();
+                fileStream.Close();
+            }
+
+            fixture.VerifyAll();
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void FileStream_Write_OnOpen_WhereModeIsTruncate_Succeeds()
+        {
+            var fileContent = Encoding.Default.GetBytes("Why did the chicken cross the road?");
+            var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
+
+            fixture.SetupGetRootDirectoryItems();
+            fixture.SetupSetFileContent(sutContract, fileContent);
+
+            var root = fixture.GetDriveInfo().RootDirectory;
+            var sut = root.GetFiles(sutContract.Name).Single();
+
+            using (var fileStream = sut.Open(FileMode.Truncate, FileAccess.Write)) {
                 fileStream.WriteAsync(fileContent, 0, fileContent.Length).Wait();
                 fileStream.Close();
             }
