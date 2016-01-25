@@ -130,9 +130,6 @@
     <Compile Include="CloudOperationsTests.Fixture.cs">
       <DependentUpon>CloudOperationsTests.cs</DependentUpon>
     </Compile>
-    <Compile Include="CloudOperationsTests.TestDirectoryFixture.cs">
-      <DependentUpon>CloudOperationsTests.cs</DependentUpon>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScatterGatherStreamTests.cs" />
     <Compile Include="StreamTests.Fixture.cs">

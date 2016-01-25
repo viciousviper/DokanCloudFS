@@ -1,9 +1,11 @@
-version: 1.0.1-alpha {build}
+version: 1.0.2-alpha {build}
 
 branches:
   only:
   - master
   - develop
+
+skip_tags: true
 
 configuration:
 - Debug
@@ -40,7 +42,7 @@ test:
     except:
     - Online
 
-after_test: 
+after_test:
 - cmd: >-
     .\packages\OpenCover.4.6.434-rc\tools\OpenCover.Console.exe -register:user -target:"C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\MSTest.exe" -targetargs:"/noresults /noisolation /testcontainer:.\DokanCloudFS.Tests\bin\%CONFIGURATION%\IgorSoft.DokanCloudFS.Tests.dll" -filter:"+[IgorSoft.DokanCloudFS*]*" -excludebyattribute:*.ExcludeFromCodeCoverage* -hideskipped:All -output:.\DokanCloudFS_coverage.xml
     SET PATH=C:\\Python34;C:\\Python34\\Scripts;%PATH%
