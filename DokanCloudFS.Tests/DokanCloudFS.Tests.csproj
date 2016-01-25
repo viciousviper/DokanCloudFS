@@ -109,10 +109,14 @@
       <DependentUpon>CloudDirectoryNodeTests.cs</DependentUpon>
     </Compile>
     <Compile Include="AsyncCloudDriveTests.cs" />
+    <Compile Include="CloudDriveFactoryTests.Fixture.cs">
+      <DependentUpon>CloudDriveFactoryTests.cs</DependentUpon>
+    </Compile>
     <Compile Include="CloudDriveTests.cs" />
     <Compile Include="CloudDriveTests.Fixture.cs">
       <DependentUpon>CloudDriveTests.cs</DependentUpon>
     </Compile>
+    <Compile Include="CloudDriveFactoryTests.cs" />
     <Compile Include="GatewayManagerTests.cs" />
     <Compile Include="GatewayManagerTests.Fixture.cs">
       <DependentUpon>GatewayManagerTests.cs</DependentUpon>
