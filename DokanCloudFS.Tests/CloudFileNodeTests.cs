@@ -68,7 +68,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             var sut = fixture.GetFile(contract);
             using (var stream = sut.GetContent(fixture.Drive))
             using (var reader = new StreamReader(stream)) {
-                Assert.AreEqual(fileContent, reader.ReadToEnd(), "Diverging result");
+                Assert.AreEqual(fileContent, reader.ReadToEnd(), "Mismatched result");
             }
 
             fixture.VerifyAll();

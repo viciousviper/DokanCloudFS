@@ -67,7 +67,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             var sut = fixture.GetDirectory(directory);
             var result = sut.GetChildItemByName(fixture.Drive, fileName);
 
-            Assert.AreEqual(fileName, result.Name, "Diverging result");
+            Assert.AreEqual(fileName, result.Name, "Mismatched result");
 
             fixture.VerifyAll();
         }
@@ -82,7 +82,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             var sut = fixture.GetDirectory(directory);
             var result = sut.GetChildItems(fixture.Drive);
 
-            CollectionAssert.AreEqual(fixture.SubDirectoryItems, result.Select(i => i.Contract).ToArray(), "Diverging result");
+            CollectionAssert.AreEqual(fixture.SubDirectoryItems, result.Select(i => i.Contract).ToArray(), "Mismatched result");
 
             fixture.VerifyAll();
         }

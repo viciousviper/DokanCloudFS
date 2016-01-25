@@ -70,8 +70,8 @@ namespace IgorSoft.DokanCloudFS.Tests
             var difference = differences[0];
             Assert.AreEqual(0, difference.Item1, "Unexpected start index");
             Assert.AreEqual(array1.Length, difference.Item2, "Unexpected length");
-            CollectionAssert.AreEqual(array1, difference.Item3, "Diverging Stream content");
-            CollectionAssert.AreEqual(array2, difference.Item4, "Diverging content");
+            CollectionAssert.AreEqual(array1, difference.Item3, "Mismatched Stream content");
+            CollectionAssert.AreEqual(array2, difference.Item4, "Mismatched content");
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -87,8 +87,8 @@ namespace IgorSoft.DokanCloudFS.Tests
                 var difference = differences[i];
                 Assert.AreEqual(2 * i + 1, difference.Item1, $"Unexpected start index ({i})");
                 Assert.AreEqual(1, difference.Item2, $"Unexpected length ({i})");
-                CollectionAssert.AreEqual(new[] { (byte)0 }, difference.Item3, $"Diverging Stream content ({i})");
-                CollectionAssert.AreEqual(new[] { (byte)1 }, difference.Item4, $"Diverging content ({i})");
+                CollectionAssert.AreEqual(new[] { (byte)0 }, difference.Item3, $"Mismatched Stream content ({i})");
+                CollectionAssert.AreEqual(new[] { (byte)1 }, difference.Item4, $"Mismatched content ({i})");
             }
         }
 
@@ -105,8 +105,8 @@ namespace IgorSoft.DokanCloudFS.Tests
                 var difference = differences[i];
                 Assert.AreEqual(8 * i + 4 , difference.Item1, $"Unexpected start index ({i})");
                 Assert.AreEqual(4, difference.Item2, $"Unexpected length ({i})");
-                CollectionAssert.AreEqual(Enumerable.Repeat((byte)0, 4).ToArray(), difference.Item3, $"Diverging Stream content ({i})");
-                CollectionAssert.AreEqual(Enumerable.Repeat((byte)1, 4).ToArray(), difference.Item4, $"Diverging content ({i})");
+                CollectionAssert.AreEqual(Enumerable.Repeat((byte)0, 4).ToArray(), difference.Item3, $"Mismatched Stream content ({i})");
+                CollectionAssert.AreEqual(Enumerable.Repeat((byte)1, 4).ToArray(), difference.Item4, $"Mismatched content ({i})");
             }
         }
     }

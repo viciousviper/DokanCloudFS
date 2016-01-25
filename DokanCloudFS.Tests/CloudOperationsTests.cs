@@ -201,7 +201,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             var sut = fixture.GetDriveInfo().RootDirectory;
             var directories = sut.GetDirectories();
 
-            CollectionAssert.AreEqual(fixture.RootDirectoryItems.OfType<DirectoryInfoContract>().Select(d => d.Name).ToList(), directories.Select(i => i.Name).ToList(), "Diverging result");
+            CollectionAssert.AreEqual(fixture.RootDirectoryItems.OfType<DirectoryInfoContract>().Select(d => d.Name).ToList(), directories.Select(i => i.Name).ToList(), "Mismatched result");
 
             fixture.VerifyAll();
         }
@@ -214,7 +214,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             var sut = fixture.GetDriveInfo().RootDirectory;
             var files = sut.GetFiles();
 
-            CollectionAssert.AreEqual(fixture.RootDirectoryItems.OfType<FileInfoContract>().Select(f => f.Name).ToList(), files.Select(i => i.Name).ToList(), "Diverging result");
+            CollectionAssert.AreEqual(fixture.RootDirectoryItems.OfType<FileInfoContract>().Select(f => f.Name).ToList(), files.Select(i => i.Name).ToList(), "Mismatched result");
 
             fixture.VerifyAll();
         }
@@ -227,7 +227,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             var sut = fixture.GetDriveInfo().RootDirectory;
             var items = sut.GetFileSystemInfos();
 
-            CollectionAssert.AreEqual(fixture.RootDirectoryItems.OfType<FileSystemInfoContract>().Select(f => f.Name).ToList(), items.Select(i => i.Name).ToList(), "Diverging result");
+            CollectionAssert.AreEqual(fixture.RootDirectoryItems.OfType<FileSystemInfoContract>().Select(f => f.Name).ToList(), items.Select(i => i.Name).ToList(), "Mismatched result");
 
             fixture.VerifyAll();
         }
@@ -831,7 +831,7 @@ namespace IgorSoft.DokanCloudFS.Tests
                 Assert.IsTrue(chunks.All(c => c.Win32Error == 0), "Win32Error occured");
             }
 
-            Assert.IsFalse(differences.Any(), "Diverging data detected");
+            Assert.IsFalse(differences.Any(), "Mismatched data detected");
 
             fixture.VerifyAll();
         }
