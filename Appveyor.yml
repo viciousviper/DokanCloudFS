@@ -44,7 +44,7 @@ test:
 
 after_test:
 - cmd: >-
-    .\packages\OpenCover.4.6.434-rc\tools\OpenCover.Console.exe -register:user -target:"C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\MSTest.exe" -targetargs:"/noresults /noisolation /testcontainer:.\DokanCloudFS.Tests\bin\%CONFIGURATION%\IgorSoft.DokanCloudFS.Tests.dll" -filter:"+[IgorSoft.DokanCloudFS*]*" -excludebyattribute:*.ExcludeFromCodeCoverage* -hideskipped:All -output:.\DokanCloudFS_coverage.xml
+    .\packages\OpenCover.4.6.515-rc\tools\OpenCover.Console.exe -register:user -target:"C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\MSTest.exe" -targetargs:"/noresults /noisolation /testcontainer:.\DokanCloudFS.Tests\bin\%CONFIGURATION%\IgorSoft.DokanCloudFS.Tests.dll" -filter:"+[IgorSoft.DokanCloudFS*]*" -excludebyattribute:*.ExcludeFromCodeCoverage* -hideskipped:All -output:.\DokanCloudFS_coverage.xml
     SET PATH=C:\\Python34;C:\\Python34\\Scripts;%PATH%
     pip install codecov
     codecov -f .\DokanCloudFS_coverage.xml -X gcov
