@@ -798,7 +798,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 
                 Assert.IsTrue(chunks.All(c => c.Win32Error == 0), "Win32Error occured");
                 var result = chunks.Aggregate(Enumerable.Empty<byte>(), (b, c) => b.Concat(c.Buffer), b => b.ToArray());
-                Assert.IsFalse(result.Any(b => b == default(byte)), "Uninitialized data detected");
+                Assert.IsFalse(result.Any(b => b == default(byte)), "Uninitialized data detected at: " + Array.IndexOf<byte>(result, default(byte)));
                 CollectionAssert.AreEqual(testInput, result, "Unexpected file content");
             }
 
