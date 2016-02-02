@@ -146,10 +146,9 @@ namespace IgorSoft.DokanCloudFS
 
                     Trace(nameof(Cleanup), fileName, info, context.Task.IsCompleted ? DokanResult.Success : DokanResult.Error);
                     context.Dispose();
+                    context = null;
                     return;
                 }
-
-                context?.Dispose();
             }
 
             Trace(nameof(Cleanup), fileName, info, DokanResult.Success);
@@ -158,6 +157,9 @@ namespace IgorSoft.DokanCloudFS
         public void CloseFile(string fileName, DokanFileInfo info)
         {
             Trace(nameof(CloseFile), fileName, info, DokanResult.Success);
+
+            var context = info.Context as StreamContext;
+            context?.Dispose();
         }
 
         public NtStatus CreateFile(string fileName, FileAccess access, FileShare share, FileMode mode, FileOptions options, FileAttributes attributes, DokanFileInfo info)
