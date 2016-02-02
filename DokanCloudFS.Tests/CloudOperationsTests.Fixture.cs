@@ -165,7 +165,7 @@ namespace IgorSoft.DokanCloudFS.Tests
                 {
                     chunks[i].Win32Error = dwErrorCode;
                     chunks[i].BytesTransferred = dwNumberOfBytesTransferred;
-Console.WriteLine(i);
+Console.WriteLine($"Completion {i}:[{Array.IndexOf(chunks[i].Buffer, default(byte))}]");
                     waitHandles[i].Set();
                 }).ToArray();
 

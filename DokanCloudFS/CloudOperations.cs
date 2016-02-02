@@ -395,9 +395,9 @@ namespace IgorSoft.DokanCloudFS
 
                 context.Stream.Position = offset;
                 bytesRead = context.Stream.Read(buffer, 0, buffer.Length);
-            }
 
-            return Trace(nameof(ReadFile), fileName, info, DokanResult.Success, $"out {bytesRead}", offset.ToString(CultureInfo.InvariantCulture));
+                return Trace(nameof(ReadFile), fileName, info, DokanResult.Success, $"out {bytesRead}:[{Array.IndexOf(buffer, default(byte))}]", offset.ToString(CultureInfo.InvariantCulture));
+            }
         }
 
         public NtStatus SetAllocationSize(string fileName, long length, DokanFileInfo info)
