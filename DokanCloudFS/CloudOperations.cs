@@ -146,7 +146,7 @@ namespace IgorSoft.DokanCloudFS
 
                     Trace(nameof(Cleanup), fileName, info, context.Task.IsCompleted ? DokanResult.Success : DokanResult.Error);
                     context.Dispose();
-                    context = null;
+                    info.Context = null;
                     return;
                 }
             }
@@ -202,7 +202,10 @@ namespace IgorSoft.DokanCloudFS
                             info.Context = new StreamContext(fileItem, FileAccess.WriteData);
                         else if (access.HasFlag(FileAccess.Delete))
                             info.Context = new StreamContext(fileItem, FileAccess.Delete);
-                    } else {
+                        else
+                            return Trace(nameof(CreateFile), fileName, info, access, share, mode, options, attributes, DokanResult.NotImplemented);
+                    }
+                    else {
                         info.IsDirectory = item != null;
                     }
 
@@ -231,15 +234,16 @@ namespace IgorSoft.DokanCloudFS
                 case FileMode.Append:
                     return Trace(nameof(CreateFile), fileName, info, access, share, mode, options, attributes, DokanResult.NotImplemented);
                 case FileMode.Truncate:
-                    fileItem = item as CloudFileNode;
-                    if (fileItem == null)
-                        return Trace(nameof(CreateFile), fileName, info, access, share, mode, options, attributes, DokanResult.FileNotFound);
+                    //fileItem = item as CloudFileNode;
+                    //if (fileItem == null)
+                    //    return Trace(nameof(CreateFile), fileName, info, access, share, mode, options, attributes, DokanResult.FileNotFound);
 
-                    fileItem.Truncate(drive);
+                    //fileItem.Truncate(drive);
 
-                    info.Context = new StreamContext(fileItem, FileAccess.WriteData);
+                    //info.Context = new StreamContext(fileItem, FileAccess.WriteData);
 
-                    return Trace(nameof(CreateFile), fileName, info, access, share, mode, options, attributes, DokanResult.Success);
+                    //return Trace(nameof(CreateFile), fileName, info, access, share, mode, options, attributes, DokanResult.Success);
+                    return Trace(nameof(CreateFile), fileName, info, access, share, mode, options, attributes, DokanResult.NotImplemented);
                 default:
                     return Trace(nameof(CreateFile), fileName, info, access, share, mode, options, attributes, DokanResult.NotImplemented);
             }
