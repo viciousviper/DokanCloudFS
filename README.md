@@ -110,6 +110,7 @@ You have been warned.
 
 | Date       | Version     | Comments                                                                       |
 | :--------- | :---------- | :----------------------------------------------------------------------------- |
+| 2016-02-04 | 1.0.3-alpha | - Upgraded .NET framework version to 4.6.1<br/>- New gateway sample configurations added for MediaFire and Yandex Disk<br/>- Unit test coverage improved<br/>- Several bugfixes |
 | 2016-01-24 | 1.0.2-alpha | - Gateway configuration extended to accept custom parameters. This change **breaks compatibility** with earlier API versions.<br/>- File Gateway configuration added in App.config |
 | 2016-01-20 | 1.0.1-alpha | - NuGet dependencies updated, tests for CloudOperations made offline executable, code coverage analysis via codecov configured |
 | 2016-01-10 | 1.0.0-alpha | - Initial release                                                              |
