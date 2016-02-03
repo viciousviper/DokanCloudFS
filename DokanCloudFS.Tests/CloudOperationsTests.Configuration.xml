@@ -2,7 +2,7 @@
 <Rows>
   <ConfigRead>
     <BufferSize>32768</BufferSize>
-    <FileSize>1163840</FileSize>
+    <FileSize>655360</FileSize>
   </ConfigRead>
   <ConfigRead>
     <BufferSize>32768</BufferSize>
@@ -23,7 +23,7 @@
   <ConfigRead>
     <BufferSize>32768</BufferSize>
     <FileSize>184320</FileSize>
-  </ConfigRead>-->
+  </ConfigRead>
   <ConfigRead>
     <BufferSize>32768</BufferSize>
     <FileSize>188416</FileSize>

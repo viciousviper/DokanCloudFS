@@ -139,7 +139,7 @@ namespace IgorSoft.DokanCloudFS.Tests
                 {
                     Buffer = buffer;
                     BytesTransferred = 0;
-                    Win32Error = 0;
+                    Win32Error = -1;
                 }
 
                 [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Used for debugging only")]
@@ -182,9 +182,12 @@ Console.WriteLine($"Completion {i}:[{Array.IndexOf(chunks[i].Buffer, default(byt
                     }
                 }
 
-                awaiterThread.Join();
+                bool finishedNormally = awaiterThread.Join(TimeSpan.FromSeconds(15));
 
                 Array.ForEach(completions, c => GC.KeepAlive(c));
+
+                if (!finishedNormally)
+                    throw new TimeoutException();
 
                 return chunks;
             }
