@@ -43,7 +43,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void CloudDirectoryNode_Create_WhereContractIsMissing_Throws()
         {
-            var sut = fixture.GetDirectory(null);
+            fixture.GetDirectory(null);
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -131,6 +131,8 @@ namespace IgorSoft.DokanCloudFS.Tests
             sut.GetChildItems(fixture.Drive);
             var result = sut.NewDirectoryItem(fixture.Drive, newName);
 
+            Assert.IsNotNull(result, "DirectoryNode not created");
+
             fixture.VerifyAll();
         }
 
@@ -146,6 +148,8 @@ namespace IgorSoft.DokanCloudFS.Tests
             var sut = fixture.GetDirectory(contract);
             sut.GetChildItems(fixture.Drive);
             var result = sut.NewFileItem(fixture.Drive, newName);
+
+            Assert.IsNotNull(result, "FileNode not created");
 
             fixture.VerifyAll();
         }

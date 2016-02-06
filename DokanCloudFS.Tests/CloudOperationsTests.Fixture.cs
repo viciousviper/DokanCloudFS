@@ -121,18 +121,22 @@ namespace IgorSoft.DokanCloudFS.Tests
             private static extern SafeFileHandle CreateFile(string lpFileName, DesiredAccess dwDesiredAccess, ShareMode dwShareMode, IntPtr lpSecurityAttributes, CreationDisposition dwCreationDisposition, FlagsAndAttributes dwFlagsAndAttributes, IntPtr hTemplateFile);
 
             [DllImport(KERNEL_32_DLL, SetLastError = true)]
+            [return: MarshalAs(UnmanagedType.Bool)]
             private static extern bool ReadFileEx(SafeFileHandle hFile, byte[] lpBuffer, int nNumberOfBytesToRead, ref NativeOverlapped lpOverlapped, FileIOCompletionRoutine lpCompletionRoutine);
 
             [DllImport(KERNEL_32_DLL, SetLastError = true)]
+            [return: MarshalAs(UnmanagedType.Bool)]
             private static extern bool SetEndOfFile(SafeFileHandle hFile);
 
             [DllImport(KERNEL_32_DLL, SetLastError = true)]
             private static extern int SetFilePointer(SafeFileHandle hFile, int lDistanceToMove, out int lpDistanceToMoveHigh, MoveMethod dwMoveMethod);
 
-            [DllImport("kernel32.dll")]
+            [DllImport(KERNEL_32_DLL, SetLastError = true)]
+            [return: MarshalAs(UnmanagedType.Bool)]
             private static extern bool WriteFile(SafeFileHandle hFile, byte[] lpBuffer, int nNumberOfBytesToWrite, out int lpNumberOfBytesWritten, ref NativeOverlapped lpOverlapped);
 
             [DllImport(KERNEL_32_DLL, SetLastError = true)]
+            [return: MarshalAs(UnmanagedType.Bool)]
             private static extern bool WriteFileEx(SafeFileHandle hFile, byte[] lpBuffer, int nNumberOfBytesToWrite, ref NativeOverlapped lpOverlapped, FileIOCompletionRoutine lpCompletionRoutine);
 
             private delegate void FileIOCompletionRoutine(int dwErrorCode, int dwNumberOfBytesTransfered, ref NativeOverlapped lpOverlapped);
@@ -270,6 +274,9 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             public void Intercept(IInvocation invocation)
             {
+                if (invocation == null)
+                    throw new ArgumentNullException(nameof(invocation));
+
                 if (!object.Equals(invocation.InvocationTarget, invocationTarget)) {
                     var changeProxyTarget = (IChangeProxyTarget)invocation;
                     changeProxyTarget.ChangeInvocationTarget(invocationTarget);

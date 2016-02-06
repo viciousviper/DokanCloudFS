@@ -256,8 +256,6 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod]
         public void CloudDrive_SetContent_Succeeds()
         {
-            var apiKey = "<MyApiKey>";
-            var encryptionKey = "<MyEncryptionKey>";
             var fileContent = Encoding.Default.GetBytes("Why did the chicken cross the road?");
             var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
 

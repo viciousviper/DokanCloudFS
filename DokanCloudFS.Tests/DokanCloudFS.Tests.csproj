@@ -122,6 +122,7 @@
     <Compile Include="GatewayManagerTests.Fixture.cs">
       <DependentUpon>GatewayManagerTests.cs</DependentUpon>
     </Compile>
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="StreamExtensionsTest.cs" />
     <Compile Include="CloudFileNodeTests.cs" />
     <Compile Include="CloudFileNodeTests.Fixture.cs">

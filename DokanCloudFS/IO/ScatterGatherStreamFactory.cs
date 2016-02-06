@@ -27,16 +27,20 @@ using System.IO;
 
 namespace IgorSoft.DokanCloudFS.IO
 {
-    public sealed class ScatterGatherStreamFactory
+    public static class ScatterGatherStreamFactory
     {
         private static readonly TimeSpan defaultTimeout = TimeSpan.FromMilliseconds(-1);
 
-        public void CreateScatterGatherStreams(int capacity, out Stream scatterStream, out Stream gatherStream)
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1021:AvoidOutParameters", MessageId = "1#")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1021:AvoidOutParameters", MessageId = "2#")]
+        public static void CreateScatterGatherStreams(int capacity, out Stream scatterStream, out Stream gatherStream)
         {
             CreateScatterGatherStreams(capacity, defaultTimeout, out scatterStream, out gatherStream);
         }
 
-        public void CreateScatterGatherStreams(int capacity, TimeSpan timeout, out Stream scatterStream, out Stream gatherStream)
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1021:AvoidOutParameters", MessageId = "2#")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1021:AvoidOutParameters", MessageId = "3#")]
+        public static void CreateScatterGatherStreams(int capacity, TimeSpan timeout, out Stream scatterStream, out Stream gatherStream)
         {
             if (capacity <= 0)
                 throw new ArgumentOutOfRangeException(nameof(capacity), $"{nameof(capacity)} must be positive.");

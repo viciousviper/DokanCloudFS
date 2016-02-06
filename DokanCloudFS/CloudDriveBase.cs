@@ -92,7 +92,7 @@ namespace IgorSoft.DokanCloudFS
 
         public void Dispose()
         {
-            semaphore?.Dispose();
+            semaphore.Dispose();
             semaphore = null;
         }
     }
