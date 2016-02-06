@@ -102,7 +102,7 @@ namespace IgorSoft.DokanCloudFS.Tests
                     .Returns(RootDirectoryItems);
             }
 
-            public void SetupGetContent(FileInfoContract source, byte[] content, string encryptionKey = null)
+            public void SetupGetContent(FileInfoContract source, byte[] content, string encryptionKey = null, bool canSeek = true)
             {
                 var stream = new MemoryStream(content);
                 if (!string.IsNullOrEmpty(encryptionKey)) {
@@ -111,6 +111,8 @@ namespace IgorSoft.DokanCloudFS.Tests
                     buffer.Seek(0, SeekOrigin.Begin);
                     stream = buffer;
                 }
+                if (!canSeek)
+                    stream = new LinearReadMemoryStream(stream);
                 gateway
                     .Setup(g => g.GetContent(rootName, source.Id))
                     .Returns(stream);
