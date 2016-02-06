@@ -409,9 +409,6 @@ namespace IgorSoft.DokanCloudFS
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
         public NtStatus ReadFile(string fileName, byte[] buffer, out int bytesRead, long offset, DokanFileInfo info)
         {
-            if (info == null)
-                throw new ArgumentNullException(nameof(info));
-
             var context = (StreamContext)info.Context;
 
             lock (context) {
@@ -426,6 +423,8 @@ namespace IgorSoft.DokanCloudFS
                 context.Stream.Position = offset;
                 bytesRead = context.Stream.Read(buffer, 0, buffer?.Length ?? -1);
             }
+
+            return Trace(nameof(ReadFile), fileName, info, DokanResult.Success, $"out {bytesRead}", offset.ToString(CultureInfo.InvariantCulture));
         }
 
         public NtStatus SetAllocationSize(string fileName, long length, DokanFileInfo info)
