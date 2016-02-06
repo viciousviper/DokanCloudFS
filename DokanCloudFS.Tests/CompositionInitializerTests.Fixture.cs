@@ -23,16 +23,32 @@ SOFTWARE.
 */
 
 using System;
-using System.IO;
+using System.Composition;
+using System.Reflection;
 
 namespace IgorSoft.DokanCloudFS.Tests
 {
-    internal sealed class LinearReadMemoryStream : MemoryStream
+    public sealed partial class CompositionInitializerTests
     {
-        public override bool CanSeek => false;
-
-        public LinearReadMemoryStream(MemoryStream stream) : base(stream.GetBuffer(), 0, (int)stream.Length, false)
+        private static class Fixture
         {
+            internal class ComposablePart
+            {
+                [Import]
+                public Component Component { get; set; }
+            }
+
+            [Export]
+            internal class Component
+            {
+            }
+
+            public static ComposablePart GetComposablePart() => new ComposablePart();
+
+            public static void ResetCompositionInitializer()
+            {
+                typeof(CompositionInitializer).GetField("host", BindingFlags.Static | BindingFlags.NonPublic).SetValue(null, null);
+            }
         }
     }
 }
