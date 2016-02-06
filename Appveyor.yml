@@ -1,4 +1,4 @@
-version: 1.0.2-alpha {build}
+version: 1.0.3-alpha {build}
 
 branches:
   only:
@@ -16,6 +16,10 @@ platform: Any CPU
 environment:
   CODECOV_TOKEN:
     secure: 1253r8dPEiTvtAxdeEPP24riRPa4/7G2ivnvbB/xXi2CTu+YindCPHASfuA2PF4t
+  COVERITY_TOKEN:
+    secure: YVsR79t7aNYqU3qKMz+7JJuUABwSBo/X/FlCNmlnVQ0=
+  COVERITY_EMAIL:
+    secure: 6zUyb+IRQkAbWNWP0T0sHw==
 
 install:
 - ps: >-
@@ -48,3 +52,8 @@ after_test:
     SET PATH=C:\\Python34;C:\\Python34\\Scripts;%PATH%
     pip install codecov
     codecov -f .\DokanCloudFS_coverage.xml -X gcov
+	IF %CONFIGURATION% NEQ Debug EXIT
+    cov-build --dir cov-int msbuild "/t:Rebuild" "/p:Configuration=%CONFIGURATION%" "/v:quiet" DokanCloudFS.sln
+    7z a -r coverity.tar cov-int
+    7z a coverity.tar.gz coverity.tar
+    curl --form token=%COVERITY_TOKEN% --form email=%COVERITY_EMAIL% --form file=@coverity.tar.gz --form version="1.0.3-alpha" https://scan.coverity.com/builds?project=viciousviper/DokanCloudFS
