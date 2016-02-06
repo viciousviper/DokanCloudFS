@@ -52,7 +52,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         {
             var sut = new CloudDriveFactory();
 
-            var result = sut.CreateCloudDrive(schema, user, root, null);
+            sut.CreateCloudDrive(schema, user, root, null);
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -63,7 +63,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             fixture.SetupTryGetCloudGatewayForSchema(schema, false);
             var sut = new CloudDriveFactory() { GatewayManager = fixture.GetGatewayManager() };
 
-            var result = sut.CreateCloudDrive(schema, user, root, new CloudDriveParameters());
+            sut.CreateCloudDrive(schema, user, root, new CloudDriveParameters());
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]

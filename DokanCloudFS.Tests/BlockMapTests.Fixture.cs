@@ -31,7 +31,7 @@ namespace IgorSoft.DokanCloudFS.Tests
     {
         private sealed class Fixture
         {
-            public BlockMap CreateMap() => new BlockMap(20);
+            public static BlockMap CreateMap() => new BlockMap(20);
         }
     }
 }

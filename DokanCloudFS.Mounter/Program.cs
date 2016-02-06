@@ -38,6 +38,7 @@ namespace DokanCloudFS.Mounter
 {
     internal class Program
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "args")]
         internal static void Main(string[] args)
         {
             CompositionInitializer.Preload(typeof(IgorSoft.CloudFS.Interface.Composition.ICloudGateway));

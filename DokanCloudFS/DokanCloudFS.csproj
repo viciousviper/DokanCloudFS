@@ -84,6 +84,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions\DokanFileInfoExtensions.cs" />
     <Compile Include="IO\BlockMap.cs" />
     <Compile Include="CloudDirectoryNode.cs" />
     <Compile Include="CloudOperations.cs" />

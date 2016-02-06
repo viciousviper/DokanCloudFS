@@ -37,6 +37,7 @@ namespace IgorSoft.DokanCloudFS
 
         long? Used { get; }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]
         RootDirectoryInfoContract GetRoot();
 
         IEnumerable<FileSystemInfoContract> GetChildItem(DirectoryInfoContract parent);

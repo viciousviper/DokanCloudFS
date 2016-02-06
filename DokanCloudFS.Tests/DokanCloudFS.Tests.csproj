@@ -47,7 +47,8 @@
       <HintPath>..\packages\DokanNet.1.0.8.0\lib\net40\DokanNet.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="IgorSoft.AppDomainResolver">
+    <Reference Include="IgorSoft.AppDomainResolver, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Library\IgorSoft.AppDomainResolver.dll</HintPath>
     </Reference>
     <Reference Include="IgorSoft.CloudFS.Interface">
@@ -71,9 +72,17 @@
       <HintPath>..\Library\SharpAESCrypt.exe</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Composition.AttributedModel, Version=1.0.30.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.Composition.1.0.30\lib\portable-net45+win8+wp8+wpa81\System.Composition.AttributedModel.dll</HintPath>
+    </Reference>
     <Reference Include="System.Composition.Runtime, Version=1.0.30.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Microsoft.Composition.1.0.30\lib\portable-net45+win8+wp8+wpa81\System.Composition.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Composition.TypedParts, Version=1.0.30.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.Composition.1.0.30\lib\portable-net45+win8+wp8+wpa81\System.Composition.TypedParts.dll</HintPath>
     </Reference>
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
@@ -118,10 +127,16 @@
       <DependentUpon>CloudDriveTests.cs</DependentUpon>
     </Compile>
     <Compile Include="CloudDriveFactoryTests.cs" />
+    <Compile Include="CompositionInitializerTests.cs" />
+    <Compile Include="CompositionInitializerTests.Fixture.cs">
+      <DependentUpon>CompositionInitializerTests.cs</DependentUpon>
+    </Compile>
     <Compile Include="GatewayManagerTests.cs" />
     <Compile Include="GatewayManagerTests.Fixture.cs">
       <DependentUpon>GatewayManagerTests.cs</DependentUpon>
     </Compile>
+    <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="LinearReadMemoryStream.cs" />
     <Compile Include="StreamExtensionsTest.cs" />
     <Compile Include="CloudFileNodeTests.cs" />
     <Compile Include="CloudFileNodeTests.Fixture.cs">

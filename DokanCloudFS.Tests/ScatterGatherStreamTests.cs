@@ -106,7 +106,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             try {
                 var scatterStream = default(Stream);
-                var target = fixture.ReadBufferConcurrently(source, 100, TimeSpan.Zero, TimeSpan.FromMilliseconds(100), out scatterStream);
+                fixture.ReadBufferConcurrently(source, 100, TimeSpan.Zero, TimeSpan.FromMilliseconds(100), out scatterStream);
 
                 Assert.Fail("Expected Exception is missing");
             } catch (AggregateException ex) {

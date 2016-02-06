@@ -40,6 +40,8 @@ namespace IgorSoft.DokanCloudFS.IO
 
         private Stream baseStream;
 
+        private object lockObject = new object();
+
         public TraceStream(string name, string fileName, Stream baseStream)
         {
             this.name = name;
@@ -66,7 +68,7 @@ namespace IgorSoft.DokanCloudFS.IO
         public override long Length
         {
             get {
-                lock (baseStream) {
+                lock (lockObject) {
                     return Trace($"{nameof(Length)}", baseStream.Length);
                 }
             }
@@ -75,13 +77,13 @@ namespace IgorSoft.DokanCloudFS.IO
         public override long Position
         {
             get {
-                lock (baseStream) {
+                lock (lockObject) {
                     return Trace($"{nameof(Position)}", baseStream.Position);
                 }
             }
 
             set {
-                lock (baseStream) {
+                lock (lockObject) {
                     Trace(value, $"set{nameof(Position)}");
                     baseStream.Position = value;
                 }
@@ -91,13 +93,13 @@ namespace IgorSoft.DokanCloudFS.IO
         public override int ReadTimeout
         {
             get {
-                lock (baseStream) {
+                lock (lockObject) {
                     return Trace($"{nameof(ReadTimeout)}", baseStream.ReadTimeout);
                 }
             }
 
             set {
-                lock (baseStream) {
+                lock (lockObject) {
                     Trace(value, $"set{nameof(ReadTimeout)}");
                     baseStream.ReadTimeout = value;
                 }
@@ -107,13 +109,13 @@ namespace IgorSoft.DokanCloudFS.IO
         public override int WriteTimeout
         {
             get {
-                lock (baseStream) {
+                lock (lockObject) {
                     return Trace($"{nameof(WriteTimeout)}", baseStream.WriteTimeout);
                 }
             }
 
             set {
-                lock (baseStream) {
+                lock (lockObject) {
                     Trace(value, $"set{nameof(WriteTimeout)}");
                     baseStream.WriteTimeout = value;
                 }
@@ -122,16 +124,16 @@ namespace IgorSoft.DokanCloudFS.IO
 
         public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
         {
-            lock (baseStream) {
-                Trace($"{nameof(BeginRead)}(buffer=[{buffer.Length}], offset={offset}, count={count})");
+            lock (lockObject) {
+                Trace($"{nameof(BeginRead)}(buffer=[{buffer?.Length ?? -1}], offset={offset}, count={count})");
                 return baseStream.BeginRead(buffer, offset, count, callback, state);
             }
         }
 
         public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
         {
-            lock (baseStream) {
-                Trace($"{nameof(BeginWrite)}(buffer=[{buffer.Length}], offset={offset}, count={count})");
+            lock (lockObject) {
+                Trace($"{nameof(BeginWrite)}(buffer=[{buffer?.Length ?? -1}], offset={offset}, count={count})");
                 return baseStream.BeginWrite(buffer, offset, count, callback, state);
             }
         }
@@ -139,7 +141,7 @@ namespace IgorSoft.DokanCloudFS.IO
         public override bool CanRead
         {
             get {
-                lock (baseStream) {
+                lock (lockObject) {
                     return Trace($"{nameof(CanRead)}", baseStream.CanRead);
                 }
             }
@@ -148,7 +150,7 @@ namespace IgorSoft.DokanCloudFS.IO
         public override bool CanSeek
         {
             get {
-                lock (baseStream) {
+                lock (lockObject) {
                     return Trace($"{nameof(CanSeek)}", baseStream.CanSeek);
                 }
             }
@@ -157,7 +159,7 @@ namespace IgorSoft.DokanCloudFS.IO
         public override bool CanTimeout
         {
             get {
-                lock (baseStream) {
+                lock (lockObject) {
                     return Trace($"{nameof(CanTimeout)}", baseStream.CanTimeout);
                 }
             }
@@ -166,7 +168,7 @@ namespace IgorSoft.DokanCloudFS.IO
         public override bool CanWrite
         {
             get {
-                lock (baseStream) {
+                lock (lockObject) {
                     return Trace($"{nameof(CanWrite)}", baseStream.CanWrite);
                 }
             }
@@ -174,7 +176,7 @@ namespace IgorSoft.DokanCloudFS.IO
 
         public override void Close()
         {
-            lock (baseStream) {
+            lock (lockObject) {
                 Trace($"{nameof(Close)}()");
                 baseStream.Close();
             }
@@ -182,16 +184,16 @@ namespace IgorSoft.DokanCloudFS.IO
 
         public override Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken)
         {
-            lock (baseStream) {
-                Trace($"{nameof(CopyToAsync)}(destination={destination.GetType().Name}, bufferSize={bufferSize})");
+            lock (lockObject) {
+                Trace($"{nameof(CopyToAsync)}(destination={destination?.GetType()?.Name}, bufferSize={bufferSize})");
                 return baseStream.CopyToAsync(destination, bufferSize, cancellationToken);
             }
         }
 
         public override ObjRef CreateObjRef(Type requestedType)
         {
-            lock (baseStream) {
-                Trace($"{nameof(CreateObjRef)}(requestedType={requestedType.Name})");
+            lock (lockObject) {
+                Trace($"{nameof(CreateObjRef)}(requestedType={requestedType?.Name})");
                 return baseStream.CreateObjRef(requestedType);
             }
         }
@@ -199,7 +201,7 @@ namespace IgorSoft.DokanCloudFS.IO
         protected override void Dispose(bool disposing)
         {
             if (baseStream != null)
-                lock (baseStream) {
+                lock (lockObject) {
                     Trace($"{nameof(Dispose)}(disposing={disposing})");
 
                     baseStream = null;
@@ -208,22 +210,22 @@ namespace IgorSoft.DokanCloudFS.IO
 
         public override int EndRead(IAsyncResult asyncResult)
         {
-            lock (baseStream) {
-                return Trace($"{nameof(EndRead)}(asyncResult.IsCompleted={asyncResult.IsCompleted})", baseStream.EndRead(asyncResult));
+            lock (lockObject) {
+                return Trace($"{nameof(EndRead)}(asyncResult.IsCompleted={asyncResult?.IsCompleted})", baseStream.EndRead(asyncResult));
             }
         }
 
         public override void EndWrite(IAsyncResult asyncResult)
         {
-            lock (baseStream) {
-                Trace($"{nameof(EndWrite)}(asyncResult.IsCompleted={asyncResult.IsCompleted})");
+            lock (lockObject) {
                 baseStream.EndWrite(asyncResult);
+                Trace($"{nameof(EndWrite)}(asyncResult.IsCompleted={asyncResult?.IsCompleted})");
             }
         }
 
         public override void Flush()
         {
-            lock (baseStream) {
+            lock (lockObject) {
                 Trace($"{nameof(Flush)}()");
                 baseStream.Flush();
             }
@@ -231,7 +233,7 @@ namespace IgorSoft.DokanCloudFS.IO
 
         public override Task FlushAsync(CancellationToken cancellationToken)
         {
-            lock (baseStream) {
+            lock (lockObject) {
                 Trace($"{nameof(FlushAsync)}()");
                 return baseStream.FlushAsync(cancellationToken);
             }
@@ -239,7 +241,7 @@ namespace IgorSoft.DokanCloudFS.IO
 
         public override object InitializeLifetimeService()
         {
-            lock (baseStream) {
+            lock (lockObject) {
                 Trace($"{nameof(InitializeLifetimeService)}()");
                 return baseStream.InitializeLifetimeService();
             }
@@ -247,36 +249,36 @@ namespace IgorSoft.DokanCloudFS.IO
 
         public override int Read(byte[] buffer, int offset, int count)
         {
-            lock (baseStream) {
-                return Trace($"{nameof(Read)}(buffer=[{buffer.Length}], offset={offset}, count={count}) <Position={baseStream.Position}>", baseStream.Read(buffer, offset, count));
+            lock (lockObject) {
+                return Trace($"{nameof(Read)}(buffer=[{buffer?.Length ?? -1}], offset={offset}, count={count}) <Position={baseStream.Position}>", baseStream.Read(buffer, offset, count));
             }
         }
 
         public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
-            lock (baseStream) {
-                Trace($"{nameof(ReadAsync)}(buffer=[{buffer.Length}], offset={offset}, count={count}) <Position={baseStream.Position}>");
+            lock (lockObject) {
+                Trace($"{nameof(ReadAsync)}(buffer=[{buffer?.Length ?? -1}], offset={offset}, count={count}) <Position={baseStream.Position}>");
                 return baseStream.ReadAsync(buffer, offset, count, cancellationToken);
             }
         }
 
         public override int ReadByte()
         {
-            lock (baseStream) {
+            lock (lockObject) {
                 return Trace($"{nameof(ReadByte)}()", baseStream.ReadByte());
             }
         }
 
         public override long Seek(long offset, SeekOrigin origin)
         {
-            lock (baseStream) {
+            lock (lockObject) {
                 return Trace($"{nameof(Seek)}(offset={offset}, origin={origin})", baseStream.Seek(offset, origin));
             }
         }
 
         public override void SetLength(long value)
         {
-            lock (baseStream) {
+            lock (lockObject) {
                 Trace($"{nameof(SetLength)}(value={value})");
                 baseStream.SetLength(value);
             }
@@ -284,23 +286,23 @@ namespace IgorSoft.DokanCloudFS.IO
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            lock (baseStream) {
-                Trace($"{nameof(Write)}(buffer=[{buffer.Length}], offset={offset}, count={count}) <Position={baseStream.Position}>");
+            lock (lockObject) {
+                Trace($"{nameof(Write)}(buffer=[{buffer?.Length ?? -1}], offset={offset}, count={count}) <Position={baseStream.Position}>");
                 baseStream.Write(buffer, offset, count);
             }
         }
 
         public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
-            lock (baseStream) {
-                Trace($"{nameof(WriteAsync)}(buffer=[{buffer.Length}], offset={offset}, count={count}) <Position={baseStream.Position}>");
+            lock (lockObject) {
+                Trace($"{nameof(WriteAsync)}(buffer=[{buffer?.Length ?? -1}], offset={offset}, count={count}) <Position={baseStream.Position}>");
                 return baseStream.WriteAsync(buffer, offset, count, cancellationToken);
             }
         }
 
         public override void WriteByte(byte value)
         {
-            lock (baseStream) {
+            lock (lockObject) {
                 Trace($"{nameof(WriteByte)}(value={value})");
                 baseStream.WriteByte(value);
             }

@@ -28,7 +28,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
 using Microsoft.Win32.SafeHandles;
 using Castle.DynamicProxy;
@@ -50,6 +49,19 @@ namespace IgorSoft.DokanCloudFS.Tests
             [Flags]
             public enum DesiredAccess : uint
             {
+                FILE_READ_DATA = 0x0001,
+                FILE_WRITE_DATA = 0x0002,
+                FILE_APPEND_DATA = 0x0004,
+                FILE_READ_EA = 0x0008,
+                FILE_WRITE_EA = 0x0010,
+                FILE_EXECUTE = 0x0020,
+                FILE_READ_ATTRIBUTES = 0x0080,
+                FILE_WRITE_ATTRIBUTES = 0x0100,
+                DELETE = 0x10000,
+                READ_CONTROL = 0x20000,
+                WRITE_DAC = 0x40000,
+                WRITE_OWNER = 0x80000,
+                SYNCHRONIZE = 0x100000,
                 GENERIC_ALL = 0x10000000,
                 GENERIC_EXECUTE = 0x20000000,
                 GENERIC_WRITE = 0x40000000,
@@ -71,7 +83,7 @@ namespace IgorSoft.DokanCloudFS.Tests
                 CREATE_ALWAYS = 2,
                 OPEN_EXISTING = 3,
                 OPEN_ALWAYS = 4,
-                TRUNCATE_EXSTING = 5
+                TRUNCATE_EXISTING = 5
             }
 
             public enum MoveMethod : uint
@@ -109,15 +121,22 @@ namespace IgorSoft.DokanCloudFS.Tests
             private static extern SafeFileHandle CreateFile(string lpFileName, DesiredAccess dwDesiredAccess, ShareMode dwShareMode, IntPtr lpSecurityAttributes, CreationDisposition dwCreationDisposition, FlagsAndAttributes dwFlagsAndAttributes, IntPtr hTemplateFile);
 
             [DllImport(KERNEL_32_DLL, SetLastError = true)]
+            [return: MarshalAs(UnmanagedType.Bool)]
             private static extern bool ReadFileEx(SafeFileHandle hFile, byte[] lpBuffer, int nNumberOfBytesToRead, ref NativeOverlapped lpOverlapped, FileIOCompletionRoutine lpCompletionRoutine);
 
             [DllImport(KERNEL_32_DLL, SetLastError = true)]
+            [return: MarshalAs(UnmanagedType.Bool)]
             private static extern bool SetEndOfFile(SafeFileHandle hFile);
 
             [DllImport(KERNEL_32_DLL, SetLastError = true)]
             private static extern int SetFilePointer(SafeFileHandle hFile, int lDistanceToMove, out int lpDistanceToMoveHigh, MoveMethod dwMoveMethod);
 
             [DllImport(KERNEL_32_DLL, SetLastError = true)]
+            [return: MarshalAs(UnmanagedType.Bool)]
+            private static extern bool WriteFile(SafeFileHandle hFile, byte[] lpBuffer, int nNumberOfBytesToWrite, out int lpNumberOfBytesWritten, ref NativeOverlapped lpOverlapped);
+
+            [DllImport(KERNEL_32_DLL, SetLastError = true)]
+            [return: MarshalAs(UnmanagedType.Bool)]
             private static extern bool WriteFileEx(SafeFileHandle hFile, byte[] lpBuffer, int nNumberOfBytesToWrite, ref NativeOverlapped lpOverlapped, FileIOCompletionRoutine lpCompletionRoutine);
 
             private delegate void FileIOCompletionRoutine(int dwErrorCode, int dwNumberOfBytesTransfered, ref NativeOverlapped lpOverlapped);
@@ -155,13 +174,30 @@ namespace IgorSoft.DokanCloudFS.Tests
                 return (int)quotient + (remainder > 0 ? 1 : 0);
             }
 
+            internal static bool AppendTo(string fileName, byte[] content, out int bytesWritten)
+            {
+                var overlapped = default(NativeOverlapped);
+                using (var handle = CreateFile(fileName, DesiredAccess.FILE_APPEND_DATA, ShareMode.FILE_SHARE_NONE, IntPtr.Zero, CreationDisposition.OPEN_EXISTING, FlagsAndAttributes.FILE_ATTRIBUTE_NORMAL, IntPtr.Zero)) {
+                    return WriteFile(handle, content, content.Length, out bytesWritten, ref overlapped);
+                }
+            }
+
+            internal static bool Truncate(string fileName, byte[] content, out int bytesWritten)
+            {
+                var overlapped = default(NativeOverlapped);
+                using (var handle = CreateFile(fileName, DesiredAccess.GENERIC_WRITE, ShareMode.FILE_SHARE_NONE, IntPtr.Zero, CreationDisposition.TRUNCATE_EXISTING, FlagsAndAttributes.FILE_ATTRIBUTE_NORMAL, IntPtr.Zero)) {
+                    return WriteFile(handle, content, content.Length, out bytesWritten, ref overlapped);
+                }
+            }
+
             internal static OverlappedChunk[] ReadEx(string fileName, long bufferSize, long fileSize)
             {
-                var chunks = Enumerable.Range(0, NumberOfChunks(bufferSize, fileSize))
+                var numberOfChunks = NumberOfChunks(bufferSize, fileSize);
+                var chunks = Enumerable.Range(0, numberOfChunks)
                     .Select(i => new OverlappedChunk(BufferSize(bufferSize, fileSize, i)))
                     .ToArray();
                 var waitHandles = Enumerable.Repeat<Func<EventWaitHandle>>(() => new ManualResetEvent(false), chunks.Length).Select(e => e()).ToArray();
-                var completions = Enumerable.Range(0, (int)(fileSize / bufferSize + 1)).Select<int, FileIOCompletionRoutine>(i => (int dwErrorCode, int dwNumberOfBytesTransferred, ref NativeOverlapped lpOverlapped) =>
+                var completions = Enumerable.Range(0, numberOfChunks).Select<int, FileIOCompletionRoutine>(i => (int dwErrorCode, int dwNumberOfBytesTransferred, ref NativeOverlapped lpOverlapped) =>
                 {
                     chunks[i].Win32Error = dwErrorCode;
                     chunks[i].BytesTransferred = dwNumberOfBytesTransferred;
@@ -182,20 +218,21 @@ Console.WriteLine($"Completion {i}:[{Array.IndexOf(chunks[i].Buffer, default(byt
                     }
                 }
 
-                bool finishedNormally = awaiterThread.Join(TimeSpan.FromSeconds(15));
+                bool finishedNormally = awaiterThread.Join(TimeSpan.FromSeconds(1));
 
                 Array.ForEach(completions, c => GC.KeepAlive(c));
 
                 if (!finishedNormally)
-                    throw new TimeoutException();
+                    throw new TimeoutException($"{nameof(ReadFileEx)} completions timed out");
 
                 return chunks;
             }
 
             internal static void WriteEx(string fileName, long bufferSize, long fileSize, OverlappedChunk[] chunks)
             {
+                var numberOfChunks = NumberOfChunks(bufferSize, fileSize);
                 var waitHandles = Enumerable.Repeat<Func<EventWaitHandle>>(() => new ManualResetEvent(false), chunks.Length).Select(e => e()).ToArray();
-                var completions = Enumerable.Range(0, NumberOfChunks(bufferSize, fileSize)).Select<int, FileIOCompletionRoutine>(i => (int dwErrorCode, int dwNumberOfBytesTransferred, ref NativeOverlapped lpOverlapped) =>
+                var completions = Enumerable.Range(0, numberOfChunks).Select<int, FileIOCompletionRoutine>(i => (int dwErrorCode, int dwNumberOfBytesTransferred, ref NativeOverlapped lpOverlapped) =>
                 {
                     chunks[i].Win32Error = dwErrorCode;
                     chunks[i].BytesTransferred = dwNumberOfBytesTransferred;
@@ -238,6 +275,9 @@ Console.WriteLine($"Completion {i}:[{Array.IndexOf(chunks[i].Buffer, default(byt
 
             public void Intercept(IInvocation invocation)
             {
+                if (invocation == null)
+                    throw new ArgumentNullException(nameof(invocation));
+
                 if (!object.Equals(invocation.InvocationTarget, invocationTarget)) {
                     var changeProxyTarget = (IChangeProxyTarget)invocation;
                     changeProxyTarget.ChangeInvocationTarget(invocationTarget);
@@ -316,8 +356,8 @@ Console.WriteLine($"Completion {i}:[{Array.IndexOf(chunks[i].Buffer, default(byt
                 SetupGetRoot();
 
                 (mounterThread = new Thread(new ThreadStart(() => operations.Mount(MOUNT_POINT, DokanOptions.DebugMode | DokanOptions.RemovableDrive, 5, 800, TimeSpan.FromMinutes(5))))).Start();
-                var drive = new DriveInfo(MOUNT_POINT);
-                while (!drive.IsReady)
+                var mountedDrive = GetDriveInfo();
+                while (!mountedDrive.IsReady)
                     Thread.Sleep(50);
             }
 

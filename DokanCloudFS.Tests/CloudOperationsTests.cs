@@ -355,7 +355,6 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             using (var fileStream = newFile.Create()) {
                 fileStream.WriteAsync(fileContent, 0, fileContent.Length).Wait();
-                fileStream.Close();
             }
 
             Assert.IsTrue(newFile.Exists, "File creation failed");
@@ -510,7 +509,6 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             using (var fileStream = sut.OpenWrite()) {
                 fileStream.WriteAsync(fileContent, 0, fileContent.Length).Wait();
-                fileStream.Close();
             }
 
             fixture.VerifyAll();
@@ -530,7 +528,6 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             using (var fileStream = sut.Open(FileMode.Append, FileAccess.Write)) {
                 fileStream.WriteAsync(fileContent, 0, fileContent.Length).Wait();
-                fileStream.Close();
             }
 
             fixture.VerifyAll();
@@ -551,7 +548,6 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             using (var fileStream = sut.Open(FileMode.Create)) {
                 fileStream.WriteAsync(fileContent, 0, fileContent.Length).Wait();
-                fileStream.Close();
             }
 
             fixture.VerifyAll();
@@ -574,7 +570,6 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             using (var fileStream = sut.Open(FileMode.CreateNew)) {
                 fileStream.WriteAsync(fileContent, 0, fileContent.Length).Wait();
-                fileStream.Close();
             }
 
             fixture.VerifyAll();
@@ -594,7 +589,6 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             using (var fileStream = sut.Open(FileMode.Open, FileAccess.Write)) {
                 fileStream.WriteAsync(fileContent, 0, fileContent.Length).Wait();
-                fileStream.Close();
             }
 
             fixture.VerifyAll();
@@ -614,7 +608,6 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             using (var fileStream = sut.Open(FileMode.OpenOrCreate)) {
                 fileStream.WriteAsync(fileContent, 0, fileContent.Length).Wait();
-                fileStream.Close();
             }
 
             fixture.VerifyAll();
@@ -634,7 +627,6 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             using (var fileStream = sut.Open(FileMode.Truncate, FileAccess.Write)) {
                 fileStream.WriteAsync(fileContent, 0, fileContent.Length).Wait();
-                fileStream.Close();
             }
 
             fixture.VerifyAll();
@@ -651,7 +643,6 @@ namespace IgorSoft.DokanCloudFS.Tests
             var sut = new FileInfo(root.FullName + sutContract.Name);
             using (var fileStream = sut.OpenWrite()) {
                 fileStream.FlushAsync().Wait();
-                fileStream.Close();
             }
 
             fixture.VerifyAll();
@@ -671,7 +662,6 @@ namespace IgorSoft.DokanCloudFS.Tests
             using (var fileStream = sut.OpenWrite()) {
                 fileStream.WriteAsync(fileContent, 0, fileContent.Length).Wait();
                 fileStream.FlushAsync().Wait();
-                fileStream.Close();
             }
 
             fixture.VerifyAll();
@@ -748,7 +738,6 @@ namespace IgorSoft.DokanCloudFS.Tests
             var sut = new FileInfo(root.FullName + sutContract.Name);
             using (var fileStream = sut.OpenWrite()) {
                 fileStream.WriteAsync(fileContent, 0, fileContent.Length).Wait();
-                fileStream.Close();
             }
 
             Assert.IsFalse(sut.Exists, "Defective file found");
@@ -769,7 +758,6 @@ namespace IgorSoft.DokanCloudFS.Tests
             var sut = new FileInfo(root.FullName + sutContract.Name);
             using (var fileStream = sut.OpenWrite()) {
                 fileStream.WriteAsync(fileContent, 0, fileContent.Length).Wait();
-                fileStream.Close();
             }
 
             Assert.IsTrue(sut.Exists, "File removed");
@@ -778,9 +766,50 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void FileInfo_NativeAppendTo_Succeeds()
+        {
+            var fileContent = Encoding.Default.GetBytes("Why did the chicken cross the road?");
+
+            fixture.SetupGetRootDirectoryItems();
+            var fileContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
+
+            var root = fixture.GetDriveInfo().RootDirectory;
+
+            int bytesWritten;
+            bool result = NativeMethods.AppendTo(root.FullName + fileContract.Name, fileContent, out bytesWritten);
+
+            Assert.IsFalse(result, "File operation succeeded unexpectedly");
+            Assert.AreEqual(0, bytesWritten, "Unexpected number of bytes written");
+
+            fixture.VerifyAll();
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void FileInfo_NativeTruncate_Succeeds()
+        {
+            var fileContent = Encoding.Default.GetBytes("Why did the chicken cross the road?");
+            var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
+
+            fixture.SetupGetRootDirectoryItems();
+            var fileContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
+            fixture.SetupSetFileContent(sutContract, fileContent);
+
+            var root = fixture.GetDriveInfo().RootDirectory;
+
+            int bytesWritten;
+            bool result = NativeMethods.Truncate(root.FullName + fileContract.Name, fileContent, out bytesWritten);
+            //var file = root.GetFiles(fileContract.Name).Single();
+
+            Assert.IsTrue(result, "File operation failed");
+            Assert.AreEqual(fileContent.Length, bytesWritten, "Unexpected number of bytes written");
+
+            fixture.VerifyAll();
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         [DeploymentItem("CloudOperationsTests.Configuration.xml")]
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\CloudOperationsTests.Configuration.xml", "ConfigRead", DataAccessMethod.Sequential)]
-        public void FileInfo_ReadOverlapped_Succeeds()
+        public void FileInfo_NativeReadOverlapped_Succeeds()
         {
             var bufferSize = int.Parse((string)TestContext.DataRow["BufferSize"]);
             var fileSize = int.Parse((string)TestContext.DataRow["FileSize"]);
@@ -808,7 +837,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         [DeploymentItem("CloudOperationsTests.Configuration.xml")]
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\CloudOperationsTests.Configuration.xml", "ConfigWrite", DataAccessMethod.Sequential)]
-        public void FileInfo_WriteOverlapped_Succeeds()
+        public void FileInfo_NativeWriteOverlapped_Succeeds()
         {
             var bufferSize = int.Parse((string)TestContext.DataRow["BufferSize"]);
             var fileSize = int.Parse((string)TestContext.DataRow["FileSize"]);
