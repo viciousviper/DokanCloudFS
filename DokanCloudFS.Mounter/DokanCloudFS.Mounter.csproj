@@ -42,8 +42,8 @@
     <StartupObject>DokanCloudFS.Mounter.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DokanNet, Version=1.0.8.0, Culture=neutral, PublicKeyToken=3709aaa01df28a9e, processorArchitecture=MSIL">
-      <HintPath>..\packages\DokanNet.1.0.8.0\lib\net40\DokanNet.dll</HintPath>
+    <Reference Include="DokanNet, Version=1.0.8.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\DokanNet.1.1.0-rc1\lib\net40\DokanNet.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="IgorSoft.CloudFS.Interface">
