@@ -23,26 +23,32 @@ SOFTWARE.
 */
 
 using System;
-using System.Collections.Generic;
+using System.Composition;
+using System.Reflection;
 
-namespace IgorSoft.DokanCloudFS.Mounter.Config
+namespace IgorSoft.DokanCloudFS.Tests
 {
-    public static class DriveElementExtensions
+    public sealed partial class CompositionInitializerTests
     {
-        public static IDictionary<string, string> GetParameters(this DriveElement config)
+        private static class Fixture
         {
-            if (config == null)
-                throw new ArgumentNullException(nameof(config));
-            if (string.IsNullOrEmpty(config.Parameters))
-                return null;
-
-            var result = new Dictionary<string, string>();
-            foreach (var parameter in config.Parameters.Split('|')) {
-                var components = parameter.Split(new[] { '=' }, 2);
-                result.Add(components[0], components.Length == 2 ? components[1] : null);
+            internal class ComposablePart
+            {
+                [Import]
+                public Component Component { get; set; }
             }
 
-            return result;
+            [Export]
+            internal class Component
+            {
+            }
+
+            public static ComposablePart GetComposablePart() => new ComposablePart();
+
+            public static void ResetCompositionInitializer()
+            {
+                typeof(CompositionInitializer).GetField("host", BindingFlags.Static | BindingFlags.NonPublic).SetValue(null, null);
+            }
         }
     }
 }

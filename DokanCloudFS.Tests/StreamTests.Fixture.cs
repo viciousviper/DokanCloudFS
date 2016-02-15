@@ -34,8 +34,6 @@ namespace IgorSoft.DokanCloudFS.Tests
     {
         private sealed class Fixture
         {
-            private ScatterGatherStreamFactory factory = new ScatterGatherStreamFactory();
-
             public byte[] InitializeBuffer(int size)
             {
                 var buffer = new byte[size];
@@ -50,7 +48,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 
                 var scatterStream = default(Stream);
                 var gatherStream = default(Stream);
-                factory.CreateScatterGatherStreams(sourceBuffer.Length, out scatterStream, out gatherStream);
+                ScatterGatherStreamFactory.CreateScatterGatherStreams(sourceBuffer.Length, out scatterStream, out gatherStream);
 
                 var writeTask = WriteAsync(scatterStream, sourceBuffer, initialWriteDelay, writeChunkSize, writeDelay, flush: flush);
                 var readTask = ReadAsync(gatherStream, targetBuffer, initialReadDelay, readChunkSize, readDelay);
@@ -66,7 +64,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 
                 var scatterStream = default(Stream);
                 var gatherStream = default(Stream);
-                factory.CreateScatterGatherStreams(sourceBuffer.Length, out scatterStream, out gatherStream);
+                ScatterGatherStreamFactory.CreateScatterGatherStreams(sourceBuffer.Length, out scatterStream, out gatherStream);
 
                 var writeTask = WriteAsync(scatterStream, sourceBuffer, initialWriteDelay, writeChunkSize, writeDelay, writePermutation, flush);
                 var readTask = ReadAsync(gatherStream, targetBuffer, initialReadDelay, readChunkSize, readDelay, readPermutation);
@@ -81,7 +79,7 @@ namespace IgorSoft.DokanCloudFS.Tests
                 var targetBuffer = new byte[sourceBuffer.Length];
 
                 var gatherStream = default(Stream);
-                factory.CreateScatterGatherStreams(sourceBuffer.Length, timeout, out scatterStream, out gatherStream);
+                ScatterGatherStreamFactory.CreateScatterGatherStreams(sourceBuffer.Length, timeout, out scatterStream, out gatherStream);
                 var readTask = ReadAsync(gatherStream, targetBuffer, TimeSpan.Zero, readChunkSize, readDelay);
 
                 readTask.Wait(timeout);
@@ -92,7 +90,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             public void WriteBufferConcurrently(byte[] sourceBuffer, byte[] targetBuffer, int writeChunkSize, TimeSpan writeDelay, TimeSpan timeout, out Stream gatherStream)
             {
                 var scatterStream = default(Stream);
-                factory.CreateScatterGatherStreams(targetBuffer.Length, timeout, out scatterStream, out gatherStream);
+                ScatterGatherStreamFactory.CreateScatterGatherStreams(targetBuffer.Length, timeout, out scatterStream, out gatherStream);
                 var writeTask = WriteAsync(scatterStream, sourceBuffer, TimeSpan.Zero, writeChunkSize, writeDelay);
 
                 writeTask.Wait(timeout);

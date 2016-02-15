@@ -68,6 +68,9 @@ namespace IgorSoft.DokanCloudFS
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1804:RemoveUnusedLocals", MessageId = "name", Justification = "Required for composition initialization")]
         public static void Preload(Type type)
         {
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
             var name = type.Name;
         }
 
@@ -81,6 +84,8 @@ namespace IgorSoft.DokanCloudFS
         {
             if (path == null)
                 throw new ArgumentNullException(nameof(path));
+            if (host != null)
+                throw new InvalidOperationException(Resources.CompositionHostAlreadyInitialized);
 
             var assemblies = new List<Assembly>();
 

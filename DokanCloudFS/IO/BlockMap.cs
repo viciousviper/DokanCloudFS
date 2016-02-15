@@ -76,11 +76,11 @@ namespace IgorSoft.DokanCloudFS.IO
                 }
             }
 
-            public int CompareTo(Block other) => Offset.CompareTo(other.Offset);
+            public int CompareTo(Block other) => Offset.CompareTo(other?.Offset ?? -1);
 
             public int CompareTo(object obj) => -(obj as Block)?.CompareTo(this) ?? -1;
 
-            public bool Equals(Block other) => Offset == other.Offset && Count == other.Count;
+            public bool Equals(Block other) => Offset == (other?.Offset ?? -1) && Count == (other?.Count ?? -1);
 
             public override bool Equals(object obj) => (obj as Block)?.Equals(this) ?? false;
 

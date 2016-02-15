@@ -23,26 +23,17 @@ SOFTWARE.
 */
 
 using System;
-using System.Collections.Generic;
+using DokanNet;
 
-namespace IgorSoft.DokanCloudFS.Mounter.Config
+namespace IgorSoft.DokanCloudFS.Extensions
 {
-    public static class DriveElementExtensions
+    internal static class DokanFileInfoExtensions
     {
-        public static IDictionary<string, string> GetParameters(this DriveElement config)
+
+        public static string ToTrace(this DokanFileInfo info)
         {
-            if (config == null)
-                throw new ArgumentNullException(nameof(config));
-            if (string.IsNullOrEmpty(config.Parameters))
-                return null;
-
-            var result = new Dictionary<string, string>();
-            foreach (var parameter in config.Parameters.Split('|')) {
-                var components = parameter.Split(new[] { '=' }, 2);
-                result.Add(components[0], components.Length == 2 ? components[1] : null);
-            }
-
-            return result;
+            var contextDescriptor = info.Context != null ? $"{info.Context}" : "<null>";
+            return $"{{{contextDescriptor}, {info.DeleteOnClose}, {info.IsDirectory}, {info.NoCache}, {info.PagingIo}, {info.ProcessId}, {info.SynchronousIo}, {info.WriteToEndOfFile}}}";
         }
     }
 }

@@ -44,7 +44,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void CloudFileNode_Create_WhereContractIsMissing_Throws()
         {
-            var sut = fixture.GetFile(null);
+            fixture.GetFile(null);
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -57,6 +57,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             Assert.AreEqual(contract, sut.Contract);
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Objekte nicht mehrmals verwerfen")]
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void CloudFileNode_GetContent_Succeeds()
         {

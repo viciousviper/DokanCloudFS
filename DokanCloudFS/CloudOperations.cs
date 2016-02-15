@@ -32,6 +32,7 @@ using System.Threading.Tasks;
 using DokanNet;
 using FileAccess = DokanNet.FileAccess;
 using NLog;
+using IgorSoft.DokanCloudFS.Extensions;
 using IgorSoft.DokanCloudFS.IO;
 
 namespace IgorSoft.DokanCloudFS
@@ -82,6 +83,9 @@ namespace IgorSoft.DokanCloudFS
 
         public CloudOperations(ICloudDrive drive, ILogger logger)
         {
+            if (drive == null)
+                throw new ArgumentNullException(nameof(drive));
+
             this.drive = drive;
             this.logger = logger;
         }
@@ -98,30 +102,27 @@ namespace IgorSoft.DokanCloudFS
             return result;
         }
 
-        private string ToTrace(DokanFileInfo info)
-        {
-            var contextDescriptor = info.Context != null ? $"{info.Context}" : "<null>";
-            return $"{{{contextDescriptor}, {info.DeleteOnClose}, {info.IsDirectory}, {info.NoCache}, {info.PagingIo}, {info.ProcessId}, {info.SynchronousIo}, {info.WriteToEndOfFile}}}";
-        }
-
         private NtStatus Trace(string method, string fileName, DokanFileInfo info, NtStatus result, params string[] parameters)
         {
             var extraParameters = parameters != null && parameters.Length > 0 ? ", " + string.Join(", ", parameters) : string.Empty;
 
-            logger?.Trace($"{System.Threading.Thread.CurrentThread.ManagedThreadId:D2} / {method}({fileName}, {ToTrace(info)}{extraParameters}) -> {result}");
+            logger?.Trace($"{System.Threading.Thread.CurrentThread.ManagedThreadId:D2} / {method}({fileName}, {info.ToTrace()}{extraParameters}) -> {result}");
 
             return result;
         }
 
         private NtStatus Trace(string method, string fileName, DokanFileInfo info, FileAccess access, FileShare share, FileMode mode, FileOptions options, FileAttributes attributes, NtStatus result)
         {
-            logger?.Trace($"{System.Threading.Thread.CurrentThread.ManagedThreadId:D2} / {method}({fileName}, {ToTrace(info)}, [{access}], [{share}], [{mode}], [{options}], [{attributes}]) -> {result}");
+            logger?.Trace($"{System.Threading.Thread.CurrentThread.ManagedThreadId:D2} / {method}({fileName}, {info.ToTrace()}, [{access}], [{share}], [{mode}], [{options}], [{attributes}]) -> {result}");
 
             return result;
         }
 
         public void Cleanup(string fileName, DokanFileInfo info)
         {
+            if (info == null)
+                throw new ArgumentNullException(nameof(info));
+
             if (info.DeleteOnClose) {
                 (GetItem(fileName) as CloudFileNode)?.Remove(drive);
             } else if (!info.IsDirectory) {
@@ -156,6 +157,9 @@ namespace IgorSoft.DokanCloudFS
 
         public void CloseFile(string fileName, DokanFileInfo info)
         {
+            if (info == null)
+                throw new ArgumentNullException(nameof(info));
+
             Trace(nameof(CloseFile), fileName, info, DokanResult.Success);
 
             var context = info.Context as StreamContext;
@@ -164,6 +168,9 @@ namespace IgorSoft.DokanCloudFS
 
         public NtStatus CreateFile(string fileName, FileAccess access, FileShare share, FileMode mode, FileOptions options, FileAttributes attributes, DokanFileInfo info)
         {
+            if (info == null)
+                throw new ArgumentNullException(nameof(info));
+
             // HACK: Fix for Bug in Dokany related to a missing trailing slash for directory names
             if (string.IsNullOrEmpty(fileName))
                 fileName = @"\";
@@ -264,6 +271,9 @@ namespace IgorSoft.DokanCloudFS
 
         public NtStatus DeleteFile(string fileName, DokanFileInfo info)
         {
+            if (info == null)
+                throw new ArgumentNullException(nameof(info));
+
             ((StreamContext)info.Context).File.Remove(drive);
 
             return Trace(nameof(DeleteFile), fileName, info, DokanResult.Success);
@@ -293,6 +303,9 @@ namespace IgorSoft.DokanCloudFS
 
         public NtStatus FlushFileBuffers(string fileName, DokanFileInfo info)
         {
+            if (info == null)
+                throw new ArgumentNullException(nameof(info));
+
             try {
                 ((StreamContext)info.Context).Stream?.Flush();
 
@@ -313,6 +326,9 @@ namespace IgorSoft.DokanCloudFS
 
         public NtStatus GetFileInformation(string fileName, out FileInformation fileInfo, DokanFileInfo info)
         {
+            if (info == null)
+                throw new ArgumentNullException(nameof(info));
+
             var item = GetItem(fileName);
             if (item == null) {
                 fileInfo = default(FileInformation);
@@ -330,6 +346,9 @@ namespace IgorSoft.DokanCloudFS
 
         public NtStatus GetFileSecurity(string fileName, out FileSystemSecurity security, AccessControlSections sections, DokanFileInfo info)
         {
+            if (info == null)
+                throw new ArgumentNullException(nameof(info));
+
             security = info.IsDirectory
                 ? new DirectorySecurity() as FileSystemSecurity
                 : new FileSecurity() as FileSystemSecurity;
@@ -349,6 +368,9 @@ namespace IgorSoft.DokanCloudFS
 
         public NtStatus LockFile(string fileName, long offset, long length, DokanFileInfo info)
         {
+            if (info == null)
+                throw new ArgumentNullException(nameof(info));
+
             var context = ((StreamContext)info.Context);
             var result = !context.IsLocked ? DokanResult.Success : DokanResult.AccessDenied;
             context.IsLocked = true;
@@ -384,8 +406,12 @@ namespace IgorSoft.DokanCloudFS
             return Trace(nameof(OpenDirectory), fileName, info, DokanResult.Success);
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
         public NtStatus ReadFile(string fileName, byte[] buffer, out int bytesRead, long offset, DokanFileInfo info)
         {
+            if (info == null)
+                throw new ArgumentNullException(nameof(info));
+
             var context = (StreamContext)info.Context;
 
             lock (context) {
@@ -398,7 +424,7 @@ namespace IgorSoft.DokanCloudFS
                     }
 
                 context.Stream.Position = offset;
-                bytesRead = context.Stream.Read(buffer, 0, buffer.Length);
+                bytesRead = context.Stream.Read(buffer, 0, buffer?.Length ?? -1);
             }
 
             return Trace(nameof(ReadFile), fileName, info, DokanResult.Success, $"out {bytesRead}", offset.ToString(CultureInfo.InvariantCulture));
@@ -406,10 +432,13 @@ namespace IgorSoft.DokanCloudFS
 
         public NtStatus SetAllocationSize(string fileName, long length, DokanFileInfo info)
         {
+            if (info == null)
+                throw new ArgumentNullException(nameof(info));
+
             if (length > 0) {
                 var scatterStream = default(Stream);
                 var gatherStream = default(Stream);
-                new ScatterGatherStreamFactory().CreateScatterGatherStreams((int)length, out scatterStream, out gatherStream);
+                ScatterGatherStreamFactory.CreateScatterGatherStreams((int)length, out scatterStream, out gatherStream);
 
                 var context = (StreamContext)info.Context;
                 context.Stream = scatterStream;
@@ -454,10 +483,13 @@ namespace IgorSoft.DokanCloudFS
 
         public NtStatus UnlockFile(string fileName, long offset, long length, DokanFileInfo info)
         {
+            if (info == null)
+                throw new ArgumentNullException(nameof(info));
+
             var context = ((StreamContext)info.Context);
             var result = context.IsLocked ? DokanResult.Success : DokanResult.AccessDenied;
             context.IsLocked = false;
-            return Trace(nameof(UnlockFile), fileName, info, DokanResult.Success, offset.ToString(CultureInfo.InvariantCulture), length.ToString(CultureInfo.InvariantCulture));
+            return Trace(nameof(UnlockFile), fileName, info, result, offset.ToString(CultureInfo.InvariantCulture), length.ToString(CultureInfo.InvariantCulture));
         }
 
         public NtStatus Unmounted(DokanFileInfo info)
@@ -472,6 +504,9 @@ namespace IgorSoft.DokanCloudFS
 
         public NtStatus WriteFile(string fileName, byte[] buffer, out int bytesWritten, long offset, DokanFileInfo info)
         {
+            if (info == null)
+                throw new ArgumentNullException(nameof(info));
+
             var context = ((StreamContext)info.Context);
 
             lock (context) {
@@ -479,7 +514,7 @@ namespace IgorSoft.DokanCloudFS
                     context.Stream = Stream.Synchronized(new MemoryStream());
 
                 context.Stream.Position = offset;
-                context.Stream.Write(buffer, 0, buffer.Length);
+                context.Stream.Write(buffer, 0, buffer?.Length ?? -1);
                 bytesWritten = (int)(context.Stream.Position - offset);
             }
 
@@ -488,6 +523,6 @@ namespace IgorSoft.DokanCloudFS
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Debugger Display")]
         [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        private string DebuggerDisplay => $"{nameof(CloudOperations)}";
+        private string DebuggerDisplay => $"{nameof(CloudOperations)} drive={drive} root={root}";
     }
 }
