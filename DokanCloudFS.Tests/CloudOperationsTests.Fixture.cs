@@ -25,6 +25,7 @@ SOFTWARE.
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -162,7 +163,7 @@ namespace IgorSoft.DokanCloudFS.Tests
                 }
 
                 [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Used for debugging only")]
-                private string DebuggerDisplay() => $"{nameof(OverlappedChunk)} Buffer={Buffer?.Length ?? -1} BytesTransferred={BytesTransferred}";
+                private string DebuggerDisplay() => $"{nameof(OverlappedChunk)} Buffer={Buffer?.Length ?? -1} BytesTransferred={BytesTransferred}".ToString(CultureInfo.CurrentCulture);
             }
 
             internal static int BufferSize(long bufferSize, long fileSize, int chunks) => (int)Math.Min(bufferSize, fileSize - chunks * bufferSize);
@@ -222,7 +223,7 @@ namespace IgorSoft.DokanCloudFS.Tests
                 Array.ForEach(completions, c => GC.KeepAlive(c));
 
                 if (!finishedNormally)
-                    throw new TimeoutException($"{nameof(ReadFileEx)} completions timed out");
+                    throw new TimeoutException($"{nameof(ReadFileEx)} completions timed out".ToString(CultureInfo.CurrentCulture));
 
                 return chunks;
             }
@@ -428,7 +429,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             public DirectoryInfoContract SetupNewDirectory(string parentName, string directoryName)
             {
                 var parentId = new DirectoryId(parentName);
-                var directory = new DirectoryInfoContract($"{parentId.Value}{directoryName}\\", directoryName, "2016-01-01 12:00:00".ToDateTime(), "2016-01-01 12:00:00".ToDateTime());
+                var directory = new DirectoryInfoContract($"{parentId.Value}{directoryName}\\".ToString(CultureInfo.CurrentCulture), directoryName, "2016-01-01 12:00:00".ToDateTime(), "2016-01-01 12:00:00".ToDateTime());
                 drive
                     .Setup(drive => drive.NewDirectoryItem(It.Is<DirectoryInfoContract>(parent => parent.Id == parentId), directoryName))
                     .Returns(directory);
@@ -442,7 +443,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             public FileInfoContract SetupNewFile(DirectoryId parentId, string fileName)
             {
-                var file = new FileInfoContract($"{parentId.Value.TrimEnd('\\')}\\{fileName}", fileName, "2016-02-01 12:00:00".ToDateTime(), "2016-02-01 12:00:00".ToDateTime(), 0, null);
+                var file = new FileInfoContract($"{parentId.Value.TrimEnd('\\')}\\{fileName}".ToString(CultureInfo.CurrentCulture), fileName, "2016-02-01 12:00:00".ToDateTime(), "2016-02-01 12:00:00".ToDateTime(), 0, null);
                 drive
                     .Setup(drive => drive.NewFileItem(It.Is<DirectoryInfoContract>(parent => parent.Id == parentId), fileName, It.Is<Stream>(s => s.Length == 0)))
                     .Returns(file);
@@ -511,7 +512,7 @@ namespace IgorSoft.DokanCloudFS.Tests
                         var fileSource = source as FileInfoContract;
                         if (fileSource != null)
                             return new FileInfoContract(source.Id.Value, movePath, source.Created, source.Updated, fileSource.Size, fileSource.Hash) { Directory = target };
-                        throw new InvalidOperationException($"Unsupported type '{source.GetType().Name}'");
+                        throw new InvalidOperationException($"Unsupported type '{source.GetType().Name}'".ToString(CultureInfo.CurrentCulture));
                     });
             }
 

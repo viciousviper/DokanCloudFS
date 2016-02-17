@@ -25,6 +25,7 @@ SOFTWARE.
 using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Threading.Tasks;
 using Moq;
@@ -156,7 +157,7 @@ namespace IgorSoft.DokanCloudFS.Tests
                         var fileSource = source as FileId;
                         if (fileSource != null)
                             return Task.FromResult((FileSystemInfoContract)new FileInfoContract(source.Value, movePath, directoryOrFile.Created, directoryOrFile.Updated, ((FileInfoContract)directoryOrFile).Size, ((FileInfoContract)directoryOrFile).Hash) { Directory = target });
-                        throw new InvalidOperationException($"Unsupported type '{source.GetType().Name}'");
+                        throw new InvalidOperationException($"Unsupported type '{source.GetType().Name}'".ToString(CultureInfo.CurrentCulture));
                     });
             }
 

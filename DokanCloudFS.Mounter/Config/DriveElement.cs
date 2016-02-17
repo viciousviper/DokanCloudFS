@@ -24,6 +24,7 @@ SOFTWARE.
 
 using System;
 using System.Configuration;
+using System.Globalization;
 
 namespace IgorSoft.DokanCloudFS.Mounter.Config
 {
@@ -89,6 +90,6 @@ namespace IgorSoft.DokanCloudFS.Mounter.Config
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Debugger Display")]
         [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        private string DebuggerDisplay => $"{nameof(DriveElement)} schema='{Schema}', userName='{UserName}', root='{Root}', apiKey='{ApiKey}', encryptionKey='{EncryptionKey}', timeout='{Timeout}'";
+        private string DebuggerDisplay => $"{nameof(DriveElement)} schema='{Schema}', userName='{UserName}', root='{Root}', apiKey='{ApiKey}', encryptionKey='{EncryptionKey}', timeout='{Timeout}'".ToString(CultureInfo.CurrentCulture);
     }
 }

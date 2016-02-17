@@ -24,6 +24,7 @@ SOFTWARE.
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -90,7 +91,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             using (var sut = fixture.Create(apiKey, encryptionKey)) {
                 var result = sut.GetRoot();
 
-                Assert.AreEqual($"{Fixture.SCHEMA}@{Fixture.USER_NAME}|{Fixture.MOUNT_POINT}{Path.VolumeSeparatorChar}{Path.DirectorySeparatorChar}", result.FullName, "Unexpected root name");
+                Assert.AreEqual($"{Fixture.SCHEMA}@{Fixture.USER_NAME}|{Fixture.MOUNT_POINT}{Path.VolumeSeparatorChar}{Path.DirectorySeparatorChar}".ToString(CultureInfo.CurrentCulture), result.FullName, "Unexpected root name");
             }
         }
 
@@ -103,7 +104,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             using (var sut = fixture.Create(apiKey, encryptionKey)) {
                 var result = sut.DisplayRoot;
 
-                Assert.AreEqual($"{Fixture.SCHEMA}@{Fixture.USER_NAME}|{Fixture.MOUNT_POINT}", result, "Unexpected DisplayRoot value");
+                Assert.AreEqual($"{Fixture.SCHEMA}@{Fixture.USER_NAME}|{Fixture.MOUNT_POINT}".ToString(CultureInfo.CurrentCulture), result, "Unexpected DisplayRoot value");
             }
         }
 

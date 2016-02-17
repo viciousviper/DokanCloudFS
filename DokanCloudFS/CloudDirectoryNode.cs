@@ -23,7 +23,7 @@ SOFTWARE.
 */
 
 using System;
-using System.Collections.ObjectModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
@@ -101,6 +101,6 @@ namespace IgorSoft.DokanCloudFS
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Debugger Display")]
         [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        private string DebuggerDisplay => $"{nameof(CloudDirectoryNode)} {Name} [{children?.Count ?? 0}]";
+        private string DebuggerDisplay => $"{nameof(CloudDirectoryNode)} {Name} [{children?.Count ?? 0}]".ToString(CultureInfo.CurrentCulture);
     }
 }
