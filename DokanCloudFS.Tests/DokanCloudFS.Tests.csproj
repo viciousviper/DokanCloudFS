@@ -44,7 +44,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="DokanNet, Version=1.0.8.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\DokanNet.1.1.0-rc1\lib\net40\DokanNet.dll</HintPath>
+      <HintPath>..\packages\DokanNet.1.1.0-rc2\lib\net40\DokanNet.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="IgorSoft.AppDomainResolver, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
