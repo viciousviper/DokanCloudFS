@@ -295,6 +295,12 @@ namespace IgorSoft.DokanCloudFS
             return Trace(nameof(FindFiles), fileName, info, DokanResult.Success);
         }
 
+        public NtStatus FindFilesWithPattern(string fileName, string searchPattern, out IList<FileInformation> files, DokanFileInfo info)
+        {
+            files = Enumerable.Empty<FileInformation>().ToList();
+            return Trace(nameof(FindFilesWithPattern), fileName, info, DokanResult.NotImplemented, searchPattern);
+        }
+
         public NtStatus FindStreams(string fileName, out IList<FileInformation> streams, DokanFileInfo info)
         {
             streams = Enumerable.Empty<FileInformation>().ToList();
