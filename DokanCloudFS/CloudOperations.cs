@@ -293,7 +293,7 @@ namespace IgorSoft.DokanCloudFS
                 }).ToList()
                 : emptyDirectoryDefaultFiles;
 
-            return Trace(nameof(FindFiles), fileName, info, DokanResult.Success);
+            return Trace(nameof(FindFiles), fileName, info, DokanResult.Success, $"out [{files.Count}]".ToString(CultureInfo.CurrentCulture));
         }
 
         public NtStatus FindFilesWithPattern(string fileName, string searchPattern, out IList<FileInformation> files, DokanFileInfo info)
@@ -310,7 +310,7 @@ namespace IgorSoft.DokanCloudFS
                 }).ToList()
                 : emptyDirectoryDefaultFiles;
 
-            return Trace(nameof(FindFiles), fileName, info, DokanResult.Success);
+            return Trace(nameof(FindFilesWithPattern), fileName, info, DokanResult.Success, searchPattern, $"out [{files.Count}]".ToString(CultureInfo.CurrentCulture));
         }
 
         public NtStatus FindStreams(string fileName, out IList<FileInformation> streams, DokanFileInfo info)

@@ -298,7 +298,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             fixture.SetupGetRootDirectoryItems();
             fixture.SetupMoveDirectoryOrFile(sutContract, targetContract);
-            fixture.SetupGetSubDirectory2Items(fixture.SubDirectory2Items);
+            fixture.SetupGetSubDirectory2Items();
 
             var root = fixture.GetDriveInfo().RootDirectory;
             var sut = root.GetDirectories(sutContract.Name).Single();
@@ -429,7 +429,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             fixture.SetupGetRootDirectoryItems();
             fixture.SetupMoveDirectoryOrFile(sutContract, targetContract);
-            fixture.SetupGetSubDirectory2Items(fixture.SubDirectory2Items);
+            fixture.SetupGetSubDirectory2Items();
 
             var root = fixture.GetDriveInfo().RootDirectory;
             var sut = root.GetFiles(sutContract.Name).Single();
