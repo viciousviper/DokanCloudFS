@@ -431,6 +431,7 @@ Console.WriteLine($"Completion {i}:[{Array.IndexOf(chunks[i].Buffer, default(byt
                 drive
                     .Setup(drive => drive.GetChildItem(It.Is<DirectoryInfoContract>(directory => directory.Id.Value == @"\SubDir2")))
                     .Returns(itemsProvider())
+                    .Callback(() => Console.WriteLine("Callback for GetSubDirectory2Items called"))
                     .Verifiable();
             }
 
