@@ -102,22 +102,6 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod]
-        public void CompositionInitializer_InitializeByPath_WherePathIsSpecifiedWithoutSearchPattern_Succeeds()
-        {
-            var onHostInitializedHandled = false;
-            EventHandler hostInitializedHandler = (s, e) => onHostInitializedHandled = true;
-
-            CompositionInitializer.HostInitialized += hostInitializedHandler;
-            try {
-                CompositionInitializer.Initialize(".");
-            } finally {
-                CompositionInitializer.HostInitialized -= hostInitializedHandler;
-            }
-
-            Assert.IsTrue(onHostInitializedHandled, "HostInitialized event not handled");
-        }
-
-        [TestMethod]
         public void CompositionInitializer_InitializeByPath_WherePathIsSpecified_Succeeds()
         {
             var onHostInitializedHandled = false;

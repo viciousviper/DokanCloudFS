@@ -285,6 +285,7 @@ namespace IgorSoft.DokanCloudFS
             var parent = GetItem(fileName) as CloudDirectoryNode;
 
             var childItems = parent.GetChildItems(drive).ToList();
+Console.WriteLine($"FindFiles: childItems=[{(childItems.Any() ? string.Join(", ", childItems.Select(i => i.Name)) : "<none>")}");
             files = childItems.Any()
                 ? childItems.Select(i => new FileInformation() {
                     FileName = i.Name, Length = (i as CloudFileNode)?.Contract.Size ?? 0,
@@ -302,6 +303,7 @@ namespace IgorSoft.DokanCloudFS
             var parent = GetItem(fileName) as CloudDirectoryNode;
 
             var childItems = parent.GetChildItems(drive).ToList();
+Console.WriteLine($"FindFilesWithPattern: searchPattern='{searchPattern}' childItems=[{(childItems.Any() ? string.Join(", ", childItems.Select(i => i.Name)) : "<none>")}");
             files = childItems.Any()
                 ? childItems.Where(i => searchRegex.IsMatch(i.Name)).Select(i => new FileInformation() {
                     FileName = i.Name, Length = (i as CloudFileNode)?.Contract.Size ?? 0,
@@ -310,6 +312,7 @@ namespace IgorSoft.DokanCloudFS
                 }).ToList()
                 : emptyDirectoryDefaultFiles;
 
+Console.WriteLine($"FindFilesWithPattern: searchPattern='{searchPattern}' files=[{(files.Any() ? string.Join(", ", files.Select(i => i.Name)) : "<none>")}");
             return Trace(nameof(FindFilesWithPattern), fileName, info, DokanResult.Success, searchPattern, $"out [{files.Count}]".ToString(CultureInfo.CurrentCulture));
         }
 
