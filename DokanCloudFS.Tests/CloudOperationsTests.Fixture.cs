@@ -425,6 +425,14 @@ namespace IgorSoft.DokanCloudFS.Tests
                     .Verifiable();
             }
 
+            public void SetupGetSubDirectory2Items(Func<IEnumerable<FileSystemInfoContract>> itemsProvider)
+            {
+                drive
+                    .Setup(drive => drive.GetChildItem(It.Is<DirectoryInfoContract>(directory => directory.Id.Value == @"\SubDir2")))
+                    .Returns(() => itemsProvider())
+                    .Verifiable();
+            }
+
             public void SetupGetEmptyDirectoryItems(string directoryId)
             {
                 drive
@@ -504,9 +512,9 @@ namespace IgorSoft.DokanCloudFS.Tests
                     .Verifiable();
             }
 
-            public void SetupMoveDirectoryOrFile(FileSystemInfoContract directoryOrFile, DirectoryInfoContract target)
+            public void SetupMoveDirectoryOrFile(FileSystemInfoContract directoryOrFile, DirectoryInfoContract target, Action callback = null)
             {
-                SetupMoveItem(directoryOrFile, directoryOrFile.Name, target);
+                SetupMoveItem(directoryOrFile, directoryOrFile.Name, target, callback);
             }
 
             public void SetupRenameDirectoryOrFile(FileSystemInfoContract directoryOrFile, string name)
@@ -514,7 +522,7 @@ namespace IgorSoft.DokanCloudFS.Tests
                 SetupMoveItem(directoryOrFile, name, (directoryOrFile as DirectoryInfoContract)?.Parent ?? (directoryOrFile as FileInfoContract)?.Directory ?? null);
             }
 
-            private void SetupMoveItem(FileSystemInfoContract directoryOrFile, string name, DirectoryInfoContract target)
+            private void SetupMoveItem(FileSystemInfoContract directoryOrFile, string name, DirectoryInfoContract target, Action callback = null)
             {
                 drive
                     .Setup(drive => drive.MoveItem(It.Is<FileSystemInfoContract>(item => item.Id == directoryOrFile.Id), name, target))
@@ -527,6 +535,7 @@ namespace IgorSoft.DokanCloudFS.Tests
                             return new FileInfoContract(source.Id.Value, movePath, source.Created, source.Updated, fileSource.Size, fileSource.Hash) { Directory = target };
                         throw new InvalidOperationException($"Unsupported type '{source.GetType().Name}'".ToString(CultureInfo.CurrentCulture));
                     })
+                    .Callback(() => { if (callback != null) callback(); })
                     .Verifiable();
             }
 
