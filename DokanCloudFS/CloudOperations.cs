@@ -294,6 +294,7 @@ Console.WriteLine($"FindFiles: childItems=[{(childItems.Any() ? string.Join(", "
                 }).ToList()
                 : emptyDirectoryDefaultFiles;
 
+Console.WriteLine($"FindFiles: files=[{(files.Any() ? string.Join(", ", files.Select(i => i.FileName)) : "<none>")}");
             return Trace(nameof(FindFiles), fileName, info, DokanResult.Success, $"out [{files.Count}]".ToString(CultureInfo.CurrentCulture));
         }
 
@@ -312,7 +313,7 @@ Console.WriteLine($"FindFilesWithPattern: searchPattern='{searchPattern}' childI
                 }).ToList()
                 : emptyDirectoryDefaultFiles;
 
-Console.WriteLine($"FindFilesWithPattern: searchPattern='{searchPattern}' files=[{(files.Any() ? string.Join(", ", files.Select(i => i.Name)) : "<none>")}");
+Console.WriteLine($"FindFilesWithPattern: searchPattern='{searchPattern}' files=[{(files.Any() ? string.Join(", ", files.Select(i => i.FileName)) : "<none>")}");
             return Trace(nameof(FindFilesWithPattern), fileName, info, DokanResult.Success, searchPattern, $"out [{files.Count}]".ToString(CultureInfo.CurrentCulture));
         }
 
