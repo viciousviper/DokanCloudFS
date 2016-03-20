@@ -295,10 +295,11 @@ namespace IgorSoft.DokanCloudFS.Tests
         {
             var sutContract = fixture.RootDirectoryItems.OfType<DirectoryInfoContract>().First();
             var targetContract = fixture.RootDirectoryItems.OfType<DirectoryInfoContract>().Last();
+            bool moveCalled = false;
 
             fixture.SetupGetRootDirectoryItems();
-            fixture.SetupMoveDirectoryOrFile(sutContract, targetContract);
-            fixture.SetupGetSubDirectory2Items();
+            fixture.SetupMoveDirectoryOrFile(sutContract, targetContract, () => moveCalled = true);
+            fixture.SetupGetSubDirectory2Items(() => moveCalled ? fixture.SubDirectory2Items.Concat(new[] { sutContract }) : fixture.SubDirectory2Items);
 
             var root = fixture.GetDriveInfo().RootDirectory;
             var sut = root.GetDirectories(sutContract.Name).Single();
@@ -426,10 +427,11 @@ namespace IgorSoft.DokanCloudFS.Tests
         {
             var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
             var targetContract = fixture.RootDirectoryItems.OfType<DirectoryInfoContract>().Last();
+            bool moveCalled = false;
 
             fixture.SetupGetRootDirectoryItems();
-            fixture.SetupMoveDirectoryOrFile(sutContract, targetContract);
-            fixture.SetupGetSubDirectory2Items();
+            fixture.SetupMoveDirectoryOrFile(sutContract, targetContract, () => moveCalled = true);
+            fixture.SetupGetSubDirectory2Items(() => moveCalled ? fixture.SubDirectory2Items.Concat(new[] { sutContract }) : fixture.SubDirectory2Items);
 
             var root = fixture.GetDriveInfo().RootDirectory;
             var sut = root.GetFiles(sutContract.Name).Single();

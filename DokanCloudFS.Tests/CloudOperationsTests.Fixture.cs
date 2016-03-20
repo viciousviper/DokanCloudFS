@@ -426,6 +426,14 @@ Console.WriteLine($"Completion {i}:[{Array.IndexOf(chunks[i].Buffer, default(byt
                     .Verifiable();
             }
 
+            public void SetupGetSubDirectory2Items(Func<IEnumerable<FileSystemInfoContract>> itemsProvider)
+            {
+                drive
+                    .Setup(drive => drive.GetChildItem(It.Is<DirectoryInfoContract>(directory => directory.Id.Value == @"\SubDir2")))
+                    .Returns(itemsProvider())
+                    .Verifiable();
+            }
+
             public void SetupGetEmptyDirectoryItems(string directoryId)
             {
                 drive
@@ -505,9 +513,9 @@ Console.WriteLine($"Completion {i}:[{Array.IndexOf(chunks[i].Buffer, default(byt
                     .Verifiable();
             }
 
-            public void SetupMoveDirectoryOrFile(FileSystemInfoContract directoryOrFile, DirectoryInfoContract target)
+            public void SetupMoveDirectoryOrFile(FileSystemInfoContract directoryOrFile, DirectoryInfoContract target, Action callback = null)
             {
-                SetupMoveItem(directoryOrFile, directoryOrFile.Name, target);
+                SetupMoveItem(directoryOrFile, directoryOrFile.Name, target, callback);
             }
 
             public void SetupRenameDirectoryOrFile(FileSystemInfoContract directoryOrFile, string name)
@@ -515,10 +523,11 @@ Console.WriteLine($"Completion {i}:[{Array.IndexOf(chunks[i].Buffer, default(byt
                 SetupMoveItem(directoryOrFile, name, (directoryOrFile as DirectoryInfoContract)?.Parent ?? (directoryOrFile as FileInfoContract)?.Directory ?? null);
             }
 
-            private void SetupMoveItem(FileSystemInfoContract directoryOrFile, string name, DirectoryInfoContract target)
+            private void SetupMoveItem(FileSystemInfoContract directoryOrFile, string name, DirectoryInfoContract target, Action callback = null)
             {
                 drive
                     .Setup(drive => drive.MoveItem(It.Is<FileSystemInfoContract>(item => item.Id == directoryOrFile.Id), name, target))
+                    .Callback(() => { if (callback != null) callback(); })
                     .Returns((FileSystemInfoContract source, string movePath, DirectoryInfoContract destination) => {
                         var directorySource = source as DirectoryInfoContract;
                         if (directorySource != null)
