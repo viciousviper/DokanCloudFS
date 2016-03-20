@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 using System;
+using System.Globalization;
 using System.IO;
 using System.Threading;
 
@@ -80,7 +81,7 @@ namespace IgorSoft.DokanCloudFS.IO
                     if (read > 0 || base.Position == Capacity)
                         return read;
                     if (!Monitor.Wait(assignedBlocks, timeout))
-                        throw new TimeoutException($"{nameof(Read)} exceeded timeout {timeout}");
+                        throw new TimeoutException($"{nameof(Read)} exceeded timeout {timeout}".ToString(CultureInfo.CurrentCulture));
                 } while (true);
             }
         }
@@ -109,6 +110,6 @@ namespace IgorSoft.DokanCloudFS.IO
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Debugger Display")]
         [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        private string DebuggerDisplay => $"{nameof(GatherStream)}[{Capacity}] {nameof(Length)} = {base.Length}, {nameof(Position)} = {base.Position}";
+        private string DebuggerDisplay => $"{nameof(GatherStream)}[{Capacity}] {nameof(Length)} = {base.Length}, {nameof(Position)} = {base.Position}".ToString(CultureInfo.CurrentCulture);
     }
 }

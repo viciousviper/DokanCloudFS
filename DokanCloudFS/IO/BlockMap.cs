@@ -25,6 +25,7 @@ SOFTWARE.
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 
 namespace IgorSoft.DokanCloudFS.IO
@@ -42,9 +43,9 @@ namespace IgorSoft.DokanCloudFS.IO
             public Block(int offset, int count)
             {
                 if (offset < 0)
-                    throw new ArgumentOutOfRangeException(nameof(offset), $"{nameof(offset)} must be nonnegative.");
+                    throw new ArgumentOutOfRangeException(nameof(offset), $"{nameof(offset)} must be nonnegative.".ToString(CultureInfo.CurrentCulture));
                 if (count <= 0)
-                    throw new ArgumentOutOfRangeException(nameof(count), $"{nameof(count)} must be positive.");
+                    throw new ArgumentOutOfRangeException(nameof(count), $"{nameof(count)} must be positive.".ToString(CultureInfo.CurrentCulture));
 
                 Offset = offset;
                 Count = count;
@@ -88,7 +89,7 @@ namespace IgorSoft.DokanCloudFS.IO
 
             [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Debugger Display")]
             [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-            private string DebuggerDisplay => $"{nameof(Block)}({Offset}, {Count})";
+            private string DebuggerDisplay => $"{nameof(Block)}({Offset}, {Count})".ToString(CultureInfo.CurrentCulture);
         }
 
         private List<Block> blocks = new List<Block>();
@@ -100,7 +101,7 @@ namespace IgorSoft.DokanCloudFS.IO
         public BlockMap(int capacity)
         {
             if (capacity <= 0)
-                throw new ArgumentOutOfRangeException(nameof(capacity), $"{nameof(capacity)} must be positive.");
+                throw new ArgumentOutOfRangeException(nameof(capacity), $"{nameof(capacity)} must be positive.".ToString(CultureInfo.CurrentCulture));
 
             Capacity = capacity;
         }
@@ -113,9 +114,9 @@ namespace IgorSoft.DokanCloudFS.IO
         public int GetAvailableBytes(int offset, int count)
         {
             if (offset < 0 || offset > Capacity)
-                throw new ArgumentOutOfRangeException(nameof(offset), $"{nameof(offset)}({offset}) is negative or exceeds {nameof(Capacity)}({Capacity}).");
+                throw new ArgumentOutOfRangeException(nameof(offset), $"{nameof(offset)}({offset}) is negative or exceeds {nameof(Capacity)}({Capacity}).".ToString(CultureInfo.CurrentCulture));
             if (count < 0)
-                throw new ArgumentOutOfRangeException(nameof(count), $"{nameof(count)}({count}) is negative.");
+                throw new ArgumentOutOfRangeException(nameof(count), $"{nameof(count)}({count}) is negative.".ToString(CultureInfo.CurrentCulture));
             count = Math.Min(count, Capacity - offset);
 
             if (count == 0)
@@ -133,16 +134,16 @@ namespace IgorSoft.DokanCloudFS.IO
         public void AssignBytes(int offset, int count)
         {
             if (offset >= Capacity)
-                throw new ArgumentOutOfRangeException(nameof(offset), $"{nameof(offset)}({offset}) exceeds {nameof(Capacity)}({Capacity}).");
+                throw new ArgumentOutOfRangeException(nameof(offset), $"{nameof(offset)}({offset}) exceeds {nameof(Capacity)}({Capacity}).".ToString(CultureInfo.CurrentCulture));
             if (offset + count > Capacity)
-                throw new ArgumentOutOfRangeException(nameof(count), $"{nameof(count)}({count}) exceedes remaining {nameof(Capacity)}).");
+                throw new ArgumentOutOfRangeException(nameof(count), $"{nameof(count)}({count}) exceedes remaining {nameof(Capacity)}).".ToString(CultureInfo.CurrentCulture));
 
             var block = new Block(offset, count);
 
             int index = blocks.BinarySearch(block), successorIndex = ~index;
 
             if (index >= 0 || successorIndex > 0 && blocks[successorIndex - 1].Intersects(block) || successorIndex < blocks.Count && blocks[successorIndex].Intersects(block))
-                throw new InvalidOperationException($"{nameof(Block)}({offset}, {count}) intersects previous coverage.");
+                throw new InvalidOperationException($"{nameof(Block)}({offset}, {count}) intersects previous coverage.".ToString(CultureInfo.CurrentCulture));
 
             var predecessor = successorIndex > 0 ? blocks[successorIndex - 1] : null;
             var successor = successorIndex < blocks.Count ? blocks[successorIndex] : null;
@@ -159,6 +160,6 @@ namespace IgorSoft.DokanCloudFS.IO
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Debugger Display")]
         [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        private string DebuggerDisplay => $"{nameof(BlockMap)}[{Capacity}]: {string.Join(",", blocks.Select(b => $"({b.Offset}|{b.Count})"))}";
+        private string DebuggerDisplay => $"{nameof(BlockMap)}[{Capacity}]: {string.Join(",", blocks.Select(b => $"({b.Offset}|{b.Count})".ToString(CultureInfo.InvariantCulture)))}".ToString(CultureInfo.CurrentCulture);
     }
 }

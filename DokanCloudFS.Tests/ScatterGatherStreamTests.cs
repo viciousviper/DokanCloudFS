@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 using System;
+using System.Globalization;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -110,9 +111,9 @@ namespace IgorSoft.DokanCloudFS.Tests
 
                 Assert.Fail("Expected Exception is missing");
             } catch (AggregateException ex) {
-                Console.WriteLine($"Exception thrown: {ex.InnerException.Message}");
-                Assert.AreEqual(1, ex.InnerExceptions.Count, $"Excessive number of Exceptions");
-                Assert.IsInstanceOfType(ex.InnerException, typeof(TimeoutException), $"Unexpected Exception type {ex.InnerException.GetType().Name}");
+                Console.WriteLine($"Exception thrown: {ex.InnerException.Message}".ToString(CultureInfo.CurrentCulture));
+                Assert.AreEqual(1, ex.InnerExceptions.Count, "Excessive number of Exceptions");
+                Assert.IsInstanceOfType(ex.InnerException, typeof(TimeoutException), $"Unexpected Exception type {ex.InnerException.GetType().Name}".ToString(CultureInfo.CurrentCulture));
             }
         }
 
@@ -128,9 +129,9 @@ namespace IgorSoft.DokanCloudFS.Tests
 
                 Assert.Fail("Expected Exception is missing");
             } catch (AggregateException ex) {
-                Console.WriteLine($"Exception thrown: {ex.InnerException.Message}");
-                Assert.AreEqual(1, ex.InnerExceptions.Count, $"Excessive number of Exceptions");
-                Assert.IsInstanceOfType(ex.InnerException, typeof(ArgumentOutOfRangeException), $"Unexpected Exception type {ex.InnerException.GetType().Name}");
+                Console.WriteLine($"Exception thrown: {ex.InnerException.Message}".ToString(CultureInfo.CurrentCulture));
+                Assert.AreEqual(1, ex.InnerExceptions.Count, "Excessive number of Exceptions");
+                Assert.IsInstanceOfType(ex.InnerException, typeof(ArgumentOutOfRangeException), $"Unexpected Exception type {ex.InnerException.GetType().Name}".ToString(CultureInfo.CurrentCulture));
             }
         }
     }

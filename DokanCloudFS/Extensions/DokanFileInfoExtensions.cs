@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 using System;
+using System.Globalization;
 using DokanNet;
 
 namespace IgorSoft.DokanCloudFS.Extensions
@@ -32,8 +33,8 @@ namespace IgorSoft.DokanCloudFS.Extensions
 
         public static string ToTrace(this DokanFileInfo info)
         {
-            var contextDescriptor = info.Context != null ? $"{info.Context}" : "<null>";
-            return $"{{{contextDescriptor}, {info.DeleteOnClose}, {info.IsDirectory}, {info.NoCache}, {info.PagingIo}, {info.ProcessId}, {info.SynchronousIo}, {info.WriteToEndOfFile}}}";
+            var contextDescriptor = info.Context != null ? info.Context.ToString() : "<null>";
+            return $"{{{contextDescriptor}, {info.DeleteOnClose}, {info.IsDirectory}, {info.NoCache}, {info.PagingIo}, {info.ProcessId}, {info.SynchronousIo}, {info.WriteToEndOfFile}}}".ToString(CultureInfo.CurrentCulture);
         }
     }
 }

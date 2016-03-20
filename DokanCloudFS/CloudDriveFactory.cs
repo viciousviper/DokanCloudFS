@@ -29,7 +29,6 @@ using System.Globalization;
 using IgorSoft.CloudFS.Interface;
 using IgorSoft.CloudFS.Interface.Composition;
 using IgorSoft.DokanCloudFS.Parameters;
-using NLog;
 
 namespace IgorSoft.DokanCloudFS
 {
@@ -41,7 +40,7 @@ namespace IgorSoft.DokanCloudFS
         internal ICloudDrive CreateCloudDrive(string schema, string userName, string root, CloudDriveParameters parameters)
         {
             if (GatewayManager == null)
-                throw new InvalidOperationException($"{nameof(GatewayManager)} not initialized");
+                throw new InvalidOperationException($"{nameof(GatewayManager)} not initialized".ToString(CultureInfo.CurrentCulture));
 
             var rootName = new RootName(schema, userName, root);
 

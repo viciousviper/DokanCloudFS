@@ -32,7 +32,7 @@
     <BufferSize>32768</BufferSize>
     <FileSize>192512</FileSize>
   </ConfigRead>
-  <!--<ConfigRead>
+  <ConfigRead>
     <BufferSize>65536</BufferSize>
     <FileSize>262144</FileSize>
   </ConfigRead>
@@ -79,7 +79,7 @@
   <ConfigRead>
     <BufferSize>131072</BufferSize>
     <FileSize>491520</FileSize>
-  </ConfigRead>-->
+  </ConfigRead>
 
   <ConfigWrite>
     <BufferSize>32768</BufferSize>
@@ -108,12 +108,12 @@
   <ConfigWrite>
     <BufferSize>32768</BufferSize>
     <FileSize>188416</FileSize>
-  </ConfigWrite>-->
+  </ConfigWrite>
   <ConfigWrite>
     <BufferSize>32768</BufferSize>
     <FileSize>192512</FileSize>
   </ConfigWrite>
-  <!--<ConfigWrite>
+  <ConfigWrite>
     <BufferSize>65536</BufferSize>
     <FileSize>262144</FileSize>
   </ConfigWrite>
@@ -160,5 +160,5 @@
   <ConfigWrite>
     <BufferSize>131072</BufferSize>
     <FileSize>491520</FileSize>
-  </ConfigWrite>-->
+  </ConfigWrite>
 </Rows>

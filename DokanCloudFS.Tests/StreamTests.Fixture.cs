@@ -22,11 +22,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using IgorSoft.DokanCloudFS.IO;
 using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using IgorSoft.DokanCloudFS.IO;
 
 namespace IgorSoft.DokanCloudFS.Tests
 {
@@ -98,7 +99,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             public async Task<int> ReadAsync(Stream stream, byte[] buffer, TimeSpan initialDelay, int chunkSize, TimeSpan readDelay, int[] readPermutation = null)
             {
-                Console.WriteLine($"{nameof(ReadAsync)} Start");
+                Console.WriteLine($"{nameof(ReadAsync)} Start".ToString(CultureInfo.CurrentCulture));
 
                 if (readPermutation == null)
                     readPermutation = Enumerable.Range(0, buffer.Length / chunkSize).ToArray();
@@ -114,20 +115,20 @@ namespace IgorSoft.DokanCloudFS.Tests
                         await Task.Delay(readDelay);
                     } while (bytesRead < chunkSize);
                     volume += bytesRead;
-                    Console.WriteLine($"{nameof(ReadAsync)}[{readPermutation[i] * chunkSize}] <- {bytesRead}");
+                    Console.WriteLine($"{nameof(ReadAsync)}[{readPermutation[i] * chunkSize}] <- {bytesRead}".ToString(CultureInfo.CurrentCulture));
 
                     if (bytesRead == 0)
                         break;
                 }
 
-                Console.WriteLine($"{nameof(ReadAsync)} End");
+                Console.WriteLine($"{nameof(ReadAsync)} End".ToString(CultureInfo.CurrentCulture));
 
                 return volume;
             }
 
             public async Task<bool> WriteAsync(Stream stream, byte[] buffer, TimeSpan initialDelay, int chunkSize, TimeSpan writeDelay, int[] writePermutation = null, bool flush = true)
             {
-                Console.WriteLine($"{nameof(WriteAsync)} Start");
+                Console.WriteLine($"{nameof(WriteAsync)} Start".ToString(CultureInfo.CurrentCulture));
 
                 if (writePermutation == null)
                     writePermutation = Enumerable.Range(0, buffer.Length / chunkSize).ToArray();
@@ -139,16 +140,16 @@ namespace IgorSoft.DokanCloudFS.Tests
                     stream.Position = writePermutation[i] * chunkSize;
                     await stream.WriteAsync(buffer, writePermutation[i] * chunkSize, chunkSize);
                     volume += chunkSize;
-                    Console.WriteLine($"{nameof(WriteAsync)}[{writePermutation[i] * chunkSize}] -> {chunkSize}");
+                    Console.WriteLine($"{nameof(WriteAsync)}[{writePermutation[i] * chunkSize}] -> {chunkSize}".ToString(CultureInfo.CurrentCulture));
                     await Task.Delay(writeDelay);
                 }
 
                 if (flush) {
-                    Console.WriteLine($"{nameof(WriteAsync)} Flush");
+                    Console.WriteLine($"{nameof(WriteAsync)} Flush".ToString(CultureInfo.CurrentCulture));
                     await stream.FlushAsync();
                 }
 
-                Console.WriteLine($"{nameof(WriteAsync)} End");
+                Console.WriteLine($"{nameof(WriteAsync)} End".ToString(CultureInfo.CurrentCulture));
 
                 return true;
             }

@@ -24,6 +24,7 @@ SOFTWARE.
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using IgorSoft.CloudFS.Interface;
 using IgorSoft.CloudFS.Interface.Composition;
@@ -155,6 +156,6 @@ namespace IgorSoft.DokanCloudFS
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Debugger Display")]
         [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        private string DebuggerDisplay => $"{nameof(AsyncCloudDrive)} {DisplayRoot}";
+        private string DebuggerDisplay => $"{nameof(AsyncCloudDrive)} {DisplayRoot}".ToString(CultureInfo.CurrentCulture);
     }
 }
