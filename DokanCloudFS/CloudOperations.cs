@@ -285,7 +285,7 @@ namespace IgorSoft.DokanCloudFS
             var parent = GetItem(fileName) as CloudDirectoryNode;
 
             var childItems = parent.GetChildItems(drive).ToList();
-Console.WriteLine($"FindFiles: childItems=[{(childItems.Any() ? string.Join(", ", childItems.Select(i => i.Name)) : "<none>")}");
+Console.WriteLine($"FindFiles: childItems={(childItems.Any() ? string.Join(", ", childItems.Select(i => i.Name)) : "<none>")}");
             files = childItems.Any()
                 ? childItems.Select(i => new FileInformation() {
                     FileName = i.Name, Length = (i as CloudFileNode)?.Contract.Size ?? 0,
@@ -294,7 +294,7 @@ Console.WriteLine($"FindFiles: childItems=[{(childItems.Any() ? string.Join(", "
                 }).ToList()
                 : emptyDirectoryDefaultFiles;
 
-Console.WriteLine($"FindFiles: files=[{(files.Any() ? string.Join(", ", files.Select(i => i.FileName)) : "<none>")}");
+Console.WriteLine($"FindFiles: files={(files.Any() ? string.Join(", ", files.Select(i => i.FileName)) : "<none>")}");
             return Trace(nameof(FindFiles), fileName, info, DokanResult.Success, $"out [{files.Count}]".ToString(CultureInfo.CurrentCulture));
         }
 
@@ -304,7 +304,7 @@ Console.WriteLine($"FindFiles: files=[{(files.Any() ? string.Join(", ", files.Se
             var parent = GetItem(fileName) as CloudDirectoryNode;
 
             var childItems = parent.GetChildItems(drive).ToList();
-Console.WriteLine($"FindFilesWithPattern: searchPattern='{searchPattern}' childItems=[{(childItems.Any() ? string.Join(", ", childItems.Select(i => i.Name)) : "<none>")}");
+Console.WriteLine($"FindFilesWithPattern: searchPattern='{searchPattern}' childItems={(childItems.Any() ? string.Join(", ", childItems.Select(i => i.Name)) : "<none>")}");
             files = childItems.Any()
                 ? childItems.Where(i => searchRegex.IsMatch(i.Name)).Select(i => new FileInformation() {
                     FileName = i.Name, Length = (i as CloudFileNode)?.Contract.Size ?? 0,
@@ -313,7 +313,7 @@ Console.WriteLine($"FindFilesWithPattern: searchPattern='{searchPattern}' childI
                 }).ToList()
                 : emptyDirectoryDefaultFiles;
 
-Console.WriteLine($"FindFilesWithPattern: searchPattern='{searchPattern}' files=[{(files.Any() ? string.Join(", ", files.Select(i => i.FileName)) : "<none>")}");
+Console.WriteLine($"FindFilesWithPattern: searchPattern='{searchPattern}' files={(files.Any() ? string.Join(", ", files.Select(i => i.FileName)) : "<none>")}");
             return Trace(nameof(FindFilesWithPattern), fileName, info, DokanResult.Success, searchPattern, $"out [{files.Count}]".ToString(CultureInfo.CurrentCulture));
         }
 

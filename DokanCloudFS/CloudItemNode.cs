@@ -24,6 +24,7 @@ SOFTWARE.
 
 using System;
 using System.Globalization;
+using System.Linq;
 using IgorSoft.CloudFS.Interface.IO;
 
 namespace IgorSoft.DokanCloudFS
@@ -73,6 +74,7 @@ namespace IgorSoft.DokanCloudFS
             if (parent == null)
                 throw new InvalidOperationException($"{nameof(parent)} of {GetType().Name} '{Name}' is null".ToString(CultureInfo.CurrentCulture));
 
+Console.WriteLine($"Before Move: {Name} parent={(parent?.Name ?? "<null>")} parent.children={(parent?.children.Any() ?? false ? string.Join(", ", parent.children.Select(i => i.Key)) : "<none>")} destinationDirectory.children={(destinationDirectory.children.Any() ? string.Join(", ", destinationDirectory.children.Select(i => i.Key)) : "<none>")}");
             var moveItem = CreateNew(drive.MoveItem(Contract, newName, destinationDirectory.Contract));
             if (destinationDirectory.children != null) {
                 destinationDirectory.children.Add(moveItem.Name, moveItem);
@@ -82,6 +84,7 @@ namespace IgorSoft.DokanCloudFS
             }
             parent.children.Remove(Name);
             SetParent(null);
+Console.WriteLine($"After Move: {Name} parent={(parent?.Name ?? "<null>")} parent.children={(parent?.children.Any() ?? false ? string.Join(", ", parent.children.Select(i => i.Key)) : "<none>")} destinationDirectory.children={(destinationDirectory.children.Any() ? string.Join(", ", destinationDirectory.children.Select(i => i.Key)) : "<none>")}");
         }
 
         public void Remove(ICloudDrive drive)
