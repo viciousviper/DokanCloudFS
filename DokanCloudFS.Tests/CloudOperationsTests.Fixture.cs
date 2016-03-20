@@ -431,6 +431,7 @@ Console.WriteLine($"Completion {i}:[{Array.IndexOf(chunks[i].Buffer, default(byt
                 drive
                     .Setup(drive => drive.GetChildItem(It.Is<DirectoryInfoContract>(directory => directory.Id.Value == @"\SubDir2")))
                     .Returns(itemsProvider())
+                    .Callback(() => Console.WriteLine("Callback for GetSubDirectory2Items called"))
                     .Verifiable();
             }
 
@@ -537,6 +538,7 @@ Console.WriteLine($"Completion {i}:[{Array.IndexOf(chunks[i].Buffer, default(byt
                             return new FileInfoContract(source.Id.Value, movePath, source.Created, source.Updated, fileSource.Size, fileSource.Hash) { Directory = target };
                         throw new InvalidOperationException($"Unsupported type '{source.GetType().Name}'".ToString(CultureInfo.CurrentCulture));
                     })
+                    .Callback(() => Console.WriteLine("Callback for SetupMoveItem called"))
                     .Verifiable();
             }
 

@@ -298,14 +298,8 @@ namespace IgorSoft.DokanCloudFS.Tests
             bool moveCalled = false;
 
             fixture.SetupGetRootDirectoryItems();
-            fixture.SetupMoveDirectoryOrFile(sutContract, targetContract, () => {
-                moveCalled = true;
-                Console.WriteLine("Callback for MoveDirectoryOrFile called");
-            });
-            fixture.SetupGetSubDirectory2Items(() => {
-                Console.WriteLine($"Callback for GetSubDirectory2Items called with moveCalled={moveCalled}");
-                return moveCalled ? fixture.SubDirectory2Items.Concat(new[] { sutContract }) : fixture.SubDirectory2Items;
-            });
+            fixture.SetupMoveDirectoryOrFile(sutContract, targetContract, () => moveCalled = true);
+            fixture.SetupGetSubDirectory2Items(() => moveCalled ? fixture.SubDirectory2Items.Concat(new[] { sutContract }) : fixture.SubDirectory2Items);
 
             var root = fixture.GetDriveInfo().RootDirectory;
             var sut = root.GetDirectories(sutContract.Name).Single();
@@ -436,14 +430,8 @@ namespace IgorSoft.DokanCloudFS.Tests
             bool moveCalled = false;
 
             fixture.SetupGetRootDirectoryItems();
-            fixture.SetupMoveDirectoryOrFile(sutContract, targetContract, () => {
-                moveCalled = true;
-                Console.WriteLine("Callback for MoveDirectoryOrFile called");
-            });
-            fixture.SetupGetSubDirectory2Items(() => {
-                Console.WriteLine($"Callback for GetSubDirectory2Items called with moveCalled={moveCalled}");
-                return moveCalled ? fixture.SubDirectory2Items.Concat(new[] { sutContract }) : fixture.SubDirectory2Items;
-            });
+            fixture.SetupMoveDirectoryOrFile(sutContract, targetContract, () => moveCalled = true);
+            fixture.SetupGetSubDirectory2Items(() => moveCalled ? fixture.SubDirectory2Items.Concat(new[] { sutContract }) : fixture.SubDirectory2Items);
 
             var root = fixture.GetDriveInfo().RootDirectory;
             var sut = root.GetFiles(sutContract.Name).Single();
