@@ -34,6 +34,7 @@ using FileAccess = DokanNet.FileAccess;
 using NLog;
 using IgorSoft.DokanCloudFS.Extensions;
 using IgorSoft.DokanCloudFS.IO;
+using System.Text.RegularExpressions;
 
 namespace IgorSoft.DokanCloudFS
 {
@@ -297,8 +298,19 @@ namespace IgorSoft.DokanCloudFS
 
         public NtStatus FindFilesWithPattern(string fileName, string searchPattern, out IList<FileInformation> files, DokanFileInfo info)
         {
-            files = Enumerable.Empty<FileInformation>().ToList();
-            return Trace(nameof(FindFilesWithPattern), fileName, info, DokanResult.NotImplemented, searchPattern);
+            var searchRegex = new Regex(searchPattern.Contains('?') || searchPattern.Contains('*') ? searchPattern.Replace('?', '.').Replace("*", ".*") : "^" + searchPattern + "$");
+            var parent = GetItem(fileName) as CloudDirectoryNode;
+
+            var childItems = parent.GetChildItems(drive).ToList();
+            files = childItems.Any()
+                ? childItems.Where(i => searchRegex.IsMatch(i.Name)).Select(i => new FileInformation() {
+                    FileName = i.Name, Length = (i as CloudFileNode)?.Contract.Size ?? 0,
+                    Attributes = i is CloudDirectoryNode ? FileAttributes.Directory : FileAttributes.ReadOnly | FileAttributes.NotContentIndexed,
+                    CreationTime = i.Contract.Created.DateTime, LastWriteTime = i.Contract.Updated.DateTime, LastAccessTime = i.Contract.Updated.DateTime
+                }).ToList()
+                : emptyDirectoryDefaultFiles;
+
+            return Trace(nameof(FindFiles), fileName, info, DokanResult.Success);
         }
 
         public NtStatus FindStreams(string fileName, out IList<FileInformation> streams, DokanFileInfo info)
