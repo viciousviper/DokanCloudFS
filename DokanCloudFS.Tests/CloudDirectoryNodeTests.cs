@@ -105,7 +105,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void CloudDirectoryNode_MoveAndRename_Succeeds()
         {
-            var newName = "RenamedDirectory";
+            const string newName = "RenamedDirectory";
             var contract = fixture.TestDirectory;
             var directory = fixture.TargetDirectory;
 
@@ -121,7 +121,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void CloudDirectoryNode_NewDirectoryItem_Succeeds()
         {
-            var newName = "NewDirectory";
+            const string newName = "NewDirectory";
             var contract = fixture.TestDirectory;
 
             fixture.SetupGetChildItems(contract, fixture.SubDirectoryItems);
@@ -139,7 +139,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void CloudDirectoryNode_NewFileItem_Succeeds()
         {
-            var newName = "NewFile.ext";
+            const string newName = "NewFile.ext";
             var contract = fixture.TestDirectory;
 
             fixture.SetupGetChildItems(contract, fixture.SubDirectoryItems);

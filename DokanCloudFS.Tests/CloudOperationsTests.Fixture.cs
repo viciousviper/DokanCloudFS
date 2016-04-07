@@ -218,9 +218,9 @@ namespace IgorSoft.DokanCloudFS.Tests
                     }
                 }
 
-                bool finishedNormally = awaiterThread.Join(TimeSpan.FromSeconds(1));
+                var finishedNormally = awaiterThread.Join(TimeSpan.FromSeconds(1));
 
-                Array.ForEach(completions, c => GC.KeepAlive(c));
+                Array.ForEach(completions, GC.KeepAlive);
 
                 if (!finishedNormally)
                     throw new TimeoutException($"{nameof(ReadFileEx)} completions timed out".ToString(CultureInfo.CurrentCulture));
@@ -260,7 +260,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 
                 awaiterThread.Join();
 
-                Array.ForEach(completions, c => GC.KeepAlive(c));
+                Array.ForEach(completions, GC.KeepAlive);
             }
         }
 
@@ -302,15 +302,15 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             private const long usedSpace = 36 * 1 << 20;
 
-            private static RootDirectoryInfoContract rootDirectory = new RootDirectoryInfoContract(Path.DirectorySeparatorChar.ToString(), new DateTime(2016, 1, 1), new DateTime(2016, 1, 1)) { Drive = new DriveInfoContract(MOUNT_POINT, freeSpace, usedSpace) };
+            private static readonly RootDirectoryInfoContract rootDirectory = new RootDirectoryInfoContract(Path.DirectorySeparatorChar.ToString(), new DateTime(2016, 1, 1), new DateTime(2016, 1, 1)) { Drive = new DriveInfoContract(MOUNT_POINT, freeSpace, usedSpace) };
 
-            private IDokanOperations operations;
+            private readonly IDokanOperations operations;
 
-            private NLog.ILogger logger;
+            private readonly NLog.ILogger logger;
 
-            private RetargetingInterceptor<IDokanOperations> interceptor = new RetargetingInterceptor<IDokanOperations>();
+            private readonly RetargetingInterceptor<IDokanOperations> interceptor = new RetargetingInterceptor<IDokanOperations>();
 
-            private Thread mounterThread;
+            private readonly Thread mounterThread;
 
             private Mock<ICloudDrive> drive;
 
@@ -355,7 +355,7 @@ namespace IgorSoft.DokanCloudFS.Tests
                 Reset();
                 SetupGetRoot();
 
-                (mounterThread = new Thread(new ThreadStart(() => operations.Mount(MOUNT_POINT, DokanOptions.DebugMode | DokanOptions.RemovableDrive, 5, 800, TimeSpan.FromMinutes(5))))).Start();
+                (mounterThread = new Thread(new ThreadStart(() => operations.Mount(MOUNT_POINT, DokanOptions.DebugMode | DokanOptions.RemovableDrive, 5, 1000, TimeSpan.FromMinutes(5))))).Start();
                 var mountedDrive = GetDriveInfo();
                 while (!mountedDrive.IsReady)
                     Thread.Sleep(50);
@@ -371,6 +371,8 @@ namespace IgorSoft.DokanCloudFS.Tests
                     directory.Parent = rootDirectory;
                 foreach (var file in RootDirectoryItems.OfType<FileInfoContract>())
                     file.Directory = rootDirectory;
+
+                SetupGetDisplayRoot();
             }
 
             public DriveInfo GetDriveInfo() => new DriveInfo(MOUNT_POINT);
@@ -385,10 +387,12 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             public void SetupGetDisplayRoot(string root = null)
             {
-                drive
+                var verifies = drive
                     .SetupGet(d => d.DisplayRoot)
-                    .Returns(root ?? (new RootName(SCHEMA, USER_NAME, MOUNT_POINT)).Value)
-                    .Verifiable();
+                    .Returns(root ?? (new RootName(SCHEMA, USER_NAME, MOUNT_POINT)).Value);
+
+                if (!string.IsNullOrEmpty(root))
+                    verifies.Verifiable();
             }
 
             public void SetupGetFree(long free)

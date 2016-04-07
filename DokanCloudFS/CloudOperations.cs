@@ -107,14 +107,14 @@ namespace IgorSoft.DokanCloudFS
         {
             var extraParameters = parameters != null && parameters.Length > 0 ? ", " + string.Join(", ", parameters) : string.Empty;
 
-            logger?.Trace($"{System.Threading.Thread.CurrentThread.ManagedThreadId:D2} / {method}({fileName}, {info.ToTrace()}{extraParameters}) -> {result}".ToString(CultureInfo.CurrentCulture));
+            logger?.Trace($"{System.Threading.Thread.CurrentThread.ManagedThreadId:D2} / {drive.DisplayRoot} {method}({fileName}, {info.ToTrace()}{extraParameters}) -> {result}".ToString(CultureInfo.CurrentCulture));
 
             return result;
         }
 
         private NtStatus Trace(string method, string fileName, DokanFileInfo info, FileAccess access, FileShare share, FileMode mode, FileOptions options, FileAttributes attributes, NtStatus result)
         {
-            logger?.Trace($"{System.Threading.Thread.CurrentThread.ManagedThreadId:D2} / {method}({fileName}, {info.ToTrace()}, [{access}], [{share}], [{mode}], [{options}], [{attributes}]) -> {result}".ToString(CultureInfo.CurrentCulture));
+            logger?.Trace($"{System.Threading.Thread.CurrentThread.ManagedThreadId:D2} / {drive.DisplayRoot} {method}({fileName}, {info.ToTrace()}, [{access}], [{share}], [{mode}], [{options}], [{attributes}]) -> {result}".ToString(CultureInfo.CurrentCulture));
 
             return result;
         }
@@ -175,6 +175,9 @@ namespace IgorSoft.DokanCloudFS
             // HACK: Fix for Bug in Dokany related to a missing trailing slash for directory names
             if (string.IsNullOrEmpty(fileName))
                 fileName = @"\";
+            // HACK: Fix for Bug in Dokany related to a call to CreateFile with a fileName of '\*'
+            else if (fileName == @"\*" && access == FileAccess.ReadAttributes)
+                return Trace(nameof(CreateFile), fileName, info, access, share, mode, options, attributes, DokanResult.Success);
 
             if (fileName == @"\") {
                 info.IsDirectory = true;
@@ -210,10 +213,9 @@ namespace IgorSoft.DokanCloudFS
                             info.Context = new StreamContext(fileItem, FileAccess.WriteData);
                         else if (access.HasFlag(FileAccess.Delete))
                             info.Context = new StreamContext(fileItem, FileAccess.Delete);
-                        else
+                        else if (access != FileAccess.ReadAttributes)
                             return Trace(nameof(CreateFile), fileName, info, access, share, mode, options, attributes, DokanResult.NotImplemented);
-                    }
-                    else {
+                    } else {
                         info.IsDirectory = item != null;
                     }
 
@@ -298,16 +300,19 @@ namespace IgorSoft.DokanCloudFS
 
         public NtStatus FindFilesWithPattern(string fileName, string searchPattern, out IList<FileInformation> files, DokanFileInfo info)
         {
-            var searchRegex = new Regex(searchPattern.Contains('?') || searchPattern.Contains('*') ? searchPattern.Replace('?', '.').Replace("*", ".*") : "^" + searchPattern + "$");
+            if (searchPattern == null)
+                throw new ArgumentNullException(nameof(searchPattern));
             var parent = GetItem(fileName) as CloudDirectoryNode;
 
             var childItems = parent.GetChildItems(drive).ToList();
             files = childItems.Any()
-                ? childItems.Where(i => searchRegex.IsMatch(i.Name)).Select(i => new FileInformation() {
-                    FileName = i.Name, Length = (i as CloudFileNode)?.Contract.Size ?? 0,
-                    Attributes = i is CloudDirectoryNode ? FileAttributes.Directory : FileAttributes.ReadOnly | FileAttributes.NotContentIndexed,
-                    CreationTime = i.Contract.Created.DateTime, LastWriteTime = i.Contract.Updated.DateTime, LastAccessTime = i.Contract.Updated.DateTime
-                }).ToList()
+                ? childItems
+                    .Where(i => Regex.IsMatch(i.Name, searchPattern.Contains('?') || searchPattern.Contains('*') ? searchPattern.Replace('?', '.').Replace("*", ".*") : "^" + searchPattern + "$"))
+                    .Select(i => new FileInformation() {
+                        FileName = i.Name, Length = (i as CloudFileNode)?.Contract.Size ?? 0,
+                        Attributes = i is CloudDirectoryNode ? FileAttributes.Directory : FileAttributes.ReadOnly | FileAttributes.NotContentIndexed,
+                        CreationTime = i.Contract.Created.DateTime, LastWriteTime = i.Contract.Updated.DateTime, LastAccessTime = i.Contract.Updated.DateTime
+                    }).ToList()
                 : emptyDirectoryDefaultFiles;
 
             return Trace(nameof(FindFilesWithPattern), fileName, info, DokanResult.Success, searchPattern, $"out [{files.Count}]".ToString(CultureInfo.CurrentCulture));

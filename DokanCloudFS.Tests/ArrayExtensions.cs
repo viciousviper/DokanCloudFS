@@ -29,7 +29,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 {
     internal static class ArrayExtensions
     {
-        private static SHA1 sha1 = SHA1.Create();
+        private static readonly SHA1 sha1 = SHA1.Create();
 
         public static string ToHash(this byte[] value)
         {

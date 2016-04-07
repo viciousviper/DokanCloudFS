@@ -32,9 +32,9 @@ namespace IgorSoft.DokanCloudFS.IO
     [System.Diagnostics.DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class ScatterStream : MemoryStream
     {
-        private BlockMap assignedBlocks;
+        private readonly BlockMap assignedBlocks;
 
-        private TimeSpan timeout;
+        private readonly TimeSpan timeout;
 
         internal ScatterStream(byte[] buffer, BlockMap assignedBlocks, TimeSpan timeout) : base(buffer)
         {
@@ -100,7 +100,7 @@ namespace IgorSoft.DokanCloudFS.IO
                 if (offset + count > base.Capacity)
                     throw new ArgumentOutOfRangeException(nameof(count), $"Write request exceeds declared limit ({nameof(offset)} = {offset}, {nameof(count)} = {count}; {nameof(Capacity)} = {Capacity})".ToString(CultureInfo.CurrentCulture));
 
-                int position = (int)base.Position;
+                var position = (int)base.Position;
                 base.Write(buffer, offset, count);
                 assignedBlocks.AssignBytes(position, count);
                 Monitor.Pulse(assignedBlocks);

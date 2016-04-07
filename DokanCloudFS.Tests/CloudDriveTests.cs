@@ -38,11 +38,11 @@ namespace IgorSoft.DokanCloudFS.Tests
     {
         private Fixture fixture;
 
-        private string apiKey = "<MyApiKey>";
+        private const string apiKey = "<MyApiKey>";
 
-        private string encryptionKey = "<MyEncryptionKey>";
+        private const string encryptionKey = "<MyEncryptionKey>";
 
-        private IDictionary<string, string> parameters = null;
+        private readonly IDictionary<string, string> parameters;
 
         [TestInitialize]
         public void Initialize()
@@ -218,7 +218,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod]
         public void CloudDrive_NewDirectoryItem_Succeeds()
         {
-            var newName = "NewFile.ext";
+            const string newName = "NewFile.ext";
             var directory = fixture.TargetDirectory;
 
             fixture.SetupNewDirectoryItem(directory, newName);
@@ -233,7 +233,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod]
         public void CloudDrive_NewFileItem_Succeeds()
         {
-            var newName = "NewDirectory";
+            const string newName = "NewDirectory";
             var fileContent = Encoding.Default.GetBytes("Why did the chicken cross the road?");
             var directory = fixture.TargetDirectory;
 

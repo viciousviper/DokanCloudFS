@@ -41,28 +41,31 @@ namespace DokanCloudFS.Mounter
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "args")]
         internal static void Main(string[] args)
         {
-            CompositionInitializer.Preload(typeof(IgorSoft.CloudFS.Interface.Composition.ICloudGateway));
-            CompositionInitializer.Initialize("Gateways", "IgorSoft.CloudFS.Gateways.*.dll");
-            var factory = new CloudDriveFactory();
-            CompositionInitializer.SatisfyImports(factory);
-
             var mountSection = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None).Sections[MountSection.Name] as MountSection;
             if (mountSection == null)
                 throw new ConfigurationErrorsException("Mount configuration missing");
 
+            CompositionInitializer.Preload(typeof(IgorSoft.CloudFS.Interface.Composition.ICloudGateway));
+            CompositionInitializer.Initialize(mountSection.LibPath, "IgorSoft.CloudFS.Gateways.*.dll");
+            var factory = new CloudDriveFactory();
+            CompositionInitializer.SatisfyImports(factory);
+
             try {
                 var logger = new LogFactory().GetCurrentClassLogger();
-                var tokenSource = new CancellationTokenSource();
-                var tasks = new List<Task>();
-                foreach (var drive in mountSection.Drives.Cast<DriveElement>()) {
-                    var operations = new CloudOperations(factory.CreateCloudDrive(drive.Schema, drive.UserName, drive.Root, new CloudDriveParameters() { EncryptionKey = drive.EncryptionKey, Parameters = drive.GetParameters() }), logger);
+                using (var tokenSource = new CancellationTokenSource()) {
+                    var tasks = new List<Task>();
+                    foreach (var drive in mountSection.Drives.Cast<DriveElement>()) {
+                        var operations = new CloudOperations(factory.CreateCloudDrive(drive.Schema, drive.UserName, drive.Root, new CloudDriveParameters() { EncryptionKey = drive.EncryptionKey, Parameters = drive.GetParameters() }), logger);
 
-                    tasks.Add(Task.Run(() => operations.Mount(drive.Root, DokanOptions.RemovableDrive, mountSection.Threads, 800, TimeSpan.FromSeconds(drive.Timeout != 0 ? drive.Timeout : 20)), tokenSource.Token));
+                        tasks.Add(Task.Run(() => operations.Mount(drive.Root, DokanOptions.RemovableDrive, mountSection.Threads, 1000, TimeSpan.FromSeconds(drive.Timeout != 0 ? drive.Timeout : 20)), tokenSource.Token));
+                        // HACK: Replace with TaskFactory/TaskScheduler options
+                        Thread.Sleep(50);
+                    }
+
+                    Console.ReadKey(true);
+
+                    tokenSource.Cancel();
                 }
-
-                Console.ReadKey(true);
-
-                tokenSource.Cancel();
             } finally {
                 foreach (var drive in mountSection.Drives.Cast<DriveElement>())
                     Dokan.Unmount(drive.Root[0]);

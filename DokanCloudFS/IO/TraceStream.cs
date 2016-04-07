@@ -35,13 +35,13 @@ namespace IgorSoft.DokanCloudFS.IO
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public class TraceStream : Stream
     {
-        private string name;
+        private readonly string name;
 
-        private string fileName;
+        private readonly string fileName;
 
         private Stream baseStream;
 
-        private object lockObject = new object();
+        private readonly object lockObject = new object();
 
         public TraceStream(string name, string fileName, Stream baseStream)
         {

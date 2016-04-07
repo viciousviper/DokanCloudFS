@@ -32,7 +32,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace IgorSoft.DokanCloudFS.Tests
 {
     [TestClass]
-    public sealed partial class StreamExtensionsTests
+    public sealed class StreamExtensionsTests
     {
         private IList<Tuple<int, int, byte[], byte[]>> differences;
 

@@ -39,9 +39,9 @@ namespace IgorSoft.DokanCloudFS
     {
         private const int MAX_BULKDOWNLOAD_SIZE = 1 << 29;
 
-        private ICloudGateway gateway;
+        private readonly ICloudGateway gateway;
 
-        private IDictionary<string, string> parameters;
+        private readonly IDictionary<string, string> parameters;
 
         public CloudDrive(RootName rootName, ICloudGateway gateway, CloudDriveParameters parameters) : base(rootName, parameters)
         {

@@ -39,9 +39,9 @@ namespace IgorSoft.DokanCloudFS
     {
         private const int MAX_BULKDOWNLOAD_SIZE = 1 << 29;
 
-        private IAsyncCloudGateway gateway;
+        private readonly IAsyncCloudGateway gateway;
 
-        private IDictionary<string, string> parameters;
+        private readonly IDictionary<string, string> parameters;
 
         public AsyncCloudDrive(RootName rootName, IAsyncCloudGateway gateway, CloudDriveParameters parameters) : base(rootName, parameters)
         {

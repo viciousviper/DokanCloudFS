@@ -92,7 +92,7 @@ namespace IgorSoft.DokanCloudFS.IO
             private string DebuggerDisplay => $"{nameof(Block)}({Offset}, {Count})".ToString(CultureInfo.CurrentCulture);
         }
 
-        private List<Block> blocks = new List<Block>();
+        private readonly List<Block> blocks = new List<Block>();
 
         public ReadOnlyCollection<Block> Blocks => new ReadOnlyCollection<Block>(blocks);
 
@@ -122,7 +122,7 @@ namespace IgorSoft.DokanCloudFS.IO
             if (count == 0)
                 return 0;
 
-            int index = blocks.BinarySearch(new Block(offset, count));
+            var index = blocks.BinarySearch(new Block(offset, count));
 
             return index >= 0
                 ? GetAvailableBytes(index, offset, count)

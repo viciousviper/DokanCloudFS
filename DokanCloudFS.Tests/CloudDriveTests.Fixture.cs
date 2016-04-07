@@ -49,15 +49,15 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             public const long USED_SPACE = 36 * 1 << 20;
 
-            private Mock<ICloudGateway> gateway;
+            private readonly Mock<ICloudGateway> gateway;
 
-            private RootDirectoryInfoContract root;
+            private readonly RootDirectoryInfoContract root;
 
-            private RootName rootName = new RootName(SCHEMA, USER_NAME, MOUNT_POINT);
+            private readonly RootName rootName = new RootName(SCHEMA, USER_NAME, MOUNT_POINT);
 
             public ICloudGateway Gateway => gateway.Object;
 
-            public DirectoryInfoContract TargetDirectory = new DirectoryInfoContract(@"\SubDir", "SubDir", "2015-01-01 10:11:12".ToDateTime(), "2015-01-01 20:21:22".ToDateTime());
+            public readonly DirectoryInfoContract TargetDirectory = new DirectoryInfoContract(@"\SubDir", "SubDir", "2015-01-01 10:11:12".ToDateTime(), "2015-01-01 20:21:22".ToDateTime());
 
             public FileSystemInfoContract[] RootDirectoryItems { get; } = new FileSystemInfoContract[] {
                 new DirectoryInfoContract(@"\SubDir", "SubDir", "2015-01-01 10:11:12".ToDateTime(), "2015-01-01 20:21:22".ToDateTime()),

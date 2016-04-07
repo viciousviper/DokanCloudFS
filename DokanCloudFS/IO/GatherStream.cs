@@ -32,9 +32,9 @@ namespace IgorSoft.DokanCloudFS.IO
     [System.Diagnostics.DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class GatherStream : MemoryStream
     {
-        private BlockMap assignedBlocks;
+        private readonly BlockMap assignedBlocks;
 
-        private TimeSpan timeout;
+        private readonly TimeSpan timeout;
 
         internal GatherStream(byte[] buffer, BlockMap assignedBlocks, TimeSpan timeout) : base(buffer, false)
         {

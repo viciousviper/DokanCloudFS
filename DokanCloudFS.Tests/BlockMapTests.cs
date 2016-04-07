@@ -31,14 +31,6 @@ namespace IgorSoft.DokanCloudFS.Tests
     [TestClass]
     public sealed partial class BlockMapTests
     {
-        private Fixture fixture;
-
-        [TestInitialize]
-        public void Initialize()
-        {
-            fixture = new Fixture();
-        }
-
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void Assign_WhereBoundariesAreValid_AssignsBlockCorrectly()
         {

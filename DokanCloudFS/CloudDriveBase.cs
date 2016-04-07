@@ -33,11 +33,11 @@ namespace IgorSoft.DokanCloudFS
 {
     internal abstract class CloudDriveBase : IDisposable
     {
-        protected RootName rootName;
+        protected readonly RootName rootName;
 
-        protected string apiKey;
+        protected readonly string apiKey;
 
-        protected string encryptionKey;
+        protected readonly string encryptionKey;
 
         protected DriveInfoContract drive;
 
@@ -95,6 +95,7 @@ namespace IgorSoft.DokanCloudFS
         {
             semaphore.Dispose();
             semaphore = null;
+            GC.SuppressFinalize(this);
         }
     }
 }
