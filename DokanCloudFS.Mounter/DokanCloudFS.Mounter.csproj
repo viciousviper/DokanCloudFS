@@ -23,7 +23,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>ExtendedDesignGuidelineRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>
+    </CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -43,14 +44,14 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="DokanNet, Version=1.0.8.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\DokanNet.1.1.0-rc2\lib\net40\DokanNet.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="IgorSoft.CloudFS.Interface">
       <HintPath>..\Library\IgorSoft.CloudFS.Interface.dll</HintPath>
     </Reference>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <HintPath>..\packages\NLog.4.4.0-beta2\lib\net451\NLog.dll</HintPath>
+      <HintPath>..\packages\NLog.4.4.0-beta3\lib\net451\NLog.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -68,7 +69,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Config\ConfigStringExtensions.cs" />
     <Compile Include="Config\DriveElementCollection.cs" />
     <Compile Include="Config\DriveElementExtensions.cs" />
     <Compile Include="Config\MountSection.cs" />
