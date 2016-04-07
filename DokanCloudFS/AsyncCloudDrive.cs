@@ -117,8 +117,8 @@ namespace IgorSoft.DokanCloudFS
                 content = new TraceStream(nameof(SetContent), target.Name, content);
 #endif
                 Func<FileSystemInfoLocator> locator = () => new FileSystemInfoLocator(target);
-                gateway.SetContentAsync(rootName, target.Id, content, null, locator).Wait();
                 target.Size = content.Length;
+                gateway.SetContentAsync(rootName, target.Id, content, null, locator).Wait();
             }, nameof(SetContent), true);
         }
 

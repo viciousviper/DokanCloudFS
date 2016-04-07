@@ -113,8 +113,8 @@ namespace IgorSoft.DokanCloudFS
 #if DEBUG
                 content = new TraceStream(nameof(target), target.Name, content);
 #endif
-                gateway.SetContent(rootName, target.Id, content, null);
                 target.Size = content.Length;
+                gateway.SetContent(rootName, target.Id, content, null);
             }, nameof(SetContent), true);
         }
 
