@@ -13,7 +13,11 @@
 
 **DokanCloudFS** implements a virtual filesystem that allows direct mounting of various publicly accessible cloud storage services on the Microsoft Windows platform.
 
-Mounted cloud storage drives appear as ordinary removable drives in Windows Explorer (albeit very slow ones) and can be used just about like any local drive or file share. All content written through DokanCloudFS is transparently encrypted on the cloud storage backend.
+Mounted cloud storage drives appear as ordinary removable drives in Windows Explorer (albeit very slow ones) and can be used just about like any local drive or file share.
+
+![Multiple mounted drives](Images/MultipleMountedDrives.PNG)
+
+All content written through DokanCloudFS is transparently AES-encrypted with a user-specified key before handing it off to the cloud storage backend.
 
 Some limitations apply concerning transfer speed, maximum file size, permissions, and alternate streams depending on parameters of the cloud storage service used as a backend.
 
@@ -27,21 +31,21 @@ Some limitations apply concerning transfer speed, maximum file size, permissions
   - opening of files in default application via Mouse double click
   - right-click-menu on drive, files, and folders with access to menu commands and drive/file properties
   - thumbnails display for media files
-- transparent encryption and decryption of all file content via AESCrypt
+- transparent client-side encryption and decryption of all file content via AESCrypt
   - encryption key configurable per drive
 
 ## Supported Cloud storage services
 
 DokanCloudFS requires a gateway assembly for any cloud storage service to be used as a backend.
 
-The expected gateway interface types and a set of prefabricated gateways can be taken from the GitHub repository of the related [CloudFS](https://github.com/viciousviper/CloudFS) project.<br />The associated NuGet packages [CloudFS](https://www.nuget.org/packages/CloudFS/) and [CloudFS-Signed](https://www.nuget.org/packages/CloudFS-Signed/) include preconfigured API keys for the included cloud storage services and are ready to use. Unless marked otherwise, CloudFS NuGet packages should be used in a version matching the DokanCloudFS version.
+The expected gateway interface types and a set of prefabricated gateways are provided in a separate GitHub repository for the [CloudFS](https://github.com/viciousviper/CloudFS) project.<br />The associated NuGet packages [CloudFS](https://www.nuget.org/packages/CloudFS/) and [CloudFS-Signed](https://www.nuget.org/packages/CloudFS-Signed/) include preconfigured API keys for the included cloud storage services and are ready to use. Unless marked otherwise, CloudFS NuGet packages should be used in a version matching the DokanCloudFS version.
 
 ## System Requirements
 
 - Platform
   - .NET 4.6
 - Drivers
-  - [Dokany](https://github.com/dokan-dev/dokany/releases) driver 0.8.0 or greater
+  - [Dokany](https://github.com/dokan-dev/dokany/releases) driver 1.0.0-RC2 or greater installed
 - Operating system
   - tested on Windows 8.1 x64 and Windows Server 2012 R2 (until version 1.0.0-alpha) /<br/>Windows 10 x64 (from version 1.0.1-alpha)
   - expected to run on Windows 7/8/8.1/10 and Windows Server 2008(R2)/2012(R2)
@@ -63,13 +67,16 @@ The expected gateway interface types and a set of prefabricated gateways can be 
 ```xml
   <mount libPath="..\..\..\Library" threads="5">
     <drives>
-      <drive schema="onedrive" userName="OneDriveUser" root="Q:" encryptionKey="MyOneDriveSecret&amp;I" timeout="300" />
-      <!--<drive schema="box" userName="BoxUser" root="R:" encryptionKey="MyBoxSecret&amp;I" timeout="300" />-->
-      <!--<drive schema="copy" userName="CopyUser" root="S:" encryptionKey="MyCopySecret&amp;I" timeout="300" />-->
-      <drive schema="file" root="T:" encryptionKey="MyFileSecret&amp;I" parameters="root=..\..\..\TestData" />
-      <!--<drive schema="gdrive" userName="GDriveUser" root="U:" encryptionKey="MyGDriveSecret&amp;I" timeout="300" />-->
-      <!--<drive schema="mega" userName="MegaUser" root="V:" encryptionKey="MyMegaSecret&amp;I" timeout="300" />-->
-      <!--<drive schema="pcloud" userName="pCloudUser" root="W:" encryptionKey="MypCloudSecret&amp;I" timeout="300" />-->
+      <drive schema="box" userName="BoxUser" root="P:" encryptionKey="MyBoxSecret&amp;I" timeout="300" />
+      <drive schema="copy" userName="CopyUser" root="Q:" encryptionKey="MyCopySecret&amp;I" timeout="300" />
+      <!--<drive schema="file" root="R:" encryptionKey="MyFileSecret&amp;I" parameters="root=..\..\..\TestData" />-->
+      <drive schema="gdrive" userName="GDriveUser" root="S:" encryptionKey="MyGDriveSecret&amp;I" timeout="300" />
+      <drive schema="hubic" userName="hubiCUser" root="T:" encryptionKey="MyhubiCSecret&amp;I" parameters="container=default" timeout="300" />
+      <drive schema="mediafire" userName="MediaFireUser" root="U:" encryptionKey="MyMediaFireSecret&amp;I" timeout="300" />
+      <drive schema="mega" userName="MegaUser" root="V:" encryptionKey="MyMegaSecret&amp;I" timeout="300" />
+      <drive schema="onedrive" userName="OneDriveUser" root="W:" encryptionKey="MyOneDriveSecret&amp;I" timeout="300" />
+      <drive schema="pcloud" userName="pCloudUser" root="X:" encryptionKey="MypCloudSecret&amp;I" timeout="300" />
+      <drive schema="yandex" userName="YandexUser" root="Y:" encryptionKey="MyYandexSecret&amp;I" timeout="300" />
     </drives>
   </mount>
 ```
@@ -77,29 +84,54 @@ The expected gateway interface types and a set of prefabricated gateways can be 
 Configuration options:
 
   - Global
-    - **libPath**: Path to search for gateway plugin assemblies (relative to the location of *DokanCloudFS.exe*).<br/>All plugin dependencies not covered directly by DokanCloudFS should be placed in this path as well.
-    - **threads**: Number of concurrent threads used by the Dokan driver.<br />Defaults to 5.
+    - **libPath**: Path to search for gateway plugin assemblies (relative to the location of *IgorSoft.DokanCloudFS.Mounter.exe*).<br/>All plugin dependencies not covered directly by DokanCloudFS should be placed in this path as well.
+    - **threads**: Number of concurrent threads used for each drive by the Dokan driver.<br />Defaults to 5.
   - Per drive
     - **schema**: Selects the cloud storage service gateway to be used.<br />Must correspond to one of the *CloudFS* gateways installed in the *libPath* subdirectory. Presently supports the following values:
-      - *onedrive* (tested)
-      - *box*, *copy*, *gdrive*, *mega*, *pcloud* (test pending)
-      - *file* (tested - mounting of local folders only)
+      - *box*, *copy*<sup id="a1">[1](#f1)</sup>, *gdrive*, *hubic*, *mediafire*, *mega*, *onedrive*, *pcloud*, *yandex*
+      - *file* (mounting of local folders only)
     - **userName**: User account to be displayed in the mounted drive label.
     - **root**: The drive letter to be used as mount point for the cloud drive.<br />Choose a free drive letter such as *L:*.
     - **encryptionKey**: An arbitrary symmetric key for the transparent client-side AES encryption.<br />Leave this empty only if you *really* want to store content without encryption.
     - **parameters**: Custom parameters as required by the specific cloud storage service gateway. Multiple parameters are separated by a pipe-character `|`.
       - *file* gateway - requires a *root*-parameter specifying the target directory (e.g. `parameters="root=X:\Encrypted"`)
+      - *hubic* gateway - requires a *container*-parameter specifiying the desired target container (e.g. `parameters="container=default")`
       - other gateways - no custom parameters supported so far
     - **timeout:** The timeout value for file operations on this drive measured in seconds.<br />A value of *300* should suffice for all but the slowest connections.
+
+> <sup><b id="f1">1</b></sup> The Copy cloud storage service is slated to be discontinued as of May 1<sup>st</sup> 2016 according to this [announcement](https://www.copy.com/page/home;cs_login:login;;section:plans).<br/>The Copy gateway will be retired from CloudFS at or shortly after this point in time. [^](#a1)<br/>
+
+## Privacy advice
+
+Certain privacy-sensitive information will be stored on your local filesystem in the clear by DokanCloudFS, specifically:
+
+  - The file *%UserProfile%\AppData\Local\IgorSoft\IgorSoft.DokanCloudFS.&lt;RandomizedName&gt;\1.0.0.0\user.config* contains data required for automatic re-authentication with the configured cloud storage services such as
+    - account names you entered in the browser or login window when authenticating to the various cloud storage services,
+    - potentially long-lived authentication/refresh tokens, or in some cases **e-mail accounts and hashed login passwords**, as provided by the specific cloud storage service for re-login.
+  - The file *&lt;DokanCloudFS binary path&gt;\IgorSoft.DokanCloudFS.Mounter.exe.config* contains the symmetric AES encryption keys used for client-side encryption of cloud content.
+        
+If you are concerned about protecting this information from unauthorized parties you should use appropriate tools to encrypt the files mentioned above at operating system level or possibly encrypt your system drive.
+
+DokanCloudFS does **not** store your authentication password for any cloud storage service (which would be impossible in the first place for all services employing the OAuth authentication scheme).
 
 ## Limitations
 
   - DokanCloudFS only supports mounting of a cloud storage volume's root directory.
   - The maximum supported file size varies between different cloud storage services. Moreover, the precise limits are not always disclosed.<br />Exceeding the size limit in a file writing operation will result in either a timout or a service error.
-  - The files in a DokanCloudFS drive do not allow true random access, instead they are rather read or written as a whole.<br />Depending on the target application it *may* be possible to edit a file directly in the DokanCloudFS drive, otherwise it must be copied to a conventional drive for processing.
+  - The files in a DokanCloudFS drive do not allow true random access, instead they are read or written sequentially as a whole.<br />Depending on the target application it *may* be possible to edit a file directly in the DokanCloudFS drive, otherwise it must be copied to a conventional drive for processing.
   - DokanCloudFS keeps an internal cache of directory metadata for increased performance. Changes made to the cloud storage volume outside of DokanCloudFS will not be automatically synchronized with this cache, therefore any form of concurrent write access may lead to unexpected results or errors.
-  - The only encrypted file format supported by DokanCloudFS is the AESCrypt file format.
+  - The only encrypted file format supported by DokanCloudFS is the [AESCrypt](https://www.aescrypt.com/) file format.
   - DokanCloudFS distinguishes encryption keys on a per-drive scale only. It is not possible to assign encryption keys to specific subdirectories or to individual files.<br />Although you could, in theory, mount several copies of the same cloud service volume in parallel, these copies will not synchronize their cached directory structures in any way (see above).<br />A future version of DokanCloudFS will support *read-only* access to unencrypted content on the cloud storage volume.
+
+## Known bugs
+
+  - Several gateways
+    - Writing of large (>> 10 Mb) files to cloud storage is unstable on the following platforms: *Box*, *OneDrive*, *pCloud*
+  - *Mediafire* gateway
+    - The API library used to access MediaFire does not presently support long-term authentication tokens. Expect to re-authenticate via the login popup every 10 minutes or so.
+  - *Mega* gateway
+    - The API library used to access Mega does not presently report volume size or used space.
+    - The DokanCloudFS gateway does not presently support writing to files or copying files from an outside volume into a *Mega* drive.
 
 ## Remarks
 
@@ -125,6 +157,7 @@ You have been warned.
 - allow alternate encryption schemes
 - allow read-access to unencrypted content on cloud storage volumes
 - allow mounting and unmounting of individual drives without restarting the mounter process
+- protect locally stored authentication information through encryption
 
 ## References
 
