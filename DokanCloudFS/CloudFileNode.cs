@@ -66,7 +66,7 @@ namespace IgorSoft.DokanCloudFS
             if (drive == null)
                 throw new ArgumentNullException(nameof(drive));
 
-            drive.SetContent(Contract, new MemoryStream());
+            drive.SetContent(Contract, Stream.Null);
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Debugger Display")]
