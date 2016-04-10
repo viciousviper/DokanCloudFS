@@ -93,7 +93,7 @@ namespace IgorSoft.DokanCloudFS
             if (drive == null)
                 throw new ArgumentNullException(nameof(drive));
 
-            var newItem = new CloudFileNode(drive.NewFileItem(Contract, fileName, new MemoryStream()));
+            var newItem = new CloudFileNode(drive.NewFileItem(Contract, fileName, Stream.Null));
             children.Add(newItem.Name, newItem);
             newItem.SetParent(this);
             return newItem;
