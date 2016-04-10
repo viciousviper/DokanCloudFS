@@ -23,15 +23,16 @@ SOFTWARE.
 */
 
 using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Linq;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
+using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace IgorSoft.DokanCloudFS.Tests
 {
     [TestClass]
-    public sealed partial class StreamExtensionsTests
+    public sealed class StreamExtensionsTests
     {
         private IList<Tuple<int, int, byte[], byte[]>> differences;
 
@@ -85,10 +86,10 @@ namespace IgorSoft.DokanCloudFS.Tests
             Assert.AreEqual(array1.Length / 2, differences.Count, "Unexpected number of differences");
             for (int i = 0; i < differences.Count; ++i) {
                 var difference = differences[i];
-                Assert.AreEqual(2 * i + 1, difference.Item1, $"Unexpected start index ({i})");
-                Assert.AreEqual(1, difference.Item2, $"Unexpected length ({i})");
-                CollectionAssert.AreEqual(new[] { (byte)0 }, difference.Item3, $"Mismatched Stream content ({i})");
-                CollectionAssert.AreEqual(new[] { (byte)1 }, difference.Item4, $"Mismatched content ({i})");
+                Assert.AreEqual(2 * i + 1, difference.Item1, $"Unexpected start index ({i})".ToString(CultureInfo.CurrentCulture));
+                Assert.AreEqual(1, difference.Item2, $"Unexpected length ({i})".ToString(CultureInfo.CurrentCulture));
+                CollectionAssert.AreEqual(new[] { (byte)0 }, difference.Item3, $"Mismatched Stream content ({i})".ToString(CultureInfo.CurrentCulture));
+                CollectionAssert.AreEqual(new[] { (byte)1 }, difference.Item4, $"Mismatched content ({i})".ToString(CultureInfo.CurrentCulture));
             }
         }
 
@@ -103,10 +104,10 @@ namespace IgorSoft.DokanCloudFS.Tests
             Assert.AreEqual(2, differences.Count, "Unexpected number of differences");
             for (int i = 0; i < differences.Count; ++i) {
                 var difference = differences[i];
-                Assert.AreEqual(8 * i + 4 , difference.Item1, $"Unexpected start index ({i})");
-                Assert.AreEqual(4, difference.Item2, $"Unexpected length ({i})");
-                CollectionAssert.AreEqual(Enumerable.Repeat((byte)0, 4).ToArray(), difference.Item3, $"Mismatched Stream content ({i})");
-                CollectionAssert.AreEqual(Enumerable.Repeat((byte)1, 4).ToArray(), difference.Item4, $"Mismatched content ({i})");
+                Assert.AreEqual(8 * i + 4 , difference.Item1, $"Unexpected start index ({i})".ToString(CultureInfo.CurrentCulture));
+                Assert.AreEqual(4, difference.Item2, $"Unexpected length ({i})".ToString(CultureInfo.CurrentCulture));
+                CollectionAssert.AreEqual(Enumerable.Repeat((byte)0, 4).ToArray(), difference.Item3, $"Mismatched Stream content ({i})".ToString(CultureInfo.CurrentCulture));
+                CollectionAssert.AreEqual(Enumerable.Repeat((byte)1, 4).ToArray(), difference.Item4, $"Mismatched content ({i})".ToString(CultureInfo.CurrentCulture));
             }
         }
     }

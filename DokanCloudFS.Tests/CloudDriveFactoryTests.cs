@@ -81,7 +81,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void CreateCloudDrive_WhereGatewayIsRegistered_Succeeds()
         {
-            var schema = "test";
+            const string schema = "test";
             fixture.SetupTryGetAsyncCloudGatewayForSchema(schema, false);
             fixture.SetupTryGetCloudGatewayForSchema(schema);
 

@@ -40,15 +40,15 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             private const long usedSpace = 36 * 1 << 20;
 
-            private Mock<ICloudDrive> drive;
+            private readonly Mock<ICloudDrive> drive;
 
-            private CloudDirectoryNode root;
+            private readonly CloudDirectoryNode root;
 
             public ICloudDrive Drive => drive.Object;
 
-            public DirectoryInfoContract TestDirectory = new DirectoryInfoContract(@"\Dir", "Dir", "2015-01-02 20:11:12".ToDateTime(), "2015-01-02 20:21:22".ToDateTime());
+            public readonly DirectoryInfoContract TestDirectory = new DirectoryInfoContract(@"\Dir", "Dir", "2015-01-02 20:11:12".ToDateTime(), "2015-01-02 20:21:22".ToDateTime());
 
-            public DirectoryInfoContract TargetDirectory = new DirectoryInfoContract(@"\SubDir", "SubDir", "2015-01-01 10:11:12".ToDateTime(), "2015-01-01 20:21:22".ToDateTime());
+            public readonly DirectoryInfoContract TargetDirectory = new DirectoryInfoContract(@"\SubDir", "SubDir", "2015-01-01 10:11:12".ToDateTime(), "2015-01-01 20:21:22".ToDateTime());
 
             public FileSystemInfoContract[] SubDirectoryItems { get; } = new FileSystemInfoContract[] {
                 new DirectoryInfoContract(@"\SubDir\SubSubDir", "SubSubDir", "2015-02-01 10:11:12".ToDateTime(), "2015-02-01 20:21:22".ToDateTime()),
@@ -86,7 +86,7 @@ namespace IgorSoft.DokanCloudFS.Tests
                 var newName = !string.IsNullOrEmpty(movePath) ? movePath : source.Name;
                 drive
                     .Setup(d => d.MoveItem(source, movePath, destination))
-                    .Returns(new DirectoryInfoContract(destination.Id.Value + Path.DirectorySeparatorChar.ToString() + newName, newName, source.Created, source.Updated));
+                    .Returns(new DirectoryInfoContract(destination.Id.Value + Path.DirectorySeparatorChar + newName, newName, source.Created, source.Updated));
             }
 
             public void SetupNewDirectoryItem(DirectoryInfoContract parent, string directoryName)

@@ -24,16 +24,13 @@ SOFTWARE.
 
 using System;
 using System.Collections.Generic;
-using System.Composition;
-using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using IgorSoft.CloudFS.Interface.Composition;
 
 namespace IgorSoft.DokanCloudFS.Tests
 {
     public sealed partial class GatewayManagerTests
     {
-        internal class Fixture
+        internal static class Fixture
         {
             public static Tuple<IAsyncCloudGateway, Action> GetAsyncCreator() => new Tuple<IAsyncCloudGateway, Action>(null, () => { });
 

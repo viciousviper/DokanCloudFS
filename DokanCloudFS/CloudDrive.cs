@@ -24,6 +24,7 @@ SOFTWARE.
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using IgorSoft.CloudFS.Interface;
 using IgorSoft.CloudFS.Interface.Composition;
@@ -38,9 +39,9 @@ namespace IgorSoft.DokanCloudFS
     {
         private const int MAX_BULKDOWNLOAD_SIZE = 1 << 29;
 
-        private ICloudGateway gateway;
+        private readonly ICloudGateway gateway;
 
-        private IDictionary<string, string> parameters;
+        private readonly IDictionary<string, string> parameters;
 
         public CloudDrive(RootName rootName, ICloudGateway gateway, CloudDriveParameters parameters) : base(rootName, parameters)
         {
@@ -112,8 +113,8 @@ namespace IgorSoft.DokanCloudFS
 #if DEBUG
                 content = new TraceStream(nameof(target), target.Name, content);
 #endif
-                gateway.SetContent(rootName, target.Id, content, null);
                 target.Size = content.Length;
+                gateway.SetContent(rootName, target.Id, content, null);
             }, nameof(SetContent), true);
         }
 
@@ -150,6 +151,6 @@ namespace IgorSoft.DokanCloudFS
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Debugger Display")]
         [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        private string DebuggerDisplay => $"{nameof(CloudDrive)} {DisplayRoot}";
+        private string DebuggerDisplay => $"{nameof(CloudDrive)} {DisplayRoot}".ToString(CultureInfo.CurrentCulture);
     }
 }

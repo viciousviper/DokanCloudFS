@@ -32,7 +32,7 @@ namespace IgorSoft.DokanCloudFS.Tests
     {
         internal class Fixture
         {
-            private Mock<IGatewayManager> gatewayManager;
+            private readonly Mock<IGatewayManager> gatewayManager;
 
             public IGatewayManager GetGatewayManager() => gatewayManager.Object;
 

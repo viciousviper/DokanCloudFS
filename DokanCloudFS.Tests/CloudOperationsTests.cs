@@ -61,8 +61,8 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void DriveInfo_GetAvailableFreeSpace_Succeeds()
         {
-            var freeSpace = 64 * 1 << 20;
-            var usedSpace = 36 * 1 << 20;
+            const int freeSpace = 64 * 1 << 20;
+            const int usedSpace = 36 * 1 << 20;
 
             fixture.SetupGetFree(freeSpace);
             fixture.SetupGetUsed(usedSpace);
@@ -73,21 +73,19 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             Assert.AreEqual(freeSpace, result);
 
-            fixture.VerifyAll();
+            fixture.Verify();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void DriveInfo_GetDriveFormat_Succeeds()
         {
-            fixture.SetupGetDisplayRoot(default(string));
-
             var sut = fixture.GetDriveInfo();
 
             var result = sut.DriveFormat;
 
             Assert.AreEqual(nameof(DokanCloudFS), result);
 
-            fixture.VerifyAll();
+            fixture.Verify();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -99,7 +97,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             Assert.AreEqual(result, DriveType.Removable);
 
-            fixture.VerifyAll();
+            fixture.Verify();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -113,7 +111,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             Assert.IsTrue(result);
 
-            fixture.VerifyAll();
+            fixture.Verify();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -125,14 +123,14 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             Assert.AreEqual(Fixture.MOUNT_POINT + Path.DirectorySeparatorChar, result);
 
-            fixture.VerifyAll();
+            fixture.Verify();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void DriveInfo_GetTotalFreeSpace_Succeeds()
         {
-            var freeSpace = 64 * 1 << 20;
-            var usedSpace = 36 * 1 << 20;
+            const int freeSpace = 64 * 1 << 20;
+            const int usedSpace = 36 * 1 << 20;
 
             fixture.SetupGetFree(freeSpace);
             fixture.SetupGetUsed(usedSpace);
@@ -143,14 +141,14 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             Assert.AreEqual(usedSpace, result);
 
-            fixture.VerifyAll();
+            fixture.Verify();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void DriveInfo_GetTotalSize_Succeeds()
         {
-            var freeSpace = 64 * 1 << 20;
-            var usedSpace = 36 * 1 << 20;
+            const int freeSpace = 64 * 1 << 20;
+            const int usedSpace = 36 * 1 << 20;
 
             fixture.SetupGetFree(freeSpace);
             fixture.SetupGetUsed(usedSpace);
@@ -161,13 +159,13 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             Assert.AreEqual(freeSpace + usedSpace, result);
 
-            fixture.VerifyAll();
+            fixture.Verify();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void DriveInfo_GetVolumeLabel_Succeeds()
         {
-            var volumeLabel = "MockVolume";
+            const string volumeLabel = "MockVolume";
 
             fixture.SetupGetDisplayRoot(volumeLabel);
 
@@ -177,7 +175,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             Assert.AreEqual(volumeLabel, result);
 
-            fixture.VerifyAll();
+            fixture.Verify();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -190,7 +188,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             Assert.IsNotNull(result);
             Assert.AreEqual(Fixture.MOUNT_POINT + Path.DirectorySeparatorChar, result.Name);
 
-            fixture.VerifyAll();
+            fixture.Verify();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -203,7 +201,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             CollectionAssert.AreEqual(fixture.RootDirectoryItems.OfType<DirectoryInfoContract>().Select(d => d.Name).ToList(), directories.Select(i => i.Name).ToList(), "Mismatched result");
 
-            fixture.VerifyAll();
+            fixture.Verify();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -216,7 +214,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             CollectionAssert.AreEqual(fixture.RootDirectoryItems.OfType<FileInfoContract>().Select(f => f.Name).ToList(), files.Select(i => i.Name).ToList(), "Mismatched result");
 
-            fixture.VerifyAll();
+            fixture.Verify();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -229,13 +227,13 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             CollectionAssert.AreEqual(fixture.RootDirectoryItems.OfType<FileSystemInfoContract>().Select(f => f.Name).ToList(), items.Select(i => i.Name).ToList(), "Mismatched result");
 
-            fixture.VerifyAll();
+            fixture.Verify();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void DirectoryInfo_Create_Succeeds()
         {
-            var directoryName = "NewDir";
+            const string directoryName = "NewDir";
 
             fixture.SetupGetRootDirectoryItems();
             fixture.SetupNewDirectory(Path.DirectorySeparatorChar.ToString(), directoryName);
@@ -246,13 +244,13 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             Assert.IsTrue(newDirectory.Exists, "Directory creation failed");
 
-            fixture.VerifyAll();
+            fixture.Verify();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void DirectoryInfo_CreateSubdirectory_Succeeds()
         {
-            var directoryName = "NewSubDir";
+            const string directoryName = "NewSubDir";
 
             fixture.SetupGetRootDirectoryItems();
             fixture.SetupNewDirectory(Path.DirectorySeparatorChar.ToString(), directoryName);
@@ -262,7 +260,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             Assert.IsTrue(newDirectory.Exists, "Directory creation failed");
 
-            fixture.VerifyAll();
+            fixture.Verify();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -287,7 +285,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             var residualDirectories = root.GetDirectories(sutContract.Name);
             Assert.IsFalse(residualDirectories.Any(), "Excessive directory found");
 
-            fixture.VerifyAll();
+            fixture.Verify();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -296,9 +294,11 @@ namespace IgorSoft.DokanCloudFS.Tests
             var sutContract = fixture.RootDirectoryItems.OfType<DirectoryInfoContract>().First();
             var targetContract = fixture.RootDirectoryItems.OfType<DirectoryInfoContract>().Last();
 
+            var moveCalled = false;
+
             fixture.SetupGetRootDirectoryItems();
-            fixture.SetupMoveDirectoryOrFile(sutContract, targetContract);
-            fixture.SetupGetSubDirectory2Items(fixture.SubDirectory2Items.Concat(new[] { sutContract }));
+            fixture.SetupMoveDirectoryOrFile(sutContract, targetContract, () => moveCalled = true);
+            fixture.SetupGetSubDirectory2Items(() => moveCalled ? fixture.SubDirectory2Items.Concat(new[] { sutContract }) : fixture.SubDirectory2Items);
 
             var root = fixture.GetDriveInfo().RootDirectory;
             var sut = root.GetDirectories(sutContract.Name).Single();
@@ -313,13 +313,13 @@ namespace IgorSoft.DokanCloudFS.Tests
             Assert.AreEqual(1, movedDirectories.Count(), "Directory not moved");
             Assert.AreEqual(target.FullName, sut.Parent.FullName, "Directory not moved");
 
-            fixture.VerifyAll();
+            fixture.Verify();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void DirectoryInfo_Rename_Succeeds()
         {
-            var directoryName = "RenamedDirectory";
+            const string directoryName = "RenamedDirectory";
 
             var sutContract = fixture.RootDirectoryItems.OfType<DirectoryInfoContract>().First();
 
@@ -337,13 +337,13 @@ namespace IgorSoft.DokanCloudFS.Tests
             var renamedDirectories = root.GetDirectories(directoryName);
             Assert.AreEqual(1, renamedDirectories.Count(), "Directory not renamed");
 
-            fixture.VerifyAll();
+            fixture.Verify();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void FileInfo_Create_Succeeds()
         {
-            var fileName = "NewFile.ext";
+            const string fileName = "NewFile.ext";
             var fileContent = Encoding.Default.GetBytes("Why did the chicken cross the road?");
 
             fixture.SetupGetRootDirectoryItems();
@@ -359,7 +359,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             Assert.IsTrue(newFile.Exists, "File creation failed");
 
-            fixture.VerifyAll();
+            fixture.Verify();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -383,7 +383,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             var residualFiles = root.GetFiles(sutContract.Name);
             Assert.IsFalse(residualFiles.Any(), "Excessive file found");
 
-            fixture.VerifyAll();
+            fixture.Verify();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -402,7 +402,6 @@ namespace IgorSoft.DokanCloudFS.Tests
             fixture.SetupGetFileContent(sutContract, fileContent);
             fixture.SetupNewFile(targetContract.Id.Value, copyContract.Name);
             fixture.SetupSetFileContent(copyContract, fileContent);
-            fixture.SetupGetDisplayRoot();
 
             var root = fixture.GetDriveInfo().RootDirectory;
             var sut = root.GetFiles(sutContract.Name).Single();
@@ -418,7 +417,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             Assert.AreEqual(1, copiedFiles.Count(), "File not copied");
             Assert.AreEqual(target.FullName, copiedFiles[0].Directory.FullName, "Unexpected copy location");
 
-            fixture.VerifyAll();
+            fixture.Verify();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -427,9 +426,11 @@ namespace IgorSoft.DokanCloudFS.Tests
             var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
             var targetContract = fixture.RootDirectoryItems.OfType<DirectoryInfoContract>().Last();
 
+            var moveCalled = false;
+
             fixture.SetupGetRootDirectoryItems();
-            fixture.SetupMoveDirectoryOrFile(sutContract, targetContract);
-            fixture.SetupGetSubDirectory2Items(fixture.SubDirectory2Items.Concat(new[] { sutContract }));
+            fixture.SetupMoveDirectoryOrFile(sutContract, targetContract, () => moveCalled = true);
+            fixture.SetupGetSubDirectory2Items(() => moveCalled ? fixture.SubDirectory2Items.Concat(new[] { sutContract }) : fixture.SubDirectory2Items);
 
             var root = fixture.GetDriveInfo().RootDirectory;
             var sut = root.GetFiles(sutContract.Name).Single();
@@ -444,13 +445,13 @@ namespace IgorSoft.DokanCloudFS.Tests
             Assert.AreEqual(1, movedFiles.Count(), "File not moved");
             Assert.AreEqual(target.FullName, sut.Directory.FullName, "File not moved");
 
-            fixture.VerifyAll();
+            fixture.Verify();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void FileInfo_Rename_Succeeds()
         {
-            var fileName = "RenamedFile";
+            const string fileName = "RenamedFile";
 
             var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
 
@@ -468,7 +469,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             var renamedFiles = root.GetFiles(fileName);
             Assert.AreEqual(1, renamedFiles.Count(), "File not renamed");
 
-            fixture.VerifyAll();
+            fixture.Verify();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -476,6 +477,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         {
             var fileContent = Encoding.Default.GetBytes("Why did the chicken cross the road?");
             var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
+            sutContract.Size = fileContent.Length;
 
             fixture.SetupGetRootDirectoryItems();
             fixture.SetupGetFileContent(sutContract, fileContent);
@@ -492,7 +494,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             Assert.AreEqual(sut.Length, buffer.Length, "Invalid file size");
             CollectionAssert.AreEqual(fileContent, buffer.Take(fileContent.Length).ToArray(), "Unexpected file content");
 
-            fixture.VerifyAll();
+            fixture.Verify();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -511,7 +513,7 @@ namespace IgorSoft.DokanCloudFS.Tests
                 fileStream.WriteAsync(fileContent, 0, fileContent.Length).Wait();
             }
 
-            fixture.VerifyAll();
+            fixture.Verify();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -521,7 +523,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
 
             fixture.SetupGetRootDirectoryItems();
-            fixture.SetupSetFileContent(sutContract, Enumerable.Repeat<byte>(0, 16384).Concat(fileContent).ToArray());
+            fixture.SetupSetFileContent(sutContract, Enumerable.Repeat<byte>(0, (int)sutContract.Size).Concat(fileContent).ToArray());
 
             var root = fixture.GetDriveInfo().RootDirectory;
             var sut = root.GetFiles(sutContract.Name).Single();
@@ -530,7 +532,7 @@ namespace IgorSoft.DokanCloudFS.Tests
                 fileStream.WriteAsync(fileContent, 0, fileContent.Length).Wait();
             }
 
-            fixture.VerifyAll();
+            fixture.Verify();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -550,13 +552,13 @@ namespace IgorSoft.DokanCloudFS.Tests
                 fileStream.WriteAsync(fileContent, 0, fileContent.Length).Wait();
             }
 
-            fixture.VerifyAll();
+            fixture.Verify();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void FileStream_Write_OnOpen_WhereModeIsCreateNew_Succeeds()
         {
-            var fileName = "NewFile.ext";
+            const string fileName = "NewFile.ext";
             var fileContent = Encoding.Default.GetBytes("Why did the chicken cross the road?");
 
             fixture.SetupGetRootDirectoryItems();
@@ -572,7 +574,7 @@ namespace IgorSoft.DokanCloudFS.Tests
                 fileStream.WriteAsync(fileContent, 0, fileContent.Length).Wait();
             }
 
-            fixture.VerifyAll();
+            fixture.Verify();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -591,7 +593,7 @@ namespace IgorSoft.DokanCloudFS.Tests
                 fileStream.WriteAsync(fileContent, 0, fileContent.Length).Wait();
             }
 
-            fixture.VerifyAll();
+            fixture.Verify();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -610,7 +612,7 @@ namespace IgorSoft.DokanCloudFS.Tests
                 fileStream.WriteAsync(fileContent, 0, fileContent.Length).Wait();
             }
 
-            fixture.VerifyAll();
+            fixture.Verify();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -629,7 +631,7 @@ namespace IgorSoft.DokanCloudFS.Tests
                 fileStream.WriteAsync(fileContent, 0, fileContent.Length).Wait();
             }
 
-            fixture.VerifyAll();
+            fixture.Verify();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -645,7 +647,7 @@ namespace IgorSoft.DokanCloudFS.Tests
                 fileStream.FlushAsync().Wait();
             }
 
-            fixture.VerifyAll();
+            fixture.Verify();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -664,7 +666,7 @@ namespace IgorSoft.DokanCloudFS.Tests
                 fileStream.FlushAsync().Wait();
             }
 
-            fixture.VerifyAll();
+            fixture.Verify();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -680,7 +682,7 @@ namespace IgorSoft.DokanCloudFS.Tests
                 fileStream.Lock(0, 65536);
             }
 
-            fixture.VerifyAll();
+            fixture.Verify();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -698,7 +700,7 @@ namespace IgorSoft.DokanCloudFS.Tests
                 fileStream.Unlock(0, 65536);
             }
 
-            fixture.VerifyAll();
+            fixture.Verify();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -721,7 +723,7 @@ namespace IgorSoft.DokanCloudFS.Tests
                 Assert.IsTrue(buffer.All(b => b == default(byte)), "Returned buffer is not empty");
             }
 
-            fixture.VerifyAll();
+            fixture.Verify();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -742,7 +744,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             Assert.IsFalse(sut.Exists, "Defective file found");
 
-            fixture.VerifyAll();
+            fixture.Verify();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -762,7 +764,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             Assert.IsTrue(sut.Exists, "File removed");
 
-            fixture.VerifyAll();
+            fixture.Verify();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -776,12 +778,12 @@ namespace IgorSoft.DokanCloudFS.Tests
             var root = fixture.GetDriveInfo().RootDirectory;
 
             int bytesWritten;
-            bool result = NativeMethods.AppendTo(root.FullName + fileContract.Name, fileContent, out bytesWritten);
+            var result = NativeMethods.AppendTo(root.FullName + fileContract.Name, fileContent, out bytesWritten);
 
             Assert.IsFalse(result, "File operation succeeded unexpectedly");
             Assert.AreEqual(0, bytesWritten, "Unexpected number of bytes written");
 
-            fixture.VerifyAll();
+            fixture.Verify();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -797,13 +799,13 @@ namespace IgorSoft.DokanCloudFS.Tests
             var root = fixture.GetDriveInfo().RootDirectory;
 
             int bytesWritten;
-            bool result = NativeMethods.Truncate(root.FullName + fileContract.Name, fileContent, out bytesWritten);
+            var result = NativeMethods.Truncate(root.FullName + fileContract.Name, fileContent, out bytesWritten);
             //var file = root.GetFiles(fileContract.Name).Single();
 
             Assert.IsTrue(result, "File operation failed");
             Assert.AreEqual(fileContent.Length, bytesWritten, "Unexpected number of bytes written");
 
-            fixture.VerifyAll();
+            fixture.Verify();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -814,16 +816,15 @@ namespace IgorSoft.DokanCloudFS.Tests
             var bufferSize = int.Parse((string)TestContext.DataRow["BufferSize"]);
             var fileSize = int.Parse((string)TestContext.DataRow["FileSize"]);
             var testInput = Enumerable.Range(0, fileSize).Select(i => (byte)(i % 251 + 1)).ToArray();
-            var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
+            var sutContract = new FileInfoContract(@"\File_NativeReadOverlapped.ext", "File_NativeReadOverlapped.ext", "2016-01-02 10:11:12".ToDateTime(), "2016-01-02 20:21:22".ToDateTime(), 16384, "16384".ToHash());
 
-            fixture.SetupGetRootDirectoryItems();
-            var file = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
-            fixture.SetupGetFileContent(file, testInput);
+            fixture.SetupGetRootDirectoryItems(fixture.RootDirectoryItems.Concat(new[] { sutContract }));
+            fixture.SetupGetFileContent(sutContract, testInput);
 
             var root = fixture.GetDriveInfo().RootDirectory;
             var sut = new FileInfo(root.FullName + sutContract.Name);
             using (var fileStream = sut.OpenRead()) {
-                var chunks = NativeMethods.ReadEx(root.FullName + file.Name, bufferSize, fileSize);
+                var chunks = NativeMethods.ReadEx(root.FullName + sutContract.Name, bufferSize, fileSize);
 
                 Assert.IsTrue(chunks.All(c => c.Win32Error == 0), "Win32Error occured");
                 var result = chunks.Aggregate(Enumerable.Empty<byte>(), (b, c) => b.Concat(c.Buffer), b => b.ToArray());
@@ -831,7 +832,7 @@ namespace IgorSoft.DokanCloudFS.Tests
                 CollectionAssert.AreEqual(testInput, result, "Unexpected file content");
             }
 
-            fixture.VerifyAll();
+            fixture.Verify();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -862,7 +863,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             Assert.IsFalse(differences.Any(), "Mismatched data detected");
 
-            fixture.VerifyAll();
+            fixture.Verify();
         }
     }
 }

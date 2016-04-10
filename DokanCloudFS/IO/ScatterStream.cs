@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 using System;
+using System.Globalization;
 using System.IO;
 using System.Threading;
 
@@ -31,9 +32,9 @@ namespace IgorSoft.DokanCloudFS.IO
     [System.Diagnostics.DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class ScatterStream : MemoryStream
     {
-        private BlockMap assignedBlocks;
+        private readonly BlockMap assignedBlocks;
 
-        private TimeSpan timeout;
+        private readonly TimeSpan timeout;
 
         internal ScatterStream(byte[] buffer, BlockMap assignedBlocks, TimeSpan timeout) : base(buffer)
         {
@@ -97,9 +98,9 @@ namespace IgorSoft.DokanCloudFS.IO
         {
             lock (assignedBlocks) {
                 if (offset + count > base.Capacity)
-                    throw new ArgumentOutOfRangeException(nameof(count), $"Write request exceeds declared limit ({nameof(offset)} = {offset}, {nameof(count)} = {count}; {nameof(Capacity)} = {Capacity})");
+                    throw new ArgumentOutOfRangeException(nameof(count), $"Write request exceeds declared limit ({nameof(offset)} = {offset}, {nameof(count)} = {count}; {nameof(Capacity)} = {Capacity})".ToString(CultureInfo.CurrentCulture));
 
-                int position = (int)base.Position;
+                var position = (int)base.Position;
                 base.Write(buffer, offset, count);
                 assignedBlocks.AssignBytes(position, count);
                 Monitor.Pulse(assignedBlocks);
@@ -108,6 +109,6 @@ namespace IgorSoft.DokanCloudFS.IO
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Debugger Display")]
         [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        private string DebuggerDisplay => $"{nameof(ScatterStream)}[{Capacity}] {nameof(Length)} = {base.Length}, {nameof(Position)} = {base.Position}";
+        private string DebuggerDisplay => $"{nameof(ScatterStream)}[{Capacity}] {nameof(Length)} = {base.Length}, {nameof(Position)} = {base.Position}".ToString(CultureInfo.CurrentCulture);
     }
 }

@@ -71,7 +71,7 @@ namespace IgorSoft.DokanCloudFS
             if (destinationDirectory == null)
                 throw new ArgumentNullException(nameof(destinationDirectory));
             if (parent == null)
-                throw new InvalidOperationException($"{nameof(parent)} of {GetType().Name} '{Name}' is null");
+                throw new InvalidOperationException($"{nameof(parent)} of {GetType().Name} '{Name}' is null".ToString(CultureInfo.CurrentCulture));
 
             var moveItem = CreateNew(drive.MoveItem(Contract, newName, destinationDirectory.Contract));
             if (destinationDirectory.children != null) {

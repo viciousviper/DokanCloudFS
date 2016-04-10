@@ -61,7 +61,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void CloudFileNode_GetContent_Succeeds()
         {
-            var fileContent = "Mary had a little lamb";
+            const string fileContent = "Mary had a little lamb";
             var contract = fixture.TestFile;
 
             fixture.SetupGetContent(contract, fileContent);
@@ -93,7 +93,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void CloudFileNode_MoveAndRename_Succeeds()
         {
-            var newName = "RenamedFile.ext";
+            const string newName = "RenamedFile.ext";
             var contract = fixture.TestFile;
             var directory = fixture.TargetDirectory;
 

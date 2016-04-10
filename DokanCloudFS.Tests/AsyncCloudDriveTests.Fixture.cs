@@ -25,6 +25,7 @@ SOFTWARE.
 using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Threading.Tasks;
 using Moq;
@@ -49,15 +50,15 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             public const long USED_SPACE = 36 * 1 << 20;
 
-            private Mock<IAsyncCloudGateway> gateway;
+            private readonly Mock<IAsyncCloudGateway> gateway;
 
-            private RootDirectoryInfoContract root;
+            private readonly RootDirectoryInfoContract root;
 
-            private RootName rootName = new RootName(SCHEMA, USER_NAME, MOUNT_POINT);
+            private readonly RootName rootName = new RootName(SCHEMA, USER_NAME, MOUNT_POINT);
 
             public IAsyncCloudGateway Gateway => gateway.Object;
 
-            public DirectoryInfoContract TargetDirectory = new DirectoryInfoContract(@"\SubDir", "SubDir", "2015-01-01 10:11:12".ToDateTime(), "2015-01-01 20:21:22".ToDateTime());
+            public readonly DirectoryInfoContract TargetDirectory = new DirectoryInfoContract(@"\SubDir", "SubDir", "2015-01-01 10:11:12".ToDateTime(), "2015-01-01 20:21:22".ToDateTime());
 
             public FileSystemInfoContract[] RootDirectoryItems { get; } = new FileSystemInfoContract[] {
                 new DirectoryInfoContract(@"\SubDir", "SubDir", "2015-01-01 10:11:12".ToDateTime(), "2015-01-01 20:21:22".ToDateTime()),
@@ -156,7 +157,7 @@ namespace IgorSoft.DokanCloudFS.Tests
                         var fileSource = source as FileId;
                         if (fileSource != null)
                             return Task.FromResult((FileSystemInfoContract)new FileInfoContract(source.Value, movePath, directoryOrFile.Created, directoryOrFile.Updated, ((FileInfoContract)directoryOrFile).Size, ((FileInfoContract)directoryOrFile).Hash) { Directory = target });
-                        throw new InvalidOperationException($"Unsupported type '{source.GetType().Name}'");
+                        throw new InvalidOperationException($"Unsupported type '{source.GetType().Name}'".ToString(CultureInfo.CurrentCulture));
                     });
             }
 

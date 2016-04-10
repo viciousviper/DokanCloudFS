@@ -34,6 +34,7 @@ using FileAccess = DokanNet.FileAccess;
 using NLog;
 using IgorSoft.DokanCloudFS.Extensions;
 using IgorSoft.DokanCloudFS.IO;
+using System.Text.RegularExpressions;
 
 namespace IgorSoft.DokanCloudFS
 {
@@ -68,7 +69,7 @@ namespace IgorSoft.DokanCloudFS
 
             [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Debugger Display")]
             [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-            private string DebuggerDisplay => $"{nameof(StreamContext)} {File.Name} [{Access}] [{nameof(Stream.Length)}={((Stream?.CanSeek ?? false) ? Stream.Length : 0)}] [{nameof(Task.Status)}={Task?.Status}] {nameof(IsLocked)}={IsLocked}";
+            private string DebuggerDisplay => $"{nameof(StreamContext)} {File.Name} [{Access}] [{nameof(Stream.Length)}={((Stream?.CanSeek ?? false) ? Stream.Length : 0)}] [{nameof(Task.Status)}={Task?.Status}] {nameof(IsLocked)}={IsLocked}".ToString(CultureInfo.CurrentCulture);
         }
 
         private ICloudDrive drive;
@@ -106,14 +107,14 @@ namespace IgorSoft.DokanCloudFS
         {
             var extraParameters = parameters != null && parameters.Length > 0 ? ", " + string.Join(", ", parameters) : string.Empty;
 
-            logger?.Trace($"{System.Threading.Thread.CurrentThread.ManagedThreadId:D2} / {method}({fileName}, {info.ToTrace()}{extraParameters}) -> {result}");
+            logger?.Trace($"{System.Threading.Thread.CurrentThread.ManagedThreadId:D2} / {drive.DisplayRoot} {method}({fileName}, {info.ToTrace()}{extraParameters}) -> {result}".ToString(CultureInfo.CurrentCulture));
 
             return result;
         }
 
         private NtStatus Trace(string method, string fileName, DokanFileInfo info, FileAccess access, FileShare share, FileMode mode, FileOptions options, FileAttributes attributes, NtStatus result)
         {
-            logger?.Trace($"{System.Threading.Thread.CurrentThread.ManagedThreadId:D2} / {method}({fileName}, {info.ToTrace()}, [{access}], [{share}], [{mode}], [{options}], [{attributes}]) -> {result}");
+            logger?.Trace($"{System.Threading.Thread.CurrentThread.ManagedThreadId:D2} / {drive.DisplayRoot} {method}({fileName}, {info.ToTrace()}, [{access}], [{share}], [{mode}], [{options}], [{attributes}]) -> {result}".ToString(CultureInfo.CurrentCulture));
 
             return result;
         }
@@ -135,11 +136,11 @@ namespace IgorSoft.DokanCloudFS
                             } catch (Exception ex) {
                                 if (!(ex is UnauthorizedAccessException))
                                     context.File.Remove(drive);
-                                logger.Trace($"{nameof(context.File.SetContent)} failed on file '{fileName}' with {ex.GetType().Name} '{ex.Message}'");
+                                logger.Trace($"{nameof(context.File.SetContent)} failed on file '{fileName}' with {ex.GetType().Name} '{ex.Message}'".ToString(CultureInfo.CurrentCulture));
                                 throw;
                             }
                         })
-                        .ContinueWith(t => logger.Trace($"{nameof(context.File.SetContent)} finished on file '{fileName}'"), TaskContinuationOptions.OnlyOnRanToCompletion);
+                        .ContinueWith(t => logger.Trace($"{nameof(context.File.SetContent)} finished on file '{fileName}'".ToString(CultureInfo.CurrentCulture)), TaskContinuationOptions.OnlyOnRanToCompletion);
                 }
 
                 if (context?.Task != null) {
@@ -174,6 +175,9 @@ namespace IgorSoft.DokanCloudFS
             // HACK: Fix for Bug in Dokany related to a missing trailing slash for directory names
             if (string.IsNullOrEmpty(fileName))
                 fileName = @"\";
+            // HACK: Fix for Bug in Dokany related to a call to CreateFile with a fileName of '\*'
+            else if (fileName == @"\*" && access == FileAccess.ReadAttributes)
+                return Trace(nameof(CreateFile), fileName, info, access, share, mode, options, attributes, DokanResult.Success);
 
             if (fileName == @"\") {
                 info.IsDirectory = true;
@@ -209,10 +213,9 @@ namespace IgorSoft.DokanCloudFS
                             info.Context = new StreamContext(fileItem, FileAccess.WriteData);
                         else if (access.HasFlag(FileAccess.Delete))
                             info.Context = new StreamContext(fileItem, FileAccess.Delete);
-                        else
+                        else if (access != FileAccess.ReadAttributes)
                             return Trace(nameof(CreateFile), fileName, info, access, share, mode, options, attributes, DokanResult.NotImplemented);
-                    }
-                    else {
+                    } else {
                         info.IsDirectory = item != null;
                     }
 
@@ -292,13 +295,33 @@ namespace IgorSoft.DokanCloudFS
                 }).ToList()
                 : emptyDirectoryDefaultFiles;
 
-            return Trace(nameof(FindFiles), fileName, info, DokanResult.Success);
+            return Trace(nameof(FindFiles), fileName, info, DokanResult.Success, $"out [{files.Count}]".ToString(CultureInfo.CurrentCulture));
+        }
+
+        public NtStatus FindFilesWithPattern(string fileName, string searchPattern, out IList<FileInformation> files, DokanFileInfo info)
+        {
+            if (searchPattern == null)
+                throw new ArgumentNullException(nameof(searchPattern));
+            var parent = GetItem(fileName) as CloudDirectoryNode;
+
+            var childItems = parent.GetChildItems(drive).ToList();
+            files = childItems.Any()
+                ? childItems
+                    .Where(i => Regex.IsMatch(i.Name, searchPattern.Contains('?') || searchPattern.Contains('*') ? searchPattern.Replace('?', '.').Replace("*", ".*") : "^" + searchPattern + "$"))
+                    .Select(i => new FileInformation() {
+                        FileName = i.Name, Length = (i as CloudFileNode)?.Contract.Size ?? 0,
+                        Attributes = i is CloudDirectoryNode ? FileAttributes.Directory : FileAttributes.ReadOnly | FileAttributes.NotContentIndexed,
+                        CreationTime = i.Contract.Created.DateTime, LastWriteTime = i.Contract.Updated.DateTime, LastAccessTime = i.Contract.Updated.DateTime
+                    }).ToList()
+                : emptyDirectoryDefaultFiles;
+
+            return Trace(nameof(FindFilesWithPattern), fileName, info, DokanResult.Success, searchPattern, $"out [{files.Count}]".ToString(CultureInfo.CurrentCulture));
         }
 
         public NtStatus FindStreams(string fileName, out IList<FileInformation> streams, DokanFileInfo info)
         {
             streams = Enumerable.Empty<FileInformation>().ToList();
-            return Trace(nameof(FindStreams), fileName, info, DokanResult.NotImplemented, $"out [{streams.Count}]");
+            return Trace(nameof(FindStreams), fileName, info, DokanResult.NotImplemented, $"out [{streams.Count}]".ToString(CultureInfo.CurrentCulture));
         }
 
         public NtStatus FlushFileBuffers(string fileName, DokanFileInfo info)
@@ -321,7 +344,7 @@ namespace IgorSoft.DokanCloudFS
             used = drive.Used ?? 0;
             total = free + used;
 
-            return Trace(nameof(GetDiskFreeSpace), null, info, DokanResult.Success, $"out {free}", $"out {total}", $"out {used}");
+            return Trace(nameof(GetDiskFreeSpace), null, info, DokanResult.Success, $"out {free}", $"out {total}", $"out {used}".ToString(CultureInfo.CurrentCulture));
         }
 
         public NtStatus GetFileInformation(string fileName, out FileInformation fileInfo, DokanFileInfo info)
@@ -341,7 +364,7 @@ namespace IgorSoft.DokanCloudFS
                 CreationTime = item.Contract.Created.DateTime, LastWriteTime = item.Contract.Updated.DateTime, LastAccessTime = item.Contract.Updated.DateTime
             };
 
-            return Trace(nameof(GetFileInformation), fileName, info, DokanResult.Success, $"out {{{fileInfo.FileName}, [{fileInfo.Length}], [{fileInfo.Attributes}], {fileInfo.CreationTime}, {fileInfo.LastWriteTime}, {fileInfo.LastAccessTime}}}");
+            return Trace(nameof(GetFileInformation), fileName, info, DokanResult.Success, $"out {{{fileInfo.FileName}, [{fileInfo.Length}], [{fileInfo.Attributes}], {fileInfo.CreationTime}, {fileInfo.LastWriteTime}, {fileInfo.LastAccessTime}}}".ToString(CultureInfo.CurrentCulture));
         }
 
         public NtStatus GetFileSecurity(string fileName, out FileSystemSecurity security, AccessControlSections sections, DokanFileInfo info)
@@ -353,7 +376,7 @@ namespace IgorSoft.DokanCloudFS
                 ? new DirectorySecurity() as FileSystemSecurity
                 : new FileSecurity() as FileSystemSecurity;
 
-            return Trace(nameof(GetFileSecurity), fileName, info, DokanResult.Success, $"out {security}", $"{sections}");
+            return Trace(nameof(GetFileSecurity), fileName, info, DokanResult.Success, $"out {security}", $"{sections}".ToString(CultureInfo.CurrentCulture));
         }
 
         public NtStatus GetVolumeInformation(out string volumeLabel, out FileSystemFeatures features, out string fileSystemName, DokanFileInfo info)
@@ -363,7 +386,7 @@ namespace IgorSoft.DokanCloudFS
                        FileSystemFeatures.PersistentAcls | FileSystemFeatures.SupportsRemoteStorage;
             fileSystemName = nameof(DokanCloudFS);
 
-            return Trace(nameof(GetVolumeInformation), null, info, DokanResult.Success, $"out {volumeLabel}", $"out {features}", $"out {fileSystemName}");
+            return Trace(nameof(GetVolumeInformation), null, info, DokanResult.Success, $"out {volumeLabel}", $"out {features}", $"out {fileSystemName}".ToString(CultureInfo.CurrentCulture));
         }
 
         public NtStatus LockFile(string fileName, long offset, long length, DokanFileInfo info)
@@ -420,14 +443,14 @@ namespace IgorSoft.DokanCloudFS
                         context.Stream = Stream.Synchronized(context.File.GetContent(drive));
                     } catch (Exception ex) {
                         bytesRead = 0;
-                        return Trace(nameof(ReadFile), fileName, info, DokanResult.Error, $"out {bytesRead}", offset.ToString(CultureInfo.InvariantCulture), $"{ex.GetType().Name} '{ex.Message}'");
+                        return Trace(nameof(ReadFile), fileName, info, DokanResult.Error, $"out {bytesRead}".ToString(CultureInfo.InvariantCulture), offset.ToString(CultureInfo.InvariantCulture), $"{ex.GetType().Name} '{ex.Message}'".ToString(CultureInfo.CurrentCulture));
                     }
 
                 context.Stream.Position = offset;
                 bytesRead = context.Stream.Read(buffer, 0, buffer?.Length ?? -1);
             }
 
-            return Trace(nameof(ReadFile), fileName, info, DokanResult.Success, $"out {bytesRead}", offset.ToString(CultureInfo.InvariantCulture));
+            return Trace(nameof(ReadFile), fileName, info, DokanResult.Success, $"out {bytesRead}".ToString(CultureInfo.InvariantCulture), offset.ToString(CultureInfo.InvariantCulture));
         }
 
         public NtStatus SetAllocationSize(string fileName, long length, DokanFileInfo info)
@@ -449,11 +472,11 @@ namespace IgorSoft.DokanCloudFS
                         } catch (Exception ex) {
                             if (!(ex is UnauthorizedAccessException))
                                 context.File.Remove(drive);
-                            logger.Trace($"{nameof(context.File.SetContent)} failed on file '{fileName}' with {ex.GetType().Name} '{ex.Message}'");
+                            logger.Trace($"{nameof(context.File.SetContent)} failed on file '{fileName}' with {ex.GetType().Name} '{ex.Message}'".ToString(CultureInfo.CurrentCulture));
                             throw;
                         }
                     })
-                    .ContinueWith(t => logger.Trace($"{nameof(context.File.SetContent)} finished on file '{fileName}'"), TaskContinuationOptions.OnlyOnRanToCompletion);
+                    .ContinueWith(t => logger.Trace($"{nameof(context.File.SetContent)} finished on file '{fileName}'".ToString(CultureInfo.CurrentCulture)), TaskContinuationOptions.OnlyOnRanToCompletion);
             }
 
             return Trace(nameof(SetAllocationSize), fileName, info, DokanResult.Success, length.ToString(CultureInfo.InvariantCulture));
@@ -518,11 +541,11 @@ namespace IgorSoft.DokanCloudFS
                 bytesWritten = (int)(context.Stream.Position - offset);
             }
 
-            return Trace(nameof(WriteFile), fileName, info, DokanResult.Success, $"out {bytesWritten}", offset.ToString(CultureInfo.InvariantCulture));
+            return Trace(nameof(WriteFile), fileName, info, DokanResult.Success, $"out {bytesWritten}".ToString(CultureInfo.InvariantCulture), offset.ToString(CultureInfo.InvariantCulture));
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Debugger Display")]
         [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        private string DebuggerDisplay => $"{nameof(CloudOperations)} drive={drive} root={root}";
+        private string DebuggerDisplay => $"{nameof(CloudOperations)} drive={drive} root={root}".ToString(CultureInfo.CurrentCulture);
     }
 }

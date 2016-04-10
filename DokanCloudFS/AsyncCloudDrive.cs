@@ -24,6 +24,7 @@ SOFTWARE.
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using IgorSoft.CloudFS.Interface;
 using IgorSoft.CloudFS.Interface.Composition;
@@ -38,9 +39,9 @@ namespace IgorSoft.DokanCloudFS
     {
         private const int MAX_BULKDOWNLOAD_SIZE = 1 << 29;
 
-        private IAsyncCloudGateway gateway;
+        private readonly IAsyncCloudGateway gateway;
 
-        private IDictionary<string, string> parameters;
+        private readonly IDictionary<string, string> parameters;
 
         public AsyncCloudDrive(RootName rootName, IAsyncCloudGateway gateway, CloudDriveParameters parameters) : base(rootName, parameters)
         {
@@ -116,8 +117,8 @@ namespace IgorSoft.DokanCloudFS
                 content = new TraceStream(nameof(SetContent), target.Name, content);
 #endif
                 Func<FileSystemInfoLocator> locator = () => new FileSystemInfoLocator(target);
-                gateway.SetContentAsync(rootName, target.Id, content, null, locator).Wait();
                 target.Size = content.Length;
+                gateway.SetContentAsync(rootName, target.Id, content, null, locator).Wait();
             }, nameof(SetContent), true);
         }
 
@@ -155,6 +156,6 @@ namespace IgorSoft.DokanCloudFS
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Debugger Display")]
         [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        private string DebuggerDisplay => $"{nameof(AsyncCloudDrive)} {DisplayRoot}";
+        private string DebuggerDisplay => $"{nameof(AsyncCloudDrive)} {DisplayRoot}".ToString(CultureInfo.CurrentCulture);
     }
 }

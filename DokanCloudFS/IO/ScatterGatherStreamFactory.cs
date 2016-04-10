@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 using System;
+using System.Globalization;
 using System.IO;
 
 namespace IgorSoft.DokanCloudFS.IO
@@ -43,9 +44,9 @@ namespace IgorSoft.DokanCloudFS.IO
         public static void CreateScatterGatherStreams(int capacity, TimeSpan timeout, out Stream scatterStream, out Stream gatherStream)
         {
             if (capacity <= 0)
-                throw new ArgumentOutOfRangeException(nameof(capacity), $"{nameof(capacity)} must be positive.");
+                throw new ArgumentOutOfRangeException(nameof(capacity), $"{nameof(capacity)} must be positive.".ToString(CultureInfo.CurrentCulture));
             if (timeout < defaultTimeout)
-                throw new ArgumentOutOfRangeException(nameof(timeout), $"{nameof(timeout)} must be greater than {defaultTimeout:c}.");
+                throw new ArgumentOutOfRangeException(nameof(timeout), $"{nameof(timeout)} must be greater than {defaultTimeout:c}.".ToString(CultureInfo.CurrentCulture));
 
             var buffer = new byte[capacity];
             var assignedBlocks = new BlockMap(capacity);
