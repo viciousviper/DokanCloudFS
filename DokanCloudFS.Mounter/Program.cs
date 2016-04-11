@@ -25,6 +25,7 @@ SOFTWARE.
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -58,8 +59,10 @@ namespace DokanCloudFS.Mounter
                         var operations = new CloudOperations(factory.CreateCloudDrive(drive.Schema, drive.UserName, drive.Root, new CloudDriveParameters() { EncryptionKey = drive.EncryptionKey, Parameters = drive.GetParameters() }), logger);
 
                         tasks.Add(Task.Run(() => operations.Mount(drive.Root, DokanOptions.RemovableDrive, mountSection.Threads, 1000, TimeSpan.FromSeconds(drive.Timeout != 0 ? drive.Timeout : 20)), tokenSource.Token));
-                        // HACK: Replace with TaskFactory/TaskScheduler options
-                        Thread.Sleep(50);
+
+                        var driveInfo = new DriveInfo(drive.Root);
+                        while (!driveInfo.IsReady)
+                            Thread.Sleep(10);
                     }
 
                     Console.ReadKey(true);
