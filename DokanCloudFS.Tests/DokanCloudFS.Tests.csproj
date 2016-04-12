@@ -130,6 +130,7 @@
       <DependentUpon>CloudDriveTests.cs</DependentUpon>
     </Compile>
     <Compile Include="CloudDriveFactoryTests.cs" />
+    <Compile Include="CloudOperationsTests.cs" />
     <Compile Include="CompositionInitializerTests.cs" />
     <Compile Include="CompositionInitializerTests.Fixture.cs">
       <DependentUpon>CompositionInitializerTests.cs</DependentUpon>
@@ -145,9 +146,9 @@
     <Compile Include="CloudFileNodeTests.Fixture.cs">
       <DependentUpon>CloudFileNodeTests.cs</DependentUpon>
     </Compile>
-    <Compile Include="CloudOperationsTests.cs" />
-    <Compile Include="CloudOperationsTests.Fixture.cs">
-      <DependentUpon>CloudOperationsTests.cs</DependentUpon>
+    <Compile Include="FileSystemTests.cs" />
+    <Compile Include="FileSystemTests.Fixture.cs">
+      <DependentUpon>FileSystemTests.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScatterGatherStreamTests.cs" />
@@ -175,8 +176,8 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="CloudOperationsTests.Configuration.xml">
-      <DependentUpon>CloudOperationsTests.cs</DependentUpon>
+    <Content Include="FileSystemTests.Configuration.xml">
+      <DependentUpon>FileSystemTests.cs</DependentUpon>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

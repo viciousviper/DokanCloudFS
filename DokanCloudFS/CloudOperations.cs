@@ -28,13 +28,13 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Security.AccessControl;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DokanNet;
 using FileAccess = DokanNet.FileAccess;
 using NLog;
 using IgorSoft.DokanCloudFS.Extensions;
 using IgorSoft.DokanCloudFS.IO;
-using System.Text.RegularExpressions;
 
 namespace IgorSoft.DokanCloudFS
 {
@@ -302,6 +302,7 @@ namespace IgorSoft.DokanCloudFS
         {
             if (searchPattern == null)
                 throw new ArgumentNullException(nameof(searchPattern));
+
             var parent = GetItem(fileName) as CloudDirectoryNode;
 
             var childItems = parent.GetChildItems(drive).ToList();
@@ -517,6 +518,9 @@ namespace IgorSoft.DokanCloudFS
 
         public NtStatus Unmounted(DokanFileInfo info)
         {
+            if (info == null)
+                throw new ArgumentNullException(nameof(info));
+
             var result = Trace(nameof(Unmounted), null, info, DokanResult.Success);
 
             drive = null;
