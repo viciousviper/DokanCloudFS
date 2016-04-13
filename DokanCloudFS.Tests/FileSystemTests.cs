@@ -248,6 +248,22 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void DirectoryInfo_Create_WhereParentIsUndefined_Succeeds()
+        {
+            const string directoryName = "NewDir";
+            const string parentDirectoryName = "Parent";
+
+            fixture.SetupGetRootDirectoryItems();
+            fixture.SetupNewDirectory(Path.DirectorySeparatorChar.ToString(), parentDirectoryName);
+            fixture.SetupGetEmptyDirectoryItems(Path.DirectorySeparatorChar + parentDirectoryName + Path.DirectorySeparatorChar);
+            fixture.SetupNewDirectory(Path.DirectorySeparatorChar + parentDirectoryName + Path.DirectorySeparatorChar, directoryName);
+
+            var sut = fixture.GetDriveInfo().RootDirectory;
+            var newDirectory = new DirectoryInfo(sut.FullName + parentDirectoryName + @"\" + directoryName);
+            newDirectory.Create();
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void DirectoryInfo_CreateSubdirectory_Succeeds()
         {
             const string directoryName = "NewSubDir";
@@ -286,6 +302,39 @@ namespace IgorSoft.DokanCloudFS.Tests
             Assert.IsFalse(residualDirectories.Any(), "Excessive directory found");
 
             fixture.Verify();
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        [ExpectedException(typeof(IOException))]
+        public void DirectoryInfo_Delete_WhereDirectoryIsNonEmpty_Throws()
+        {
+            var sutContract = fixture.RootDirectoryItems.OfType<DirectoryInfoContract>().Single(d => d.Name == "SubDir2");
+
+            fixture.SetupGetRootDirectoryItems();
+            fixture.SetupGetSubDirectory2Items();
+            fixture.SetupDeleteDirectoryOrFile(sutContract);
+
+            var root = fixture.GetDriveInfo().RootDirectory;
+            var sut = root.GetDirectories(sutContract.Name).Single();
+
+            Assert.IsTrue(sut.Exists, "Expected directory missing");
+
+            sut.Delete();
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        [ExpectedException(typeof(DirectoryNotFoundException))]
+        public void DirectoryInfo_Delete_WhereDirectoryIsUndefined_Throws()
+        {
+            var sutContract = fixture.RootDirectoryItems.OfType<DirectoryInfoContract>().First();
+
+            fixture.SetupGetRootDirectoryItems();
+
+            var sut = new DirectoryInfo(Path.DirectorySeparatorChar + "UNDEFINED");
+
+            Assert.IsFalse(sut.Exists, "Unexpected directory found");
+
+            sut.Delete();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -360,6 +409,20 @@ namespace IgorSoft.DokanCloudFS.Tests
             Assert.IsTrue(newFile.Exists, "File creation failed");
 
             fixture.Verify();
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        [ExpectedException(typeof(DirectoryNotFoundException))]
+        public void FileInfo_Create_WhereParentIsUndefined_Throws()
+        {
+            const string fileName = "NewFile.ext";
+
+            fixture.SetupGetRootDirectoryItems();
+
+            var sut = fixture.GetDriveInfo().RootDirectory;
+            var newFile = new FileInfo(sut.FullName + @"UNDEFINED\" + fileName);
+
+            newFile.Create().Dispose();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -446,6 +509,25 @@ namespace IgorSoft.DokanCloudFS.Tests
             Assert.AreEqual(target.FullName, sut.Directory.FullName, "File not moved");
 
             fixture.Verify();
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        [ExpectedException(typeof(IOException))]
+        public void FileInfo_Open_CreateNew_WhereFileExists_Throws()
+        {
+            const string fileName = "NewFile.ext";
+
+            fixture.SetupGetRootDirectoryItems();
+            var file = fixture.SetupNewFile(Path.DirectorySeparatorChar.ToString(), fileName);
+
+            var sut = fixture.GetDriveInfo().RootDirectory;
+            var newFile = new FileInfo(sut.FullName + fileName);
+
+            newFile.Create().Dispose();
+
+            Assert.IsTrue(newFile.Exists, "File creation failed");
+
+            newFile.Open(FileMode.CreateNew).Dispose();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
