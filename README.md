@@ -130,7 +130,6 @@ DokanCloudFS does **not** store your authentication password for any cloud stora
   - *Mediafire* gateway
     - The API library used to access MediaFire does not presently support long-term authentication tokens. Expect to re-authenticate via the login popup every 10 minutes or so.
   - *Mega* gateway
-    - The API library used to access Mega does not presently report volume size or used space.
     - The DokanCloudFS gateway does not presently support writing to files or copying files from an outside volume into a *Mega* drive.
 
 ## Remarks
@@ -145,6 +144,7 @@ You have been warned.
 
 | Date       | Version     | Comments                                                                       |
 | :--------- | :---------- | :----------------------------------------------------------------------------- |
+| 2016-04-18 | 1.0.4-alpha | - Updated DokanNet to version 1.0.0-RC2<br/>- Updated SharpAESCrypt to version 1.3.1<br/>- Fixed behavior for parallel mounting of several cloud drives.<br/>- New gateway sample configuration added for hubiC/Swift.<br/>- Various bugfixes. |
 | 2016-02-04 | 1.0.3-alpha | - Upgraded .NET framework version to 4.6.1<br/>- New gateway sample configurations added for MediaFire and Yandex Disk<br/>- Unit test coverage improved<br/>- Several bugfixes |
 | 2016-01-24 | 1.0.2-alpha | - Gateway configuration extended to accept custom parameters. This change **breaks compatibility** with earlier API versions.<br/>- File Gateway configuration added in App.config |
 | 2016-01-20 | 1.0.1-alpha | - NuGet dependencies updated, tests for CloudOperations made offline executable, code coverage analysis via codecov configured |
