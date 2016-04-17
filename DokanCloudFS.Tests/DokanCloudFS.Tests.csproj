@@ -107,6 +107,9 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="..\CommonAssemblyInfo.cs">
+      <Link>CommonAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="AsyncCloudDriveTests.Fixture.cs">
       <DependentUpon>AsyncCloudDriveTests.cs</DependentUpon>
     </Compile>

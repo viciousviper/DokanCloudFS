@@ -1,7 +1,7 @@
 ﻿/*
 The MIT License(MIT)
 
-Copyright(c) 2015 IgorSoft
+Copyright(c) 2015-2016 IgorSoft
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,18 +24,11 @@ SOFTWARE.
 
 using System;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("DokanCloudFS")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyProduct("DokanCloudFS")]
-[assembly: AssemblyCulture("")]
+[assembly: AssemblyCompany("IgorSoft")]
+[assembly: AssemblyCopyright("Copyright © 2015-2016")]
+[assembly: AssemblyTrademark("")]
 
-[assembly: ComVisible(false)]
-
-[assembly: CLSCompliant(true)]
-[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
-[assembly: InternalsVisibleTo("IgorSoft.DokanCloudFS.Mounter")]
-[assembly: InternalsVisibleTo("IgorSoft.DokanCloudFS.Tests")]
+[assembly: AssemblyVersion("1.0.0.0")]
+[assembly: AssemblyFileVersion("1.0.4.0")]

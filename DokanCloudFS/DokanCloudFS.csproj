@@ -39,7 +39,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\DokanNet.1.1.0-rc2\lib\net40\DokanNet.dll</HintPath>
     </Reference>
-    <Reference Include="IgorSoft.AppDomainResolver">
+    <Reference Include="IgorSoft.AppDomainResolver, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Library\IgorSoft.AppDomainResolver.dll</HintPath>
     </Reference>
     <Reference Include="IgorSoft.CloudFS.Interface">
@@ -87,6 +88,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\CommonAssemblyInfo.cs">
+      <Link>CommonAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="Extensions\DokanFileInfoExtensions.cs" />
     <Compile Include="IO\BlockMap.cs" />
     <Compile Include="CloudDirectoryNode.cs" />
