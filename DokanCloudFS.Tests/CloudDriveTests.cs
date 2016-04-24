@@ -218,7 +218,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod]
         public void CloudDrive_NewDirectoryItem_Succeeds()
         {
-            const string newName = "NewFile.ext";
+            const string newName = "NewDirectory";
             var directory = fixture.TargetDirectory;
 
             fixture.SetupNewDirectoryItem(directory, newName);
@@ -233,7 +233,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod]
         public void CloudDrive_NewFileItem_Succeeds()
         {
-            const string newName = "NewDirectory";
+            const string newName = "NewFile.ext";
             var fileContent = Encoding.Default.GetBytes("Why did the chicken cross the road?");
             var directory = fixture.TargetDirectory;
 
@@ -243,6 +243,22 @@ namespace IgorSoft.DokanCloudFS.Tests
             using (var stream = new MemoryStream(fileContent)) {
                 sut.NewFileItem(directory, newName, stream);
             }
+
+            fixture.VerifyAll();
+        }
+
+        [TestMethod]
+        public void CloudDrive_NewFileItem_WhereContentIsEmpty_Succeeds()
+        {
+            const string newName = "NewFile.ext";
+            var directory = fixture.TargetDirectory;
+
+            FileInfoContract contract;
+            using (var sut = fixture.Create(apiKey, encryptionKey)) {
+                contract = sut.NewFileItem(directory, newName, Stream.Null);
+            }
+
+            Assert.IsInstanceOfType(contract, typeof(ProxyFileInfoContract));
 
             fixture.VerifyAll();
         }

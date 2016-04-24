@@ -78,6 +78,24 @@ namespace IgorSoft.DokanCloudFS {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to {0} &apos;{1}&apos; is not a resolvable FileSystemInfo type.
+        /// </summary>
+        internal static string InvalidNonProxyResolution {
+            get {
+                return ResourceManager.GetString("InvalidNonProxyResolution", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot resolve ProxyFileInfo &apos;{0}&apos; with FileInfo &apos;{1}&apos;.
+        /// </summary>
+        internal static string InvalidProxyResolution {
+            get {
+                return ResourceManager.GetString("InvalidProxyResolution", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to No gateway is registered for schema &apos;{0}&apos;.
         /// </summary>
         internal static string NoGatewayForSchema {

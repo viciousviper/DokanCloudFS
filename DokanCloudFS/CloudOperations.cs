@@ -286,7 +286,7 @@ namespace IgorSoft.DokanCloudFS
         {
             var parent = GetItem(fileName) as CloudDirectoryNode;
 
-            var childItems = parent.GetChildItems(drive).ToList();
+            var childItems = parent.GetChildItems(drive).Where(i => i.IsResolved).ToList();
             files = childItems.Any()
                 ? childItems.Select(i => new FileInformation() {
                     FileName = i.Name, Length = (i as CloudFileNode)?.Contract.Size ?? 0,
@@ -305,7 +305,7 @@ namespace IgorSoft.DokanCloudFS
 
             var parent = GetItem(fileName) as CloudDirectoryNode;
 
-            var childItems = parent.GetChildItems(drive).ToList();
+            var childItems = parent.GetChildItems(drive).Where(i => i.IsResolved).ToList();
             files = childItems.Any()
                 ? childItems
                     .Where(i => Regex.IsMatch(i.Name, searchPattern.Contains('?') || searchPattern.Contains('*') ? searchPattern.Replace('?', '.').Replace("*", ".*") : "^" + searchPattern + "$"))

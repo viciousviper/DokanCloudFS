@@ -30,11 +30,13 @@ namespace IgorSoft.DokanCloudFS
 {
     internal abstract class CloudItemNode
     {
-        public FileSystemInfoContract Contract { get; }
+        public FileSystemInfoContract Contract { get; private set; }
 
-        private CloudDirectoryNode parent;
+        protected CloudDirectoryNode Parent { get; private set; }
 
         public string Name => Contract.Name;
+
+        public bool IsResolved => !(Contract is ProxyFileInfoContract);
 
         protected CloudItemNode(FileSystemInfoContract contract)
         {
@@ -57,9 +59,19 @@ namespace IgorSoft.DokanCloudFS
             throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, Resources.UnknownItemType, fileSystemInfo.GetType().Name));
         }
 
+        protected void ResolveContract(FileInfoContract contract)
+        {
+            if (IsResolved)
+                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidNonProxyResolution, Contract.GetType().Name, Contract.Name));
+            if (Contract.Name != contract.Name)
+                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidProxyResolution, Contract.Name, contract.Name));
+
+            Contract = contract;
+        }
+
         public virtual void SetParent(CloudDirectoryNode parent)
         {
-            this.parent = parent;
+            Parent = parent;
         }
 
         public void Move(ICloudDrive drive, string newName, CloudDirectoryNode destinationDirectory)
@@ -70,8 +82,8 @@ namespace IgorSoft.DokanCloudFS
                 throw new ArgumentNullException(nameof(newName));
             if (destinationDirectory == null)
                 throw new ArgumentNullException(nameof(destinationDirectory));
-            if (parent == null)
-                throw new InvalidOperationException($"{nameof(parent)} of {GetType().Name} '{Name}' is null".ToString(CultureInfo.CurrentCulture));
+            if (Parent == null)
+                throw new InvalidOperationException($"{nameof(Parent)} of {GetType().Name} '{Name}' is null".ToString(CultureInfo.CurrentCulture));
 
             var moveItem = CreateNew(drive.MoveItem(Contract, newName, destinationDirectory.Contract));
             if (destinationDirectory.children != null) {
@@ -80,7 +92,7 @@ namespace IgorSoft.DokanCloudFS
             } else {
                 destinationDirectory.GetChildItems(drive);
             }
-            parent.children.Remove(Name);
+            Parent.children.Remove(Name);
             SetParent(null);
         }
 
@@ -89,7 +101,7 @@ namespace IgorSoft.DokanCloudFS
             if (drive == null)
                 throw new ArgumentNullException(nameof(drive));
 
-            parent.children.Remove(Name);
+            Parent.children.Remove(Name);
             drive.RemoveItem(Contract, false);
             SetParent(null);
         }

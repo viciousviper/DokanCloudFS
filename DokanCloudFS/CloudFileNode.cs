@@ -58,7 +58,11 @@ namespace IgorSoft.DokanCloudFS
             if (drive == null)
                 throw new ArgumentNullException(nameof(drive));
 
-            drive.SetContent(Contract, stream);
+            var proxyFileInfoContract = Contract as ProxyFileInfoContract;
+            if (proxyFileInfoContract != null)
+                ResolveContract(drive.NewFileItem(Parent.Contract, proxyFileInfoContract.Name, stream));
+             else
+                drive.SetContent(Contract, stream);
         }
 
         public void Truncate(ICloudDrive drive)

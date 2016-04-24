@@ -135,6 +135,9 @@ namespace IgorSoft.DokanCloudFS
         public FileInfoContract NewFileItem(DirectoryInfoContract parent, string name, Stream content)
         {
             return ExecuteInSemaphore(() => {
+                if (content.Length == 0)
+                    return new ProxyFileInfoContract(name);
+
                 if (!string.IsNullOrEmpty(encryptionKey))
                     content = content.Encrypt(encryptionKey);
 

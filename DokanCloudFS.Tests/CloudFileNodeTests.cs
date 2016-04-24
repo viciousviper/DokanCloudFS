@@ -136,6 +136,27 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void CloudFileNode_SetContent_OnProxyFileInfo_Succeeds()
+        {
+            var fileContent = Encoding.Default.GetBytes("Mary had a little lamb");
+            var contract = fixture.ProxyTestFile;
+
+            fixture.SetupNewFileItem(fixture.ProxyParentDirectory, contract.Name, fileContent);
+
+            var sut = fixture.GetFile(contract, fixture.ProxyParentDirectory);
+
+            Assert.IsInstanceOfType(sut.Contract, typeof(CloudFS.Interface.IO.ProxyFileInfoContract));
+
+            using (var stream = new MemoryStream(fileContent)) {
+                sut.SetContent(fixture.Drive, stream);
+            }
+
+            Assert.IsInstanceOfType(sut.Contract, typeof(CloudFS.Interface.IO.FileInfoContract));
+
+            fixture.VerifyAll();
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void CloudFileNode_Truncate_Succeeds()
         {
             var contract = fixture.TestFile;

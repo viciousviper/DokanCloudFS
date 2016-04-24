@@ -49,6 +49,10 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             public readonly FileInfoContract TestFile = new FileInfoContract(@"\File.ext", "File.ext", "2015-01-02 10:11:12".ToDateTime(), "2015-01-02 20:21:22".ToDateTime(), 16384, "16384".ToHash());
 
+            public readonly ProxyFileInfoContract ProxyTestFile = new ProxyFileInfoContract("File.ext");
+
+            public readonly DirectoryInfoContract ProxyParentDirectory = new DirectoryInfoContract(@"\Dir", "Dir", "2016-01-01 10:11:12".ToDateTime(), "2016-01-01 20:21:22".ToDateTime());
+
             public readonly DirectoryInfoContract TargetDirectory = new DirectoryInfoContract(@"\SubDir", "SubDir", "2015-01-01 10:11:12".ToDateTime(), "2015-01-01 20:21:22".ToDateTime());
 
             public FileSystemInfoContract[] SubDirectoryItems { get; } = new FileSystemInfoContract[] {
@@ -68,10 +72,10 @@ namespace IgorSoft.DokanCloudFS.Tests
                 }) { children = new Dictionary<string, CloudItemNode>() };
             }
 
-            public CloudFileNode GetFile(FileInfoContract contract)
+            public CloudFileNode GetFile(FileInfoContract contract, DirectoryInfoContract parent = null)
             {
                 var result = new CloudFileNode(contract);
-                result.SetParent(root);
+                result.SetParent(parent != null ? new CloudDirectoryNode(parent) : root);
                 return result;
             }
 
@@ -97,6 +101,13 @@ namespace IgorSoft.DokanCloudFS.Tests
                     .Returns(new FileInfoContract(destination.Id.Value + Path.DirectorySeparatorChar + newName, newName, source.Created, source.Updated, source.Size, source.Hash));
             }
 
+            public void SetupNewFileItem(DirectoryInfoContract parent, string name, byte[] content)
+            {
+                drive
+                    .Setup(d => d.NewFileItem(It.Is<DirectoryInfoContract>(c => c.Id == parent.Id), name, It.Is<Stream>(s => s.Contains(content))))
+                    .Returns((DirectoryInfoContract p, string n, Stream s) => new FileInfoContract($"{p.Id}\\{n}", n, DateTimeOffset.Now, DateTimeOffset.Now, s.Length, null));
+            }
+
             public void SetupRemove(FileInfoContract target)
             {
                 drive
@@ -112,7 +123,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             public void SetupTruncate(FileInfoContract file)
             {
                 drive
-                    .Setup(d => d.SetContent(file, It.Is<MemoryStream>(m => m.Length == 0)));
+                    .Setup(d => d.SetContent(file, It.Is<Stream>(m => m.Length == 0)));
             }
 
             public void VerifyAll()
