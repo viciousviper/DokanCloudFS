@@ -78,7 +78,7 @@ namespace IgorSoft.DokanCloudFS
         {
             if (drive == null)
                 throw new ArgumentNullException(nameof(drive));
-            if (newName == null)
+            if (string.IsNullOrEmpty(newName))
                 throw new ArgumentNullException(nameof(newName));
             if (destinationDirectory == null)
                 throw new ArgumentNullException(nameof(destinationDirectory));

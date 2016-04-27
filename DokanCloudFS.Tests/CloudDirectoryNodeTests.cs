@@ -73,6 +73,16 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void CloudDirectoryNode_GetChildItems_WhereDriveIsNull_Throws()
+        {
+            var directory = fixture.TargetDirectory;
+
+            var sut = fixture.GetDirectory(directory);
+            var result = sut.GetChildItems(null);
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void CloudDirectoryNode_GetChildItems_CallsDriveCorrectly()
         {
             var directory = fixture.TargetDirectory;
@@ -119,6 +129,20 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void CloudDirectoryNode_NewDirectoryItem_WhereDriveIsNull_Throws()
+        {
+            const string newName = "NewDirectory";
+            var contract = fixture.TestDirectory;
+
+            fixture.SetupGetChildItems(contract, fixture.SubDirectoryItems);
+
+            var sut = fixture.GetDirectory(contract);
+            sut.GetChildItems(fixture.Drive);
+            sut.NewDirectoryItem(null, newName);
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void CloudDirectoryNode_NewDirectoryItem_Succeeds()
         {
             const string newName = "NewDirectory";
@@ -134,6 +158,20 @@ namespace IgorSoft.DokanCloudFS.Tests
             Assert.IsNotNull(result, "DirectoryNode not created");
 
             fixture.VerifyAll();
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void CloudDirectoryNode_NewFileItem_WhereDriveIsNull_Throws()
+        {
+            const string newName = "NewFile.ext";
+            var contract = fixture.TestDirectory;
+
+            fixture.SetupGetChildItems(contract, fixture.SubDirectoryItems);
+
+            var sut = fixture.GetDirectory(contract);
+            sut.GetChildItems(fixture.Drive);
+            sut.NewFileItem(null, newName);
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]

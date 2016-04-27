@@ -31,29 +31,43 @@ using FileAccess = DokanNet.FileAccess;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NLog;
+using IgorSoft.CloudFS.Interface.IO;
 
 namespace IgorSoft.DokanCloudFS.Tests
 {
     [TestClass]
     public sealed class CloudOperationsTests
     {
+        private Mock<ICloudDrive> driveMock;
+
         private CloudOperations sut;
 
         [TestInitialize]
         public void Initialize()
         {
-            sut = new CloudOperations(new Mock<ICloudDrive>().Object, new Mock<ILogger>().Object);
+            driveMock = new Mock<ICloudDrive>();
+            sut = new CloudOperations(driveMock.Object, new Mock<ILogger>().Object);
         }
 
         [TestCleanup]
         public void Cleanup()
         {
             sut = null;
+            driveMock = null;
         }
 
-        private DokanFileInfo CreateDokanFileInfo()
+        private static DokanFileInfo CreateDokanFileInfo()
         {
             return (DokanFileInfo)Activator.CreateInstance(typeof(DokanFileInfo), true);
+        }
+
+        private RootDirectoryInfoContract SetupGetRoot()
+        {
+            var root = new RootDirectoryInfoContract(@"\", DateTimeOffset.FromFileTime(0), DateTimeOffset.FromFileTime(0)) { Drive = new DriveInfoContract("Z:", null, null) };
+            driveMock
+                .Setup(d => d.GetRoot())
+                .Returns(root);
+            return root;
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -81,7 +95,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void CloudOperations_CreateFile_WhereInfoIsNull_Throws()
         {
-            sut.CreateFile("File.ext", default(DokanNet.FileAccess), default(FileShare), default(FileMode), default(FileOptions), default(FileAttributes), null);
+            sut.CreateFile("File.ext", default(FileAccess), default(FileShare), default(FileMode), default(FileOptions), default(FileAttributes), null);
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -90,6 +104,51 @@ namespace IgorSoft.DokanCloudFS.Tests
             var result = sut.CreateFile(@"\*", FileAccess.ReadAttributes, default(FileShare), default(FileMode), default(FileOptions), default(FileAttributes), CreateDokanFileInfo());
 
             Assert.AreEqual(DokanResult.Success, result);
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void CloudOperations_CreateFile_WhereFileModeIsOpenOrCreateAndFileAccessIsReadData_Succeeds()
+        {
+            var info = CreateDokanFileInfo();
+            var root = SetupGetRoot();
+            driveMock
+                .Setup(d => d.NewFileItem(root, "File.ext", Stream.Null))
+                .Returns(new FileInfoContract(@"\File.ext", "File.ext", DateTimeOffset.FromFileTime(0), DateTimeOffset.FromFileTime(0), 0, string.Empty));
+
+            var result = sut.CreateFile("File.ext", FileAccess.ReadData, default(FileShare), FileMode.OpenOrCreate, default(FileOptions), default(FileAttributes), info);
+
+            Assert.AreEqual(DokanResult.Success, result);
+            Assert.IsNotNull(info.Context);
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void CloudOperations_CreateFile_WhereFileModeIsAppend_Fails()
+        {
+            SetupGetRoot();
+
+            var result = sut.CreateFile("File.ext", default(FileAccess), default(FileShare), FileMode.Append, default(FileOptions), default(FileAttributes), CreateDokanFileInfo());
+
+            Assert.AreEqual(DokanResult.NotImplemented, result);
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void CloudOperations_CreateFile_WhereFileModeIsTruncate_Fails()
+        {
+            SetupGetRoot();
+
+            var result = sut.CreateFile("File.ext", default(FileAccess), default(FileShare), FileMode.Truncate, default(FileOptions), default(FileAttributes), CreateDokanFileInfo());
+
+            Assert.AreEqual(DokanResult.NotImplemented, result);
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void CloudOperations_CreateFile_WhereFileModeIsUnknown_Fails()
+        {
+            SetupGetRoot();
+
+            var result = sut.CreateFile("File.ext", default(FileAccess), default(FileShare), default(FileMode), default(FileOptions), default(FileAttributes), CreateDokanFileInfo());
+
+            Assert.AreEqual(DokanResult.NotImplemented, result);
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -151,6 +210,14 @@ namespace IgorSoft.DokanCloudFS.Tests
         public void CloudOperations_SetAllocationSize_WhereInfoIsNull_Throws()
         {
             sut.SetAllocationSize("File.ext", 1, null);
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void CloudOperations_SetFileSecurity_Fails()
+        {
+            var result = sut.SetFileSecurity("File.ext", null, new AccessControlSections(), CreateDokanFileInfo());
+
+            Assert.AreEqual(DokanResult.NotImplemented, result);
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]

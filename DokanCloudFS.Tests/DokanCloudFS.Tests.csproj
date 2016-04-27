@@ -133,6 +133,10 @@
       <DependentUpon>CloudDriveTests.cs</DependentUpon>
     </Compile>
     <Compile Include="CloudDriveFactoryTests.cs" />
+    <Compile Include="CloudItemNodeTests.cs" />
+    <Compile Include="CloudItemNodeTests.Fixture.cs">
+      <DependentUpon>CloudItemNodeTests.cs</DependentUpon>
+    </Compile>
     <Compile Include="CloudOperationsTests.cs" />
     <Compile Include="CompositionInitializerTests.cs" />
     <Compile Include="CompositionInitializerTests.Fixture.cs">

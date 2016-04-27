@@ -59,6 +59,17 @@ namespace IgorSoft.DokanCloudFS.Tests
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Objekte nicht mehrmals verwerfen")]
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void CloudFileNode_GetContent_WhereDriveIsNull_Throws()
+        {
+            var contract = fixture.TestFile;
+
+            var sut = fixture.GetFile(contract);
+            sut.GetContent(null);
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Objekte nicht mehrmals verwerfen")]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void CloudFileNode_GetContent_Succeeds()
         {
             const string fileContent = "Mary had a little lamb";
@@ -120,6 +131,16 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void CloudFileNode_SetContent_WhereDriveIsNull_Throws()
+        {
+            var contract = fixture.TestFile;
+
+            var sut = fixture.GetFile(contract);
+            sut.SetContent(null, Stream.Null);
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void CloudFileNode_SetContent_Succeeds()
         {
             var fileContent = Encoding.Default.GetBytes("Mary had a little lamb");
@@ -154,6 +175,16 @@ namespace IgorSoft.DokanCloudFS.Tests
             Assert.IsInstanceOfType(sut.Contract, typeof(CloudFS.Interface.IO.FileInfoContract));
 
             fixture.VerifyAll();
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void CloudFileNode_Truncate_WhereDriveIsNull_Throws()
+        {
+            var contract = fixture.TestFile;
+
+            var sut = fixture.GetFile(contract);
+            sut.Truncate(null);
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
