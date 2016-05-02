@@ -35,6 +35,30 @@ namespace IgorSoft.DokanCloudFS.Tests
     {
         private sealed class Fixture
         {
+            private sealed class FakeGatherStream : GatherStream
+            {
+                public FakeGatherStream(byte[] buffer, BlockMap assignedBlocks, TimeSpan timeout) : base(buffer, assignedBlocks, timeout)
+                {
+                }
+            }
+
+            private sealed class FakeScatterStream : ScatterStream
+            {
+                public FakeScatterStream(byte[] buffer, BlockMap assignedBlocks, TimeSpan timeout) : base(buffer, assignedBlocks, timeout)
+                {
+                }
+            }
+
+            public GatherStream CreateGatherStream(byte[] buffer, BlockMap assignedBlocks)
+            {
+                return new FakeGatherStream(buffer, assignedBlocks, TimeSpan.FromSeconds(1));
+            }
+
+            public ScatterStream CreateScatterStream(byte[] buffer, BlockMap assignedBlocks)
+            {
+                return new FakeScatterStream(buffer, assignedBlocks, TimeSpan.FromSeconds(1));
+            }
+
             public byte[] InitializeBuffer(int size)
             {
                 var buffer = new byte[size];

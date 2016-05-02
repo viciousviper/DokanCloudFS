@@ -144,8 +144,6 @@ namespace IgorSoft.DokanCloudFS.Tests
             var sut = Fixture.CreateMap().WithIntersectingPredecessor(8, 4);
 
             sut.AssignBytes(8, 4);
-
-            Assert.Fail();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -155,8 +153,6 @@ namespace IgorSoft.DokanCloudFS.Tests
             var sut = Fixture.CreateMap().WithIntersectingSuccessor(8, 4);
 
             sut.AssignBytes(8, 4);
-
-            Assert.Fail();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -166,8 +162,6 @@ namespace IgorSoft.DokanCloudFS.Tests
             var sut = Fixture.CreateMap().WithIntersectingPredecessor(8, 4).WithIntersectingSuccessor(8, 4);
 
             sut.AssignBytes(8, 4);
-
-            Assert.Fail();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]

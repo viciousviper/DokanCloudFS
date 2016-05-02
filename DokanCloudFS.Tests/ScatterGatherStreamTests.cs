@@ -26,6 +26,7 @@ using System;
 using System.Globalization;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using IgorSoft.DokanCloudFS.IO;
 
 namespace IgorSoft.DokanCloudFS.Tests
 {
@@ -44,6 +45,52 @@ namespace IgorSoft.DokanCloudFS.Tests
         public void Cleanup()
         {
             fixture = null;
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void GatherStream_Create_WhereBufferIsNull_Throws()
+        {
+            fixture.CreateGatherStream(null, new BlockMap(1));
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void GatherStream_Create_WhereBlockMapIsNull_Throws()
+        {
+            fixture.CreateGatherStream(Array.Empty<byte>(), null);
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        [ExpectedException(typeof(NotSupportedException))]
+        public void GatherStream_Write_Throws()
+        {
+            var sut = fixture.CreateGatherStream(Array.Empty<byte>(), new BlockMap(1));
+
+            sut.Write(Array.Empty<byte>(), 0, 0);
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void ScatterStream_Create_WhereBufferIsNull_Throws()
+        {
+            fixture.CreateScatterStream(null, new BlockMap(1));
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void ScatterStream_Create_WhereBlockMapIsNull_Throws()
+        {
+            fixture.CreateScatterStream(Array.Empty<byte>(), null);
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        [ExpectedException(typeof(NotSupportedException))]
+        public void ScatterStream_Read_Throws()
+        {
+            var sut = fixture.CreateScatterStream(Array.Empty<byte>(), new BlockMap(1));
+
+            sut.Read(Array.Empty<byte>(), 0, 0);
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]

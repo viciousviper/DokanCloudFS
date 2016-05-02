@@ -38,6 +38,9 @@ namespace IgorSoft.DokanCloudFS.IO
 
         internal ScatterStream(byte[] buffer, BlockMap assignedBlocks, TimeSpan timeout) : base(buffer)
         {
+            if (assignedBlocks == null)
+                throw new ArgumentNullException(nameof(assignedBlocks));
+
             this.assignedBlocks = assignedBlocks;
             this.timeout = timeout;
         }

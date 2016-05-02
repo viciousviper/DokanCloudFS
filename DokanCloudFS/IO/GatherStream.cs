@@ -38,6 +38,9 @@ namespace IgorSoft.DokanCloudFS.IO
 
         internal GatherStream(byte[] buffer, BlockMap assignedBlocks, TimeSpan timeout) : base(buffer, false)
         {
+            if (assignedBlocks == null)
+                throw new ArgumentNullException(nameof(assignedBlocks));
+
             this.assignedBlocks = assignedBlocks;
             this.timeout = timeout;
         }

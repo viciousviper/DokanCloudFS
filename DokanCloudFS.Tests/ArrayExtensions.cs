@@ -31,6 +31,7 @@ namespace IgorSoft.DokanCloudFS.Tests
     {
         private static readonly SHA1 sha1 = SHA1.Create();
 
+        [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public static string ToHash(this byte[] value)
         {
             if (value == null)

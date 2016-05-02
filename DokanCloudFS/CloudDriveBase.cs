@@ -63,6 +63,9 @@ namespace IgorSoft.DokanCloudFS
 
         protected void ExecuteInSemaphore(Action action, string methodName, bool invalidateDrive = false)
         {
+            if (action == null)
+                throw new ArgumentNullException(nameof(action));
+
             semaphore.Wait();
             try {
                 action();
@@ -77,6 +80,9 @@ namespace IgorSoft.DokanCloudFS
 
         protected T ExecuteInSemaphore<T>(Func<T> func, string methodName, bool invalidateDrive = false)
         {
+            if (func == null)
+                throw new ArgumentNullException(nameof(func));
+
             semaphore.Wait();
             try {
                 return func();

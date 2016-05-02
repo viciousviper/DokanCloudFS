@@ -61,7 +61,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <HintPath>..\packages\NLog.4.4.0-beta4\lib\net451\NLog.dll</HintPath>
+      <HintPath>..\packages\NLog.4.4.0-beta5\lib\net451\NLog.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="SemanticTypes, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -110,6 +110,7 @@
     <Compile Include="..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="CloudDriveBaseTests.cs" />
     <Compile Include="AsyncCloudDriveTests.Fixture.cs">
       <DependentUpon>AsyncCloudDriveTests.cs</DependentUpon>
     </Compile>
@@ -125,6 +126,9 @@
       <DependentUpon>CloudDirectoryNodeTests.cs</DependentUpon>
     </Compile>
     <Compile Include="AsyncCloudDriveTests.cs" />
+    <Compile Include="CloudDriveBaseTests.Fixture.cs">
+      <DependentUpon>CloudDriveBaseTests.cs</DependentUpon>
+    </Compile>
     <Compile Include="CloudDriveFactoryTests.Fixture.cs">
       <DependentUpon>CloudDriveFactoryTests.cs</DependentUpon>
     </Compile>
