@@ -52,15 +52,15 @@ The expected gateway interface types and a set of prefabricated gateways are pro
 
 ## Local compilation
 
-- Compile the [CloudFS](https://github.com/viciousviper/CloudFS) solution
-- Copy all assemblies from the *Gateways* directory in the build output of *CloudFS.GatewayTests* to the *Library* directory of DokanCloudFS
-- Compile the DokanCloudFS solution
-- Check that the *Gateways* directory in the build output of *DokanCloudFS.Mounter* contains all desired gateway assemblies and their dependencies (e.g. *Newtonsoft.JSON.dll*)
+- Compile the [CloudFS](https://github.com/viciousviper/CloudFS) solution<br/>**Note:** You'll need to retrieve your own cloud app authentication keys and apply them in the respective `Secrets.cs` files for the affected cloud services.
+- Copy all assemblies from the *Gateways* directory in the build output of *CloudFS.GatewayTests* to the *Library* directory of DokanCloudFS.
+- Compile the DokanCloudFS solution.
 
 ## Usage
 
-- Configure the desired mount points in *DokanCloudFS.Mounter*'s configuration file *App.config*. See below for a sample configuration.
-- Run *IgorSoft.DokanCloudFS.Mounter.exe* from the command line
+- Configure the desired mount points in *DokanCloudFS.Mounter*'s configuration file *IgorSoft.DokanCloudFS.Mounter.exe.config*.<br/>See below for a sample configuration.
+- Ensure the presence of all required cloud service gateway assemblies and their dependencies - either from a downloaded *CloudFS* NuGet Package or a local compile - in the path specified by the *libPath* attribute in the *&lt;mount&gt;*-tag in the config file (defaults to the solution's *.\Library* directory).
+- Run *IgorSoft.DokanCloudFS.Mounter.exe* from the command line.
 
 ### Sample configuration
 
