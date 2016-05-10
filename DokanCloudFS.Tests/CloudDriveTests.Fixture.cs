@@ -26,11 +26,13 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
 using Moq;
 using IgorSoft.CloudFS.Interface;
 using IgorSoft.CloudFS.Interface.Composition;
 using IgorSoft.CloudFS.Interface.IO;
+using IgorSoft.DokanCloudFS.IO;
 using IgorSoft.DokanCloudFS.Parameters;
 
 namespace IgorSoft.DokanCloudFS.Tests
@@ -96,11 +98,18 @@ namespace IgorSoft.DokanCloudFS.Tests
                     .Returns(root);
             }
 
-            public void SetupGetRootDirectoryItems()
+            public void SetupGetRootDirectoryItems(string encryptionKey = null)
             {
                 gateway
                     .Setup(g => g.GetChildItem(rootName, new DirectoryId(Path.DirectorySeparatorChar.ToString())))
                     .Returns(RootDirectoryItems);
+
+                if (!string.IsNullOrEmpty(encryptionKey))
+                    foreach (var fileInfo in RootDirectoryItems.OfType<FileInfoContract>())
+                        using (var rawStream = new MemoryStream(Enumerable.Repeat<byte>(0, (int)fileInfo.Size).ToArray()))
+                            gateway
+                                .SetupSequence(g => g.GetContent(rootName, fileInfo.Id))
+                                .Returns(rawStream.EncryptOrPass(encryptionKey));
             }
 
             public void SetupGetContent(FileInfoContract source, byte[] content, string encryptionKey = null, bool canSeek = true)

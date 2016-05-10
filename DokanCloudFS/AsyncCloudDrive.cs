@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using IgorSoft.CloudFS.Interface;
 using IgorSoft.CloudFS.Interface.Composition;
 using IgorSoft.CloudFS.Interface.IO;
@@ -75,50 +76,43 @@ namespace IgorSoft.DokanCloudFS
         public IEnumerable<FileSystemInfoContract> GetChildItem(DirectoryInfoContract parent)
         {
             return ExecuteInSemaphore(() => {
-                return gateway.GetChildItemAsync(rootName, parent.Id).Result;
+                return gateway.GetChildItemAsync(rootName, parent.Id).Result.Select(i => DecryptChildItem(i, id => gateway.GetContentAsync(rootName, id).Result));
             }, nameof(GetChildItem));
         }
 
         public Stream GetContent(FileInfoContract source)
         {
             return ExecuteInSemaphore(() => {
-                var result = gateway.GetContentAsync(rootName, source.Id).Result;
+                var gatewayContent = gateway.GetContentAsync(rootName, source.Id).Result;
 
-                if (!result.CanSeek) {
+                if (!gatewayContent.CanSeek) {
                     var bufferStream = new MemoryStream();
-                    result.CopyTo(bufferStream, MAX_BULKDOWNLOAD_SIZE);
+                    gatewayContent.CopyTo(bufferStream, MAX_BULKDOWNLOAD_SIZE);
                     bufferStream.Seek(0, SeekOrigin.Begin);
-                    result.Dispose();
-                    result = bufferStream;
+                    gatewayContent.Dispose();
+                    gatewayContent = bufferStream;
                 }
 
-                if (!string.IsNullOrEmpty(encryptionKey))
-                    try {
-                        result = result.Decrypt(encryptionKey);
-                    } catch (InvalidDataException) {
-                        // Ignore InvalidDataException to enable reading of unencrypted content from cloud volumes
-                        result.Seek(0, SeekOrigin.Begin);
-                    }
+                var content = gatewayContent.DecryptOrPass(encryptionKey);
 
 #if DEBUG
-                result = new TraceStream(nameof(GetContent), source.Name, result);
+                content = new TraceStream(nameof(GetContent), source.Name, content);
 #endif
-                return result;
+                return content;
             }, nameof(GetContent));
         }
 
         public void SetContent(FileInfoContract target, Stream content)
         {
             ExecuteInSemaphore(() => {
-                if (!string.IsNullOrEmpty(encryptionKey))
-                    content = content.Encrypt(encryptionKey);
+                target.Size = content.Length;
+                var gatewayContent = content.EncryptOrPass(encryptionKey);
 
 #if DEBUG
-                content = new TraceStream(nameof(SetContent), target.Name, content);
+                gatewayContent = new TraceStream(nameof(SetContent), target.Name, gatewayContent);
 #endif
                 Func<FileSystemInfoLocator> locator = () => new FileSystemInfoLocator(target);
-                target.Size = content.Length;
-                gateway.SetContentAsync(rootName, target.Id, content, null, locator).Wait();
+                gateway.SetContentAsync(rootName, target.Id, gatewayContent, null, locator).Wait();
             }, nameof(SetContent), true);
         }
 
@@ -142,11 +136,13 @@ namespace IgorSoft.DokanCloudFS
             return ExecuteInSemaphore(() => {
                 if (content.Length == 0)
                     return new ProxyFileInfoContract(name);
+                var size = content.Length;
 
-                if (!string.IsNullOrEmpty(encryptionKey))
-                    content = content.Encrypt(encryptionKey);
+                var gatewayContent = content.EncryptOrPass(encryptionKey);
 
-                return gateway.NewFileItemAsync(rootName, parent.Id, name, content, null).Result;
+                var result = gateway.NewFileItemAsync(rootName, parent.Id, name, gatewayContent, null).Result;
+                result.Size = size;
+                return result;
             }, nameof(NewFileItem), true);
         }
 

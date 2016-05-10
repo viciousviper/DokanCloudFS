@@ -109,16 +109,30 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod]
-        public void CloudDrive_GetChildItem_Succeeds()
+        public void CloudDrive_GetChildItem_WhereEncryptionKeyIsEmpty_Succeeds()
         {
             fixture.SetupGetDriveAsync(apiKey, parameters);
             fixture.SetupGetRootAsync(apiKey);
             fixture.SetupGetRootDirectoryItemsAsync();
 
-            using (var sut = fixture.Create(apiKey, encryptionKey)) {
-                var result = sut.GetChildItem(sut.GetRoot());
+            using (var sut = fixture.Create(apiKey, string.Empty)) {
+                var result = sut.GetChildItem(sut.GetRoot()).ToList();
 
-                Assert.AreEqual(fixture.RootDirectoryItems, result, "Mismatched result");
+                CollectionAssert.AreEqual(fixture.RootDirectoryItems, result, "Mismatched result");
+            }
+        }
+
+        [TestMethod]
+        public void CloudDrive_GetChildItem_WhereEncryptionKeyIsSet_Succeeds()
+        {
+            fixture.SetupGetDriveAsync(apiKey, parameters);
+            fixture.SetupGetRootAsync(apiKey);
+            fixture.SetupGetRootDirectoryItemsAsync(encryptionKey);
+
+            using (var sut = fixture.Create(apiKey, encryptionKey)) {
+                var result = sut.GetChildItem(sut.GetRoot()).ToList();
+
+                CollectionAssert.AreEqual(fixture.RootDirectoryItems, result, "Mismatched result");
             }
         }
 

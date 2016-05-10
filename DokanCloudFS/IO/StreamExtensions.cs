@@ -29,9 +29,38 @@ namespace IgorSoft.DokanCloudFS.IO
 {
     internal static class StreamExtensions
     {
-        public static Stream Encrypt(this Stream stream, string encryptionKey) => Process(stream, encryptionKey, SharpAESCrypt.OperationMode.Encrypt);
+        public static Stream EncryptOrPass(this Stream stream, string encryptionKey)
+        {
+            return !string.IsNullOrEmpty(encryptionKey)
+                ? Process(stream, encryptionKey, SharpAESCrypt.OperationMode.Encrypt)
+                : stream;
+        }
 
-        public static Stream Decrypt(this Stream stream, string encryptionKey) => Process(stream, encryptionKey, SharpAESCrypt.OperationMode.Decrypt);
+        public static Stream DecryptOrPass(this Stream stream, string encryptionKey)
+        {
+            if (!string.IsNullOrEmpty(encryptionKey))
+                try {
+                    stream = Process(stream, encryptionKey, SharpAESCrypt.OperationMode.Decrypt);
+                } catch (InvalidDataException) {
+                    // Ignore InvalidDataException to enable reading of unencrypted content from cloud volumes
+                    stream.Seek(0, SeekOrigin.Begin);
+                }
+
+            return stream;
+        }
+
+        public static long GetDecryptedFileSize(this Stream stream, string encryptionKey)
+        {
+            if (string.IsNullOrEmpty(encryptionKey))
+                throw new ArgumentNullException(nameof(encryptionKey));
+
+            try {
+                return Process(stream, encryptionKey, SharpAESCrypt.OperationMode.Decrypt).Length;
+            } catch (InvalidDataException) {
+                // Ignore InvalidDataException to enable reading of unencrypted content from cloud volumes
+                return stream.Length;
+            }
+        }
 
         private static Stream Process(Stream stream, string encryptionKey, SharpAESCrypt.OperationMode mode)
         {
