@@ -24,11 +24,14 @@ SOFTWARE.
 
 using System;
 using System.IO;
+using System.Security.Cryptography;
 
 namespace IgorSoft.DokanCloudFS.IO
 {
     internal static class StreamExtensions
     {
+        private const int MAX_BULKDOWNLOAD_SIZE = 1 << 29;
+
         public static Stream EncryptOrPass(this Stream stream, string encryptionKey)
         {
             return !string.IsNullOrEmpty(encryptionKey)
@@ -49,17 +52,33 @@ namespace IgorSoft.DokanCloudFS.IO
             return stream;
         }
 
-        public static long GetDecryptedFileSize(this Stream stream, string encryptionKey)
+        public static long GetPlainFileSize(this Stream stream, string encryptionKey)
         {
             if (string.IsNullOrEmpty(encryptionKey))
                 throw new ArgumentNullException(nameof(encryptionKey));
 
             try {
                 return Process(stream, encryptionKey, SharpAESCrypt.OperationMode.Decrypt).Length;
+            } catch (CryptographicException) {
+                // Ignore CryptographicException to enable raw reading of differently encrypted content from cloud volumes
+                return stream.ToSeekableStream().Length;
             } catch (InvalidDataException) {
                 // Ignore InvalidDataException to enable reading of unencrypted content from cloud volumes
-                return stream.Length;
+                return stream.ToSeekableStream().Length;
             }
+        }
+
+        public static Stream ToSeekableStream(this Stream stream)
+        {
+            if (!stream.CanSeek) {
+                var bufferStream = new MemoryStream();
+                stream.CopyTo(bufferStream, MAX_BULKDOWNLOAD_SIZE);
+                bufferStream.Seek(0, SeekOrigin.Begin);
+                stream.Dispose();
+                stream = bufferStream;
+            }
+
+            return stream;
         }
 
         private static Stream Process(Stream stream, string encryptionKey, SharpAESCrypt.OperationMode mode)

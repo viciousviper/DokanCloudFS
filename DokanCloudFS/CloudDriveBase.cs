@@ -24,6 +24,7 @@ SOFTWARE.
 
 using System;
 using System.Globalization;
+using System.IO;
 using System.Threading;
 using IgorSoft.DokanCloudFS.IO;
 using IgorSoft.DokanCloudFS.Parameters;
@@ -62,20 +63,6 @@ namespace IgorSoft.DokanCloudFS
                 DisplayRoot = DisplayRoot.Insert(0, "*");
         }
 
-        protected FileSystemInfoContract DecryptChildItem(FileSystemInfoContract info, Func<FileId, System.IO.Stream> readContent)
-        {
-            if (readContent == null)
-                throw new ArgumentNullException(nameof(readContent));
-
-            var fileInfo = info as FileInfoContract;
-            if (fileInfo == null || string.IsNullOrEmpty(encryptionKey))
-                return info;
-
-            var gatewayContent = readContent(fileInfo.Id);
-            fileInfo.Size = gatewayContent.GetDecryptedFileSize(encryptionKey);
-            return fileInfo;
-        }
-
         protected void ExecuteInSemaphore(Action action, string methodName, bool invalidateDrive = false)
         {
             if (action == null)
@@ -107,6 +94,18 @@ namespace IgorSoft.DokanCloudFS
                 if (invalidateDrive)
                     drive = null;
                 semaphore.Release();
+            }
+        }
+
+        protected void FixupSize(FileSystemInfoContract info, Func<FileId, Stream> readContent)
+        {
+            if (readContent == null)
+                throw new ArgumentNullException(nameof(readContent));
+
+            var fileInfo = info as FileInfoContract;
+            if (fileInfo != null && !string.IsNullOrEmpty(encryptionKey)) {
+                var gatewayContent = readContent(fileInfo.Id);
+                fileInfo.Size = gatewayContent.GetPlainFileSize(encryptionKey);
             }
         }
 

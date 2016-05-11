@@ -38,8 +38,6 @@ namespace IgorSoft.DokanCloudFS
     [System.Diagnostics.DebuggerDisplay("{DebuggerDisplay,nq}")]
     internal class CloudDrive : CloudDriveBase, ICloudDrive
     {
-        private const int MAX_BULKDOWNLOAD_SIZE = 1 << 29;
-
         private readonly ICloudGateway gateway;
 
         private readonly IDictionary<string, string> parameters;
@@ -73,22 +71,17 @@ namespace IgorSoft.DokanCloudFS
         public IEnumerable<FileSystemInfoContract> GetChildItem(DirectoryInfoContract parent)
         {
             return ExecuteInSemaphore(() => {
-                return gateway.GetChildItem(rootName, parent.Id).Select(i => DecryptChildItem(i, id => gateway.GetContent(rootName, id)));
+                return gateway.GetChildItem(rootName, parent.Id).Select(item => {
+                    FixupSize(item, id => gateway.GetContent(rootName, id));
+                    return item;
+                });
             }, nameof(GetChildItem));
         }
 
         public Stream GetContent(FileInfoContract source)
         {
             return ExecuteInSemaphore(() => {
-                var gatewayContent = gateway.GetContent(rootName, source.Id);
-
-                if (!gatewayContent.CanSeek) {
-                    var bufferStream = new MemoryStream();
-                    gatewayContent.CopyTo(bufferStream, MAX_BULKDOWNLOAD_SIZE);
-                    bufferStream.Seek(0, SeekOrigin.Begin);
-                    gatewayContent.Dispose();
-                    gatewayContent = bufferStream;
-                }
+                var gatewayContent = gateway.GetContent(rootName, source.Id).ToSeekableStream();
 
                 var content = gatewayContent.DecryptOrPass(encryptionKey);
 

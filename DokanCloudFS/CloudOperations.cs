@@ -459,12 +459,12 @@ namespace IgorSoft.DokanCloudFS
             if (info == null)
                 throw new ArgumentNullException(nameof(info));
 
-            if (length > 0) {
+            var context = (StreamContext)info.Context;
+            if (length > 0 && context.Stream == null) {
                 var scatterStream = default(Stream);
                 var gatherStream = default(Stream);
                 ScatterGatherStreamFactory.CreateScatterGatherStreams((int)length, out scatterStream, out gatherStream);
 
-                var context = (StreamContext)info.Context;
                 context.Stream = scatterStream;
 
                 context.Task = Task.Run(() => {
