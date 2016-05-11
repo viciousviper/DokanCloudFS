@@ -213,7 +213,7 @@ namespace IgorSoft.DokanCloudFS
                             info.Context = new StreamContext(fileItem, FileAccess.WriteData);
                         else if (access.HasFlag(FileAccess.Delete))
                             info.Context = new StreamContext(fileItem, FileAccess.Delete);
-                        else if (access != FileAccess.ReadAttributes)
+                        else if (!access.HasFlag(FileAccess.ReadAttributes))
                             return Trace(nameof(CreateFile), fileName, info, access, share, mode, options, attributes, DokanResult.NotImplemented);
                     } else {
                         info.IsDirectory = item != null;

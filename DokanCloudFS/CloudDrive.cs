@@ -137,7 +137,8 @@ namespace IgorSoft.DokanCloudFS
         public void RemoveItem(FileSystemInfoContract target, bool recurse)
         {
             ExecuteInSemaphore(() => {
-                gateway.RemoveItem(rootName, target.Id, recurse);
+                if (!(target is ProxyFileInfoContract))
+                    gateway.RemoveItem(rootName, target.Id, recurse);
             }, nameof(RemoveItem), true);
         }
 
