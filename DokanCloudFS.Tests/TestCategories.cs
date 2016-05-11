@@ -29,6 +29,7 @@ namespace IgorSoft.DokanCloudFS.Tests
     internal enum TestCategories
     {
         Offline,
-        Online
+        Online,
+        Manual
     }
 }

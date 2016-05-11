@@ -890,7 +890,9 @@ namespace IgorSoft.DokanCloudFS.Tests
             fixture.Verify();
         }
 
-        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        //Temporarily excluded from CI builds due to instability
+        [TestMethod, TestCategory(nameof(TestCategories.Manual))]
+        //[TestMethod, TestCategory(nameof(TestCategories.Offline))]
         [DeploymentItem("FileSystemTests.Configuration.xml")]
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\FileSystemTests.Configuration.xml", "ConfigRead", DataAccessMethod.Sequential)]
         public void FileInfo_NativeReadOverlapped_Succeeds()
