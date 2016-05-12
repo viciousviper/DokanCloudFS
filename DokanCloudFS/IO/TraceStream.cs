@@ -205,6 +205,7 @@ namespace IgorSoft.DokanCloudFS.IO
                 lock (lockObject) {
                     Trace($"{nameof(Dispose)}(disposing={disposing})".ToString(CultureInfo.CurrentCulture));
 
+                    baseStream.Dispose();
                     baseStream = null;
                 }
         }
