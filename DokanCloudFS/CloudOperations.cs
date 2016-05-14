@@ -134,7 +134,7 @@ namespace IgorSoft.DokanCloudFS
                             try {
                                 context.File.SetContent(drive, context.Stream);
                             } catch (Exception ex) {
-                                if (!(ex is UnauthorizedAccessException))
+                                if (!(ex is UnauthorizedAccessException) && !((uint)((ex as IOException)?.HResult ?? 0) == 0x80070020))
                                     context.File.Remove(drive);
                                 logger.Trace($"{nameof(context.File.SetContent)} failed on file '{fileName}' with {ex.GetType().Name} '{ex.Message}'".ToString(CultureInfo.CurrentCulture));
                                 throw;
