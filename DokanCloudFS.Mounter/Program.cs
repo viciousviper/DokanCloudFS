@@ -58,7 +58,8 @@ namespace DokanCloudFS.Mounter
                     foreach (var drive in mountSection.Drives.Cast<DriveElement>()) {
                         var operations = new CloudOperations(factory.CreateCloudDrive(drive.Schema, drive.UserName, drive.Root, new CloudDriveParameters() { EncryptionKey = drive.EncryptionKey, Parameters = drive.GetParameters() }), logger);
 
-                        tasks.Add(Task.Run(() => operations.Mount(drive.Root, DokanOptions.RemovableDrive, mountSection.Threads, 1000, TimeSpan.FromSeconds(drive.Timeout != 0 ? drive.Timeout : 20)), tokenSource.Token));
+                        // HACK: handle non-unique parameter set of DokanOperations.Mount() by explicitely specifying AllocationUnitSize and SectorSize
+                        tasks.Add(Task.Run(() => operations.Mount(drive.Root, DokanOptions.RemovableDrive | DokanOptions.MountManager | DokanOptions.CurrentSession, mountSection.Threads, 1100, TimeSpan.FromSeconds(drive.Timeout != 0 ? drive.Timeout : 20), null, 512, 512), tokenSource.Token));
 
                         var driveInfo = new DriveInfo(drive.Root);
                         while (!driveInfo.IsReady)

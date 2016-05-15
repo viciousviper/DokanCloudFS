@@ -44,8 +44,8 @@
       <HintPath>..\packages\Castle.Core.4.0.0-alpha001\lib\net45\Castle.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="DokanNet, Version=1.0.8.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\DokanNet.1.1.0-rc2\lib\net40\DokanNet.dll</HintPath>
+    <Reference Include="DokanNet, Version=1.1.0.0, Culture=neutral, PublicKeyToken=3709aaa01df28a9e, processorArchitecture=MSIL">
+      <HintPath>..\packages\DokanNet.1.1.0-rc3\lib\net40\DokanNet.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="IgorSoft.AppDomainResolver, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
