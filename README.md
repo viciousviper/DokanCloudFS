@@ -45,7 +45,7 @@ The expected gateway interface types and a set of prefabricated gateways are pro
 - Platform
   - .NET 4.6
 - Drivers
-  - [Dokany](https://github.com/dokan-dev/dokany/releases) driver 1.0.0-RC2 or greater installed
+  - [Dokany](https://github.com/dokan-dev/dokany/releases) driver 1.0.0-RC3 or greater installed
 - Operating system
   - tested on Windows 8.1 x64 and Windows Server 2012 R2 (until version 1.0.0-alpha) /<br/>Windows 10 x64 (from version 1.0.1-alpha)
   - expected to run on Windows 7/8/8.1/10 and Windows Server 2008(R2)/2012(R2)
@@ -68,7 +68,6 @@ The expected gateway interface types and a set of prefabricated gateways are pro
   <mount libPath="..\..\..\Library" threads="5">
     <drives>
       <drive schema="box" userName="BoxUser" root="P:" encryptionKey="MyBoxSecret&amp;I" timeout="300" />
-      <drive schema="copy" userName="CopyUser" root="Q:" encryptionKey="MyCopySecret&amp;I" timeout="300" />
       <!--<drive schema="file" root="R:" encryptionKey="MyFileSecret&amp;I" parameters="root=..\..\..\TestData" />-->
       <drive schema="gdrive" userName="GDriveUser" root="S:" encryptionKey="MyGDriveSecret&amp;I" timeout="300" />
       <drive schema="hubic" userName="hubiCUser" root="T:" encryptionKey="MyhubiCSecret&amp;I" parameters="container=default" timeout="300" />
@@ -88,7 +87,7 @@ Configuration options:
     - **threads**: Number of concurrent threads used for each drive by the Dokan driver.<br />Defaults to 5.
   - Per drive
     - **schema**: Selects the cloud storage service gateway to be used.<br />Must correspond to one of the *CloudFS* gateways installed in the *libPath* subdirectory. Presently supports the following values:
-      - *box*, *copy*<sup id="a1">[1](#f1)</sup>, *gdrive*, *hubic*, *mediafire*, *mega*, *onedrive*, *pcloud*, *yandex*
+      - *box*, *gdrive*, *hubic*, *mediafire*, *mega*, *onedrive*, *pcloud*, *yandex*
       - *file* (mounting of local folders only)
     - **userName**: User account to be displayed in the mounted drive label.
     - **root**: The drive letter to be used as mount point for the cloud drive.<br />Choose a free drive letter such as *L:*.
@@ -99,7 +98,7 @@ Configuration options:
       - other gateways - no custom parameters supported so far
     - **timeout:** The timeout value for file operations on this drive measured in seconds.<br />A value of *300* should suffice for all but the slowest connections.
 
-> <sup><b id="f1">1</b></sup> The Copy cloud storage service is slated to be discontinued as of May 1<sup>st</sup> 2016 according to this [announcement](https://www.copy.com/page/home;cs_login:login;;section:plans).<br/>The Copy gateway will be retired from CloudFS at or shortly after this point in time. [^](#a1)<br/>
+> The Copy cloud storage service was retired after May 1<sup>st</sup> 2016 in response to this [announcement](https://www.copy.com/page/home;cs_login:login;;section:plans).
 
 ## Privacy advice
 
@@ -129,12 +128,10 @@ DokanCloudFS does **not** store your authentication password for any cloud stora
     - Writing of large (>> 10 Mb) files to cloud storage is unstable on the following platforms: *Box*, *OneDrive*, *pCloud*
   - *Mediafire* gateway
     - The API library used to access MediaFire does not presently support long-term authentication tokens. Expect to re-authenticate via the login popup every 10 minutes or so.
-  - *Mega* gateway
-    - The DokanCloudFS gateway does not presently support writing to files or copying files from an outside volume into a *Mega* drive.
 
 ## Remarks
 
-Due to the nature of the Dokan kernel-mode drivers involved, any severe errors inside DokanCloudFS can result in Windows Bluescreens.
+Due to the nature of the Dokan kernel-mode drivers involved, any severe errors inside DokanCloudFS can result in [Windows Blue Screens](https://en.wikipedia.org/wiki/Blue_Screen_of_Death).
 
 **Don't install this project on production environments.**
 
@@ -144,7 +141,8 @@ You have been warned.
 
 | Date       | Version     | Comments                                                                       |
 | :--------- | :---------- | :----------------------------------------------------------------------------- |
-| 2016-04-18 | 1.0.4-alpha | - Updated DokanNet to version 1.0.0-RC2<br/>- Updated SharpAESCrypt to version 1.3.1<br/>- Fixed behavior for parallel mounting of several cloud drives.<br/>- New gateway sample configuration added for hubiC/Swift.<br/>- Various bugfixes. |
+| 2016-05-19 | 1.0.5-alpha | - Updated DokanNet to version 1.0.0-RC3<br/>- Retired Copy gateway<br/>- Allow readonly-access to unencrypted files on otherwise encrypted cloud storage volumes<br/>- Support file creation for gateways that don't allow modification of existing files (e.g. Mega)<br/>- Fixed error in size calculation when retrieving encrypted files from cloud storage<br/>- Improved online file editing capability<br/>- Various bugfixes |
+| 2016-04-18 | 1.0.4-alpha | - Updated DokanNet to version 1.0.0-RC2<br/>- Updated SharpAESCrypt to version 1.3.1<br/>- Fixed behavior for parallel mounting of several cloud drives.<br/>- New gateway sample configuration added for hubiC/Swift.<br/>- Various bugfixes |
 | 2016-02-04 | 1.0.3-alpha | - Upgraded .NET framework version to 4.6.1<br/>- New gateway sample configurations added for MediaFire and Yandex Disk<br/>- Unit test coverage improved<br/>- Several bugfixes |
 | 2016-01-24 | 1.0.2-alpha | - Gateway configuration extended to accept custom parameters. This change **breaks compatibility** with earlier API versions.<br/>- File Gateway configuration added in App.config |
 | 2016-01-20 | 1.0.1-alpha | - NuGet dependencies updated, tests for CloudOperations made offline executable, code coverage analysis via codecov configured |
@@ -156,7 +154,6 @@ You have been warned.
 - improve stability
 - improve performance
 - allow alternate encryption schemes
-- allow read-access to unencrypted content on cloud storage volumes
 - allow mounting and unmounting of individual drives without restarting the mounter process
 - protect locally stored authentication information through encryption
 

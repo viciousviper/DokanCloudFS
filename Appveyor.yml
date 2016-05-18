@@ -1,4 +1,4 @@
-version: 1.0.3-alpha {build}
+version: 1.0.5-alpha {build}
 
 branches:
   only:
@@ -25,7 +25,7 @@ install:
 - ps: >-
     Add-Type -AssemblyName System.IO.Compression.FileSystem
       (New-Object System.Net.WebClient).DownloadFile(
-        'https://github.com/dokan-dev/dokany/releases/download/v0.8.0/DokanInstall_0.8.0_redist.exe',
+        'https://github.com/dokan-dev/dokany/releases/download/v1.0.0-RC3/DokanSetup_redist.exe',
         'C:\projects\dokancloudfs\DokanInstall.exe'
       )
 
@@ -56,4 +56,4 @@ after_test:
     cov-build --dir cov-int msbuild "/t:Rebuild" "/p:Configuration=%CONFIGURATION%" "/v:quiet" DokanCloudFS.sln
     7z a -r coverity.tar cov-int
     7z a coverity.tar.gz coverity.tar
-    curl --form token=%COVERITY_TOKEN% --form email=%COVERITY_EMAIL% --form file=@coverity.tar.gz --form version="1.0.3-alpha" https://scan.coverity.com/builds?project=viciousviper/DokanCloudFS
+    curl --form token=%COVERITY_TOKEN% --form email=%COVERITY_EMAIL% --form file=@coverity.tar.gz --form version="1.0.5-alpha" https://scan.coverity.com/builds?project=viciousviper/DokanCloudFS
