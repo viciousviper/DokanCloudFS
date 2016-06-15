@@ -29,6 +29,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		TestAssemblies.ruleset = TestAssemblies.ruleset
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DokanCloudFS.Gateways", "DokanCloudFS.Gateways\DokanCloudFS.Gateways.csproj", "{F88E8E7D-B7D4-476F-A66B-7A0D097BB913}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +49,10 @@ Global
 		{5127A50B-221A-4AD7-9EF9-B3808CF0E282}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5127A50B-221A-4AD7-9EF9-B3808CF0E282}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5127A50B-221A-4AD7-9EF9-B3808CF0E282}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F88E8E7D-B7D4-476F-A66B-7A0D097BB913}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F88E8E7D-B7D4-476F-A66B-7A0D097BB913}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F88E8E7D-B7D4-476F-A66B-7A0D097BB913}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F88E8E7D-B7D4-476F-A66B-7A0D097BB913}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
