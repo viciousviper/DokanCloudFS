@@ -4,6 +4,10 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DokanCloudFS", "DokanCloudFS\DokanCloudFS.csproj", "{87F4BEE8-FE6A-4ACF-9234-FDAEB28C786B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F88E8E7D-B7D4-476F-A66B-7A0D097BB913} = {F88E8E7D-B7D4-476F-A66B-7A0D097BB913}
+		{DD94D5A7-0181-4B2F-938F-B3F8D62A1970} = {DD94D5A7-0181-4B2F-938F-B3F8D62A1970}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DokanCloudFS.Tests", "DokanCloudFS.Tests\DokanCloudFS.Tests.csproj", "{373B0506-5779-4E1F-AFC2-ABED0F32BAC9}"
 EndProject
@@ -17,6 +21,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Library", "Library", "{7D6A
 		Library\IgorSoft.CloudFS.Authentication.pdb = Library\IgorSoft.CloudFS.Authentication.pdb
 		Library\IgorSoft.CloudFS.Interface.dll = Library\IgorSoft.CloudFS.Interface.dll
 		Library\IgorSoft.CloudFS.Interface.pdb = Library\IgorSoft.CloudFS.Interface.pdb
+		Library\SemanticTypes.dll = Library\SemanticTypes.dll
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0BB1F64B-56CD-4856-A0C4-D35092681ED7}"
@@ -31,28 +36,70 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DokanCloudFS.Gateways", "DokanCloudFS.Gateways\DokanCloudFS.Gateways.csproj", "{F88E8E7D-B7D4-476F-A66B-7A0D097BB913}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DokanCloudFS.Gateways-Signed", "DokanCloudFS.Gateways-Signed\DokanCloudFS.Gateways-Signed.csproj", "{DD94D5A7-0181-4B2F-938F-B3F8D62A1970}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug (NuGet)|Any CPU = Debug (NuGet)|Any CPU
+		Debug (NuGet-Signed)|Any CPU = Debug (NuGet-Signed)|Any CPU
 		Debug|Any CPU = Debug|Any CPU
+		Release (NuGet)|Any CPU = Release (NuGet)|Any CPU
+		Release (NuGet-Signed)|Any CPU = Release (NuGet-Signed)|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{87F4BEE8-FE6A-4ACF-9234-FDAEB28C786B}.Debug (NuGet)|Any CPU.ActiveCfg = Debug|Any CPU
+		{87F4BEE8-FE6A-4ACF-9234-FDAEB28C786B}.Debug (NuGet)|Any CPU.Build.0 = Debug|Any CPU
+		{87F4BEE8-FE6A-4ACF-9234-FDAEB28C786B}.Debug (NuGet-Signed)|Any CPU.ActiveCfg = Debug|Any CPU
+		{87F4BEE8-FE6A-4ACF-9234-FDAEB28C786B}.Debug (NuGet-Signed)|Any CPU.Build.0 = Debug|Any CPU
 		{87F4BEE8-FE6A-4ACF-9234-FDAEB28C786B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{87F4BEE8-FE6A-4ACF-9234-FDAEB28C786B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{87F4BEE8-FE6A-4ACF-9234-FDAEB28C786B}.Release (NuGet)|Any CPU.ActiveCfg = Release|Any CPU
+		{87F4BEE8-FE6A-4ACF-9234-FDAEB28C786B}.Release (NuGet)|Any CPU.Build.0 = Release|Any CPU
+		{87F4BEE8-FE6A-4ACF-9234-FDAEB28C786B}.Release (NuGet-Signed)|Any CPU.ActiveCfg = Release|Any CPU
+		{87F4BEE8-FE6A-4ACF-9234-FDAEB28C786B}.Release (NuGet-Signed)|Any CPU.Build.0 = Release|Any CPU
 		{87F4BEE8-FE6A-4ACF-9234-FDAEB28C786B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{87F4BEE8-FE6A-4ACF-9234-FDAEB28C786B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{373B0506-5779-4E1F-AFC2-ABED0F32BAC9}.Debug (NuGet)|Any CPU.ActiveCfg = Debug|Any CPU
+		{373B0506-5779-4E1F-AFC2-ABED0F32BAC9}.Debug (NuGet)|Any CPU.Build.0 = Debug|Any CPU
+		{373B0506-5779-4E1F-AFC2-ABED0F32BAC9}.Debug (NuGet-Signed)|Any CPU.ActiveCfg = Debug|Any CPU
+		{373B0506-5779-4E1F-AFC2-ABED0F32BAC9}.Debug (NuGet-Signed)|Any CPU.Build.0 = Debug|Any CPU
 		{373B0506-5779-4E1F-AFC2-ABED0F32BAC9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{373B0506-5779-4E1F-AFC2-ABED0F32BAC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{373B0506-5779-4E1F-AFC2-ABED0F32BAC9}.Release (NuGet)|Any CPU.ActiveCfg = Release|Any CPU
+		{373B0506-5779-4E1F-AFC2-ABED0F32BAC9}.Release (NuGet)|Any CPU.Build.0 = Release|Any CPU
+		{373B0506-5779-4E1F-AFC2-ABED0F32BAC9}.Release (NuGet-Signed)|Any CPU.ActiveCfg = Release|Any CPU
+		{373B0506-5779-4E1F-AFC2-ABED0F32BAC9}.Release (NuGet-Signed)|Any CPU.Build.0 = Release|Any CPU
 		{373B0506-5779-4E1F-AFC2-ABED0F32BAC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{373B0506-5779-4E1F-AFC2-ABED0F32BAC9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5127A50B-221A-4AD7-9EF9-B3808CF0E282}.Debug (NuGet)|Any CPU.ActiveCfg = Debug|Any CPU
+		{5127A50B-221A-4AD7-9EF9-B3808CF0E282}.Debug (NuGet)|Any CPU.Build.0 = Debug|Any CPU
+		{5127A50B-221A-4AD7-9EF9-B3808CF0E282}.Debug (NuGet-Signed)|Any CPU.ActiveCfg = Debug|Any CPU
+		{5127A50B-221A-4AD7-9EF9-B3808CF0E282}.Debug (NuGet-Signed)|Any CPU.Build.0 = Debug|Any CPU
 		{5127A50B-221A-4AD7-9EF9-B3808CF0E282}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5127A50B-221A-4AD7-9EF9-B3808CF0E282}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5127A50B-221A-4AD7-9EF9-B3808CF0E282}.Release (NuGet)|Any CPU.ActiveCfg = Release|Any CPU
+		{5127A50B-221A-4AD7-9EF9-B3808CF0E282}.Release (NuGet)|Any CPU.Build.0 = Release|Any CPU
+		{5127A50B-221A-4AD7-9EF9-B3808CF0E282}.Release (NuGet-Signed)|Any CPU.ActiveCfg = Release|Any CPU
+		{5127A50B-221A-4AD7-9EF9-B3808CF0E282}.Release (NuGet-Signed)|Any CPU.Build.0 = Release|Any CPU
 		{5127A50B-221A-4AD7-9EF9-B3808CF0E282}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5127A50B-221A-4AD7-9EF9-B3808CF0E282}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F88E8E7D-B7D4-476F-A66B-7A0D097BB913}.Debug (NuGet)|Any CPU.ActiveCfg = Debug|Any CPU
+		{F88E8E7D-B7D4-476F-A66B-7A0D097BB913}.Debug (NuGet)|Any CPU.Build.0 = Debug|Any CPU
+		{F88E8E7D-B7D4-476F-A66B-7A0D097BB913}.Debug (NuGet-Signed)|Any CPU.ActiveCfg = Debug|Any CPU
 		{F88E8E7D-B7D4-476F-A66B-7A0D097BB913}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F88E8E7D-B7D4-476F-A66B-7A0D097BB913}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F88E8E7D-B7D4-476F-A66B-7A0D097BB913}.Release (NuGet)|Any CPU.ActiveCfg = Release|Any CPU
+		{F88E8E7D-B7D4-476F-A66B-7A0D097BB913}.Release (NuGet)|Any CPU.Build.0 = Release|Any CPU
+		{F88E8E7D-B7D4-476F-A66B-7A0D097BB913}.Release (NuGet-Signed)|Any CPU.ActiveCfg = Release|Any CPU
 		{F88E8E7D-B7D4-476F-A66B-7A0D097BB913}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F88E8E7D-B7D4-476F-A66B-7A0D097BB913}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD94D5A7-0181-4B2F-938F-B3F8D62A1970}.Debug (NuGet)|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD94D5A7-0181-4B2F-938F-B3F8D62A1970}.Debug (NuGet-Signed)|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD94D5A7-0181-4B2F-938F-B3F8D62A1970}.Debug (NuGet-Signed)|Any CPU.Build.0 = Debug|Any CPU
+		{DD94D5A7-0181-4B2F-938F-B3F8D62A1970}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD94D5A7-0181-4B2F-938F-B3F8D62A1970}.Release (NuGet)|Any CPU.ActiveCfg = Release|Any CPU
+		{DD94D5A7-0181-4B2F-938F-B3F8D62A1970}.Release (NuGet-Signed)|Any CPU.ActiveCfg = Release|Any CPU
+		{DD94D5A7-0181-4B2F-938F-B3F8D62A1970}.Release (NuGet-Signed)|Any CPU.Build.0 = Release|Any CPU
+		{DD94D5A7-0181-4B2F-938F-B3F8D62A1970}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -54,7 +54,10 @@ The expected gateway interface types and a set of prefabricated gateways are pro
 
 ### Using pre-configured API keys from the CloudFS NuGet packages
 
-- Download, compile and run the *DokanCloudFS* solution.<br/>During the build process, an appropriate *CloudFS* NuGet package will be downloaded and the assemblies required by *DokanCloudFS* will be copied to the *Library* directory.
+- Download and compile the *DokanCloudFS* solution using any of the following build configurations:
+  - **Debug (NuGet)** / **Release (NuGet)** - non-optimized and optimized build, respectively, using gateway assemblies from the unsigned NuGet package
+  - **Debug (NuGet-Signed)** / **Release (NuGet-Signed)** - non-optimized and optimized build, respectively, using gateway assemblies from the signed NuGet package
+- During the build process, an appropriate *CloudFS* NuGet package will be downloaded and the assemblies and .config files required by *DokanCloudFS* will be copied to the *Library* directory.
 
 ### Using your own API keys
 
@@ -62,9 +65,10 @@ The expected gateway interface types and a set of prefabricated gateways are pro
   - Download the [CloudFS](https://github.com/viciousviper/CloudFS) sources
   - Retrieve your own cloud API authentication keys from the URLs cited in [Local Compilation](https://github.com/viciousviper/CloudFS#local-compilation) and apply them in the respective `Secrets.cs` files for the affected cloud services.
   - Compile the *CloudFS* solution
-- Download and compile the *DokanCloudFS* solution.
+- Download and compile the *DokanCloudFS* solution using any of the following build configurations:
+  - **Debug** - non-optimized build
+  - **Release** - optimized build
 - Copy all *IgorSoft.CloudFS.Gateways.\*.dll* assemblies and the associated *IgorSoft.CloudFS.Gateways.\*.dll.config* files from the *Gateways* directory  in the build output of *CloudFS.GatewayTests* to the *Library* directory of DokanCloudFS.
-- Run the *DokanCloudFS* solution.
 
 ## Usage
 
