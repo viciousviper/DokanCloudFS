@@ -30,6 +30,7 @@ using IgorSoft.DokanCloudFS.IO;
 using IgorSoft.DokanCloudFS.Parameters;
 using IgorSoft.CloudFS.Interface;
 using IgorSoft.CloudFS.Interface.IO;
+using System.Threading.Tasks;
 
 namespace IgorSoft.DokanCloudFS
 {
@@ -103,10 +104,12 @@ namespace IgorSoft.DokanCloudFS
                 throw new ArgumentNullException(nameof(readContent));
 
             var fileInfo = info as FileInfoContract;
-            if (fileInfo != null && !string.IsNullOrEmpty(encryptionKey)) {
-                var gatewayContent = readContent(fileInfo.Id);
-                fileInfo.Size = gatewayContent.GetPlainFileSize(encryptionKey);
-            }
+            if (fileInfo != null && !string.IsNullOrEmpty(encryptionKey))
+                Task.Run(() =>
+                {
+                    var gatewayContent = readContent(fileInfo.Id);
+                    fileInfo.Size = gatewayContent.GetPlainFileSize(encryptionKey);
+                });
         }
 
         protected abstract DriveInfoContract GetDrive();
