@@ -52,23 +52,32 @@ namespace DokanCloudFS.Mounter
             CompositionInitializer.SatisfyImports(factory);
 
             try {
-                var logger = new LogFactory().GetCurrentClassLogger();
-                using (var tokenSource = new CancellationTokenSource()) {
-                    var tasks = new List<Task>();
-                    foreach (var drive in mountSection.Drives.Cast<DriveElement>()) {
-                        var operations = new CloudOperations(factory.CreateCloudDrive(drive.Schema, drive.UserName, drive.Root, new CloudDriveParameters() { EncryptionKey = drive.EncryptionKey, Parameters = drive.GetParameters() }), logger);
+                using (var logFactory = new LogFactory()) {
+                    var logger = logFactory.GetCurrentClassLogger();
+                    using (var tokenSource = new CancellationTokenSource()) {
+                        var tasks = new List<Task>();
+                        foreach (var driveElement in mountSection.Drives.Cast<DriveElement>()) {
+                            var drive = factory.CreateCloudDrive(driveElement.Schema, driveElement.UserName, driveElement.Root, new CloudDriveParameters() { EncryptionKey = driveElement.EncryptionKey, Parameters = driveElement.GetParameters() });
+                            if (!drive.TryAuthenticate()) {
+                                logger.Warn($"Authentication failed for drive '{drive.DisplayRoot}'");
+                                continue;
+                            }
 
-                        // HACK: handle non-unique parameter set of DokanOperations.Mount() by explicitely specifying AllocationUnitSize and SectorSize
-                        tasks.Add(Task.Run(() => operations.Mount(drive.Root, DokanOptions.RemovableDrive | DokanOptions.MountManager | DokanOptions.CurrentSession, mountSection.Threads, 1100, TimeSpan.FromSeconds(drive.Timeout != 0 ? drive.Timeout : 20), null, 512, 512), tokenSource.Token));
+                            var operations = new CloudOperations(drive, logger);
 
-                        var driveInfo = new DriveInfo(drive.Root);
-                        while (!driveInfo.IsReady)
-                            Thread.Sleep(10);
+                            // HACK: handle non-unique parameter set of DokanOperations.Mount() by explicitely specifying AllocationUnitSize and SectorSize
+                            tasks.Add(Task.Run(() => operations.Mount(driveElement.Root, DokanOptions.RemovableDrive | DokanOptions.MountManager | DokanOptions.CurrentSession, mountSection.Threads, 1100, TimeSpan.FromSeconds(driveElement.Timeout != 0 ? driveElement.Timeout : 20), null, 512, 512), tokenSource.Token));
+
+                            var driveInfo = new DriveInfo(driveElement.Root);
+                            while (!driveInfo.IsReady)
+                                Thread.Sleep(10);
+                        }
+
+                        Console.WriteLine("Press any key to unmount drives");
+                        Console.ReadKey(true);
+
+                        tokenSource.Cancel();
                     }
-
-                    Console.ReadKey(true);
-
-                    tokenSource.Cancel();
                 }
             } finally {
                 foreach (var drive in mountSection.Drives.Cast<DriveElement>())

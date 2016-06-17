@@ -61,10 +61,15 @@ namespace IgorSoft.DokanCloudFS
             }
         }
 
+        public bool TryAuthenticate()
+        {
+            return gateway.TryAuthenticateAsync(rootName, apiKey).Result;
+        }
+
         public RootDirectoryInfoContract GetRoot()
         {
             return ExecuteInSemaphore(() => {
-                var drive = GetDrive();
+                GetDrive();
                 var root = gateway.GetRootAsync(rootName, apiKey).Result;
                 root.Drive = drive;
                 return root;

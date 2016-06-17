@@ -37,18 +37,16 @@ namespace IgorSoft.DokanCloudFS
 
         long? Used { get; }
 
+        bool TryAuthenticate();
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]
         RootDirectoryInfoContract GetRoot();
 
         IEnumerable<FileSystemInfoContract> GetChildItem(DirectoryInfoContract parent);
 
-        //void ClearContent(FileInfoContract target);
-
         Stream GetContent(FileInfoContract source);
 
         void SetContent(FileInfoContract target, Stream content);
-
-        //FileSystemInfoContract CopyItem(FileSystemInfoContract source, string copyPath, DirectoryInfoContract destination, bool recurse);
 
         FileSystemInfoContract MoveItem(FileSystemInfoContract source, string movePath, DirectoryInfoContract destination);
 
@@ -57,7 +55,5 @@ namespace IgorSoft.DokanCloudFS
         FileInfoContract NewFileItem(DirectoryInfoContract parent, string name, Stream content);
 
         void RemoveItem(FileSystemInfoContract target, bool recurse);
-
-        //FileSystemInfoContract RenameItem(FileSystemInfoContract target, string newName);
     }
 }
