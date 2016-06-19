@@ -76,10 +76,7 @@ namespace IgorSoft.DokanCloudFS
         public IEnumerable<FileSystemInfoContract> GetChildItem(DirectoryInfoContract parent)
         {
             return ExecuteInSemaphore(() => {
-                return gateway.GetChildItem(rootName, parent.Id).Select(item => {
-                    FixupSize(item, id => gateway.GetContent(rootName, id));
-                    return item;
-                });
+                return gateway.GetChildItem(rootName, parent.Id);
             }, nameof(GetChildItem));
         }
 

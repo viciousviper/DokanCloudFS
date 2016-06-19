@@ -98,20 +98,6 @@ namespace IgorSoft.DokanCloudFS
             }
         }
 
-        protected void FixupSize(FileSystemInfoContract info, Func<FileId, Stream> readContent)
-        {
-            if (readContent == null)
-                throw new ArgumentNullException(nameof(readContent));
-
-            var fileInfo = info as FileInfoContract;
-            if (fileInfo != null && !string.IsNullOrEmpty(encryptionKey))
-                Task.Run(() =>
-                {
-                    var gatewayContent = readContent(fileInfo.Id);
-                    fileInfo.Size = gatewayContent.GetPlainFileSize(encryptionKey);
-                });
-        }
-
         protected abstract DriveInfoContract GetDrive();
 
         public void Dispose()

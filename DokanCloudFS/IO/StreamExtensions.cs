@@ -52,23 +52,6 @@ namespace IgorSoft.DokanCloudFS.IO
             return stream;
         }
 
-        public static long GetPlainFileSize(this Stream stream, string encryptionKey)
-        {
-            if (string.IsNullOrEmpty(encryptionKey))
-                throw new ArgumentNullException(nameof(encryptionKey));
-
-            stream = stream.ToSeekableStream();
-            try {
-                return Process(stream, encryptionKey, SharpAESCrypt.OperationMode.Decrypt).Length;
-            } catch (CryptographicException) {
-                // Ignore CryptographicException to enable raw reading of differently encrypted content from cloud volumes
-                return stream.Length;
-            } catch (InvalidDataException) {
-                // Ignore InvalidDataException to enable reading of unencrypted content from cloud volumes
-                return stream.Length;
-            }
-        }
-
         public static Stream ToSeekableStream(this Stream stream)
         {
             if (!stream.CanSeek) {
