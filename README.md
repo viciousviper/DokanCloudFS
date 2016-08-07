@@ -45,7 +45,7 @@ The expected gateway interface types and a set of prefabricated gateways are pro
 - Platform
   - .NET 4.6
 - Drivers
-  - [Dokany](https://github.com/dokan-dev/dokany/releases) driver 1.0.0-RC3 or greater installed
+  - [Dokany](https://github.com/dokan-dev/dokany/releases) driver 1.0.0-RC4 or greater installed
 - Operating system
   - tested on Windows 8.1 x64 and Windows Server 2012 R2 (until version 1.0.0-alpha) /<br/>Windows 10 x64 (from version 1.0.1-alpha)
   - expected to run on Windows 7/8/8.1/10 and Windows Server 2008(R2)/2012(R2)
@@ -62,7 +62,7 @@ The expected gateway interface types and a set of prefabricated gateways are pro
 ### Using your own API keys
 
 - Prepare the *CloudFS* solution
-  - Download the [CloudFS](https://github.com/viciousviper/CloudFS) sources
+  - Download the [CloudFS](https://github.com/viciousviper/CloudFS) sources in a version matching the DokanCloudFS version
   - Retrieve your own cloud API authentication keys from the URLs cited in [Local Compilation](https://github.com/viciousviper/CloudFS#local-compilation) and apply them in the respective `Secrets.cs` files for the affected cloud services.
   - Compile the *CloudFS* solution
 - Download and compile the *DokanCloudFS* solution using any of the following build configurations:
@@ -141,7 +141,7 @@ DokanCloudFS does **not** store your authentication password for any cloud stora
   - Several gateways
     - Writing of large (>> 10 Mb) files to cloud storage is unstable on the following platforms: *Box*, *OneDrive*, *pCloud*
   - *Mediafire* gateway
-    - The API library used to access MediaFire does not presently support long-term authentication tokens. Expect to re-authenticate via the login popup every 10 minutes or so.
+    - The Mediafire token management scheme depends on error-free operation when using long-term authentication tokens. Expect to re-authenticate via the login popup after network errors or if the DokanCloudFS process is aborted.
 
 ## Remarks
 
@@ -155,6 +155,7 @@ You have been warned.
 
 | Date       | Version     | Comments                                                                       |
 | :--------- | :---------- | :----------------------------------------------------------------------------- |
+| 2016-08-08 | 1.0.7-alpha | - Updated DokanNet to version 1.0.0-RC4<br/>- Successful authentication is required before mounting a cloud drive<br/>- Determine effective file size of encrypted files asynchronously to avoid timeouts when opening large directories in Windows Explorer |
 | 2016-06-16 | 1.0.6-alpha | - Added separate build configurations for use with locally built CloudFS gateways or unsigned/signed CloudFS NuGet packages |
 | 2016-05-19 | 1.0.5-alpha | - Updated DokanNet to version 1.0.0-RC3<br/>- Retired Copy gateway<br/>- Allow readonly-access to unencrypted files on otherwise encrypted cloud storage volumes<br/>- Support file creation for gateways that don't allow modification of existing files (e.g. Mega)<br/>- Fixed error in size calculation when retrieving encrypted files from cloud storage<br/>- Improved online file editing capability<br/>- Various bugfixes |
 | 2016-04-18 | 1.0.4-alpha | - Updated DokanNet to version 1.0.0-RC2<br/>- Updated SharpAESCrypt to version 1.3.1<br/>- Fixed behavior for parallel mounting of several cloud drives.<br/>- New gateway sample configuration added for hubiC/Swift.<br/>- Various bugfixes |
