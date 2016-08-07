@@ -30,6 +30,7 @@ using IgorSoft.DokanCloudFS.IO;
 using IgorSoft.DokanCloudFS.Parameters;
 using IgorSoft.CloudFS.Interface;
 using IgorSoft.CloudFS.Interface.IO;
+using System.Threading.Tasks;
 
 namespace IgorSoft.DokanCloudFS
 {
@@ -94,18 +95,6 @@ namespace IgorSoft.DokanCloudFS
                 if (invalidateDrive)
                     drive = null;
                 semaphore.Release();
-            }
-        }
-
-        protected void FixupSize(FileSystemInfoContract info, Func<FileId, Stream> readContent)
-        {
-            if (readContent == null)
-                throw new ArgumentNullException(nameof(readContent));
-
-            var fileInfo = info as FileInfoContract;
-            if (fileInfo != null && !string.IsNullOrEmpty(encryptionKey)) {
-                var gatewayContent = readContent(fileInfo.Id);
-                fileInfo.Size = gatewayContent.GetPlainFileSize(encryptionKey);
             }
         }
 

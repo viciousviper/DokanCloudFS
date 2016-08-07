@@ -57,10 +57,15 @@ namespace IgorSoft.DokanCloudFS
             return drive;
         }
 
+        public bool TryAuthenticate()
+        {
+            return gateway.TryAuthenticate(rootName, apiKey);
+        }
+
         public RootDirectoryInfoContract GetRoot()
         {
             return ExecuteInSemaphore(() => {
-                var drive = GetDrive();
+                GetDrive();
                 var root = gateway.GetRoot(rootName, apiKey);
                 root.Drive = drive;
                 return root;
@@ -71,10 +76,7 @@ namespace IgorSoft.DokanCloudFS
         public IEnumerable<FileSystemInfoContract> GetChildItem(DirectoryInfoContract parent)
         {
             return ExecuteInSemaphore(() => {
-                return gateway.GetChildItem(rootName, parent.Id).Select(item => {
-                    FixupSize(item, id => gateway.GetContent(rootName, id));
-                    return item;
-                });
+                return gateway.GetChildItem(rootName, parent.Id);
             }, nameof(GetChildItem));
         }
 
