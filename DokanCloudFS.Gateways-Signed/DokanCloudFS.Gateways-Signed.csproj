@@ -210,7 +210,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>xcopy /D /Y $(SolutionDir)packages\CloudFS-Signed.1.0.6-alpha\lib\net46\Gateways\IgorSoft.CloudFS.Gateways.*.dll.config .</PreBuildEvent>
+    <PreBuildEvent>xcopy /D /Y $(SolutionDir)packages\CloudFS-Signed.1.0.7-alpha\lib\net46\Gateways\IgorSoft.CloudFS.Gateways.*.dll.config .</PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PostBuildEvent>xcopy /D /Y *.dll $(SolutionDir)Library
