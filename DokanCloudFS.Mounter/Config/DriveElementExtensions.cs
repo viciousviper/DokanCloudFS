@@ -33,11 +33,13 @@ namespace IgorSoft.DokanCloudFS.Mounter.Config
         {
             if (config == null)
                 throw new ArgumentNullException(nameof(config));
-            if (string.IsNullOrEmpty(config.Parameters))
+
+            var parameters = config.Parameters;
+            if (string.IsNullOrEmpty(parameters))
                 return null;
 
             var result = new Dictionary<string, string>();
-            foreach (var parameter in config.Parameters.Split('|')) {
+            foreach (var parameter in parameters.Split('|')) {
                 var components = parameter.Split(new[] { '=' }, 2);
                 result.Add(components[0], components.Length == 2 ? components[1] : null);
             }

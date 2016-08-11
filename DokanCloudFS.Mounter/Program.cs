@@ -59,7 +59,9 @@ namespace DokanCloudFS.Mounter
                         foreach (var driveElement in mountSection.Drives.Cast<DriveElement>()) {
                             var drive = factory.CreateCloudDrive(driveElement.Schema, driveElement.UserName, driveElement.Root, new CloudDriveParameters() { EncryptionKey = driveElement.EncryptionKey, Parameters = driveElement.GetParameters() });
                             if (!drive.TryAuthenticate()) {
-                                logger.Warn($"Authentication failed for drive '{drive.DisplayRoot}'");
+                                var displayRoot = drive.DisplayRoot;
+                                drive.Dispose();
+                                logger.Warn($"Authentication failed for drive '{displayRoot}'");
                                 continue;
                             }
 
@@ -80,8 +82,8 @@ namespace DokanCloudFS.Mounter
                     }
                 }
             } finally {
-                foreach (var drive in mountSection.Drives.Cast<DriveElement>())
-                    Dokan.Unmount(drive.Root[0]);
+                foreach (var driveElement in mountSection.Drives.Cast<DriveElement>())
+                    Dokan.Unmount(driveElement.Root[0]);
             }
         }
     }

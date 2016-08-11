@@ -181,6 +181,8 @@ namespace IgorSoft.DokanCloudFS.IO
                 Trace($"{nameof(Close)}()".ToString(CultureInfo.InvariantCulture));
                 baseStream.Close();
             }
+
+            base.Close();
         }
 
         public override Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken)
@@ -201,13 +203,16 @@ namespace IgorSoft.DokanCloudFS.IO
 
         protected override void Dispose(bool disposing)
         {
-            if (baseStream != null)
-                lock (lockObject) {
+            lock (lockObject) {
+                if (baseStream != null) {
                     Trace($"{nameof(Dispose)}(disposing={disposing})".ToString(CultureInfo.CurrentCulture));
 
                     baseStream.Dispose();
                     baseStream = null;
                 }
+            }
+
+            base.Dispose(disposing);
         }
 
         public override int EndRead(IAsyncResult asyncResult)
