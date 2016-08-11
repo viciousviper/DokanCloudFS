@@ -203,12 +203,14 @@ namespace IgorSoft.DokanCloudFS.IO
 
         protected override void Dispose(bool disposing)
         {
-            lock (lockObject) {
-                if (baseStream != null) {
-                    Trace($"{nameof(Dispose)}(disposing={disposing})".ToString(CultureInfo.CurrentCulture));
+            if (baseStream != null) {
+                lock (lockObject) {
+                    if (baseStream != null) {
+                        Trace($"{nameof(Dispose)}(disposing={disposing})".ToString(CultureInfo.CurrentCulture));
 
-                    baseStream.Dispose();
-                    baseStream = null;
+                        baseStream.Dispose();
+                        baseStream = null;
+                    }
                 }
             }
 
