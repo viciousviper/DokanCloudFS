@@ -24,13 +24,10 @@ SOFTWARE.
 
 using System;
 using System.Globalization;
-using System.IO;
 using System.Threading;
-using IgorSoft.DokanCloudFS.IO;
 using IgorSoft.DokanCloudFS.Parameters;
 using IgorSoft.CloudFS.Interface;
 using IgorSoft.CloudFS.Interface.IO;
-using System.Threading.Tasks;
 
 namespace IgorSoft.DokanCloudFS
 {

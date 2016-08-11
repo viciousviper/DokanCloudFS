@@ -29,7 +29,7 @@ using IgorSoft.CloudFS.Interface.IO;
 
 namespace IgorSoft.DokanCloudFS
 {
-    public interface ICloudDrive
+    public interface ICloudDrive : IDisposable
     {
         string DisplayRoot { get; }
 

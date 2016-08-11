@@ -73,9 +73,9 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             var sut = new CloudDriveFactory() { GatewayManager = fixture.GetGatewayManager() };
 
-            var result = sut.CreateCloudDrive(schema, user, root, new CloudDriveParameters());
-
-            Assert.IsInstanceOfType(result, typeof(AsyncCloudDrive), "Unexpected result type");
+            using (var result = sut.CreateCloudDrive(schema, user, root, new CloudDriveParameters())) {
+                Assert.IsInstanceOfType(result, typeof(AsyncCloudDrive), "Unexpected result type");
+            }
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -87,9 +87,9 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             var sut = new CloudDriveFactory() { GatewayManager = fixture.GetGatewayManager() };
 
-            var result = sut.CreateCloudDrive(schema, user, root, new CloudDriveParameters());
-
-            Assert.IsInstanceOfType(result, typeof(CloudDrive), "Unexpected result type");
+            using (var result = sut.CreateCloudDrive(schema, user, root, new CloudDriveParameters())) {
+                Assert.IsInstanceOfType(result, typeof(CloudDrive), "Unexpected result type");
+            }
         }
     }
 }
