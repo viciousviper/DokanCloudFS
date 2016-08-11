@@ -890,9 +890,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             fixture.Verify();
         }
 
-        //Temporarily excluded from CI builds due to instability
-        [TestMethod, TestCategory(nameof(TestCategories.Manual))]
-        //[TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         [DeploymentItem("FileSystemTests.Configuration.xml")]
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\FileSystemTests.Configuration.xml", "ConfigRead", DataAccessMethod.Sequential)]
         public void FileInfo_NativeReadOverlapped_Succeeds()
@@ -906,15 +904,12 @@ namespace IgorSoft.DokanCloudFS.Tests
             fixture.SetupGetFileContent(sutContract, testInput);
 
             var root = fixture.GetDriveInfo().RootDirectory;
-            var sut = new FileInfo(root.FullName + sutContract.Name);
-            using (var fileStream = sut.OpenRead()) {
-                var chunks = NativeMethods.ReadEx(root.FullName + sutContract.Name, bufferSize, fileSize);
+            var chunks = NativeMethods.ReadEx(root.FullName + sutContract.Name, bufferSize, fileSize);
 
-                Assert.IsTrue(chunks.All(c => c.Win32Error == 0), "Win32Error occured");
-                var result = chunks.Aggregate(Enumerable.Empty<byte>(), (b, c) => b.Concat(c.Buffer), b => b.ToArray());
-                Assert.IsFalse(result.Any(b => b == default(byte)), "Uninitialized data detected");
-                CollectionAssert.AreEqual(testInput, result, "Unexpected file content");
-            }
+            Assert.IsTrue(chunks.All(c => c.Win32Error == 0), "Win32Error occured");
+            var result = chunks.Aggregate(Enumerable.Empty<byte>(), (b, c) => b.Concat(c.Buffer), b => b.ToArray());
+            Assert.IsFalse(result.Any(b => b == default(byte)), "Uninitialized data detected");
+            CollectionAssert.AreEqual(testInput, result, "Unexpected file content");
 
             fixture.Verify();
         }
@@ -935,15 +930,12 @@ namespace IgorSoft.DokanCloudFS.Tests
             fixture.SetupSetFileContent(file, testInput, differences);
 
             var root = fixture.GetDriveInfo().RootDirectory;
-            var sut = new FileInfo(root.FullName + sutContract.Name);
-            using (var fileStream = sut.OpenWrite()) {
-                var chunks = Enumerable.Range(0, Fixture.NumberOfChunks(bufferSize, fileSize))
-                    .Select(i => new NativeMethods.OverlappedChunk(testInput.Skip(i * bufferSize).Take(NativeMethods.BufferSize(bufferSize, fileSize, i)).ToArray())).ToArray();
+            var chunks = Enumerable.Range(0, Fixture.NumberOfChunks(bufferSize, fileSize))
+                .Select(i => new NativeMethods.OverlappedChunk(testInput.Skip(i * bufferSize).Take(NativeMethods.BufferSize(bufferSize, fileSize, i)).ToArray())).ToArray();
 
-                NativeMethods.WriteEx(root.FullName + file.Name, bufferSize, fileSize, chunks);
+            NativeMethods.WriteEx(root.FullName + file.Name, bufferSize, fileSize, chunks);
 
-                Assert.IsTrue(chunks.All(c => c.Win32Error == 0), "Win32Error occured");
-            }
+            Assert.IsTrue(chunks.All(c => c.Win32Error == 0), "Win32Error occured");
 
             Assert.IsFalse(differences.Any(), "Mismatched data detected");
 
