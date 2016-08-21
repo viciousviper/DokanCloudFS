@@ -86,7 +86,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         public void CloudDrive_GetRoot_Succeeds()
         {
             fixture.SetupGetDriveAsync(apiKey, parameters);
-            fixture.SetupGetRootAsync(apiKey);
+            fixture.SetupGetRootAsync(apiKey, parameters);
 
             using (var sut = fixture.Create(apiKey, encryptionKey)) {
                 var result = sut.GetRoot();
@@ -99,7 +99,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         public void CloudDrive_GetDisplayRoot_Succeeds()
         {
             fixture.SetupGetDriveAsync(apiKey, parameters);
-            fixture.SetupGetRootAsync(apiKey);
+            fixture.SetupGetRootAsync(apiKey, parameters);
 
             using (var sut = fixture.Create(apiKey, encryptionKey)) {
                 var result = sut.DisplayRoot;
@@ -112,7 +112,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         public void CloudDrive_GetChildItem_WhereEncryptionKeyIsEmpty_Succeeds()
         {
             fixture.SetupGetDriveAsync(apiKey, parameters);
-            fixture.SetupGetRootAsync(apiKey);
+            fixture.SetupGetRootAsync(apiKey, parameters);
             fixture.SetupGetRootDirectoryItemsAsync();
 
             using (var sut = fixture.Create(apiKey, string.Empty)) {
@@ -126,7 +126,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         public void CloudDrive_GetChildItem_WhereEncryptionKeyIsSet_Succeeds()
         {
             fixture.SetupGetDriveAsync(apiKey, parameters);
-            fixture.SetupGetRootAsync(apiKey);
+            fixture.SetupGetRootAsync(apiKey, parameters);
             fixture.SetupGetRootDirectoryItemsAsync(encryptionKey);
 
             using (var sut = fixture.Create(apiKey, encryptionKey)) {

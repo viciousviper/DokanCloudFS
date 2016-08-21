@@ -91,10 +91,10 @@ namespace IgorSoft.DokanCloudFS.Tests
                     .Returns(root.Drive);
             }
 
-            public void SetupGetRoot(string apiKey)
+            public void SetupGetRoot(string apiKey, IDictionary<string, string> parameters)
             {
                 gateway
-                    .Setup(g => g.GetRoot(rootName, apiKey))
+                    .Setup(g => g.GetRoot(rootName, apiKey, parameters))
                     .Returns(root);
             }
 

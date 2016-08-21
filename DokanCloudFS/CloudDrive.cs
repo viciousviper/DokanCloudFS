@@ -59,14 +59,14 @@ namespace IgorSoft.DokanCloudFS
 
         public bool TryAuthenticate()
         {
-            return gateway.TryAuthenticate(rootName, apiKey);
+            return gateway.TryAuthenticate(rootName, apiKey, parameters);
         }
 
         public RootDirectoryInfoContract GetRoot()
         {
             return ExecuteInSemaphore(() => {
                 GetDrive();
-                var root = gateway.GetRoot(rootName, apiKey);
+                var root = gateway.GetRoot(rootName, apiKey, parameters);
                 root.Drive = drive;
                 return root;
             }, nameof(GetRoot));
