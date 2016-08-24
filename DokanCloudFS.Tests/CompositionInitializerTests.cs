@@ -153,6 +153,25 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod]
+        public void CompositionInitializer_InitializeByPathAndAssemblies_Succeeds()
+        {
+            var onHostInitializedHandled = false;
+            EventHandler hostInitializedHandler = (s, e) => onHostInitializedHandled = true;
+
+            CompositionInitializer.HostInitialized += hostInitializedHandler;
+            try
+            {
+                CompositionInitializer.Initialize(Enumerable.Empty<Assembly>(), ".", "Missing.dll");
+            }
+            finally
+            {
+                CompositionInitializer.HostInitialized -= hostInitializedHandler;
+            }
+
+            Assert.IsTrue(onHostInitializedHandled, "HostInitialized event not handled");
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(InvalidOperationException))]
         public void CompositionInitializer_SatisfyImports_WithoutInitialization_Throws()
         {

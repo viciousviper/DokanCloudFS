@@ -24,30 +24,82 @@ SOFTWARE.
 
 using System;
 using System.Collections.Generic;
+using System.Composition;
 using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DokanNet;
+using Microsoft.Extensions.CommandLineUtils;
 using NLog;
-using IgorSoft.DokanCloudFS;
+using IgorSoft.CloudFS.Interface;
 using IgorSoft.DokanCloudFS.Mounter.Config;
 using IgorSoft.DokanCloudFS.Parameters;
 
-namespace DokanCloudFS.Mounter
+namespace IgorSoft.DokanCloudFS.Mounter
 {
     internal class Program
     {
+        private static string settingsPassPhrase;
+
+        /// <summary>
+        /// Gets the passphrase used in the encryption of privacy sensitive gateway settings.
+        /// </summary>
+        /// <value>The settings encryption passphrase.</value>
+        [Export(CloudFS.Interface.Composition.ExportContracts.SettingsPassPhrase)]
+        public string SettingsPassPhrase => settingsPassPhrase;
+
+        /// <summary>
+        /// The main application entry point.
+        /// </summary>
+        /// <param name="args">The command line arguments.</param>
+        /// <exception cref="ConfigurationErrorsException">Mount configuration missing</exception>
+        /// <remarks>
+        /// IgorSoft.DokanCloudFS.Mounter [mount [<userNames>] [-p|--passPhrase <passPhrase>]]
+        ///                               [purge [<userNames>]]
+        ///                               [-?|-h|--help]
+        /// </remarks>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "args")]
         internal static void Main(string[] args)
+        {
+            new Program().ParseCommandLine(args);
+        }
+
+        private void ParseCommandLine(string[] args)
+        {
+            var commandLine = new CommandLineApplication() {
+                Name = "Mounter", FullName = "IgorSoft.DokanCloudFS.Mounter", Description = "A mount manager for cloud drives",
+                ShortVersionGetter = () => typeof(Program).Assembly.GetName().Version.ToString(3), LongVersionGetter = () => typeof(Program).Assembly.GetName().Version.ToString()
+            };
+            commandLine.HelpOption("-?|-h|--help");
+
+            commandLine.Command("mount", c => {
+                var userNames = c.Argument("<userNames>", "If specified, mount the drives associated with the specified users; otherwise, mount all configured drives.", true);
+                var passPhrase = c.Option("-p|--passPhrase", "The pass phrase used to encrypt persisted user credentials and access tokens", CommandOptionType.SingleValue);
+                c.HelpOption("-?|-h|--help");
+                c.OnExecute(() => Mount(passPhrase.Value(), userNames.Values));
+            });
+
+            commandLine.Command("purge", c => {
+                var userNames = c.Argument("<userNames>", "If specified, purge the persisted settings of the drives associated with the specified users; otherwise, purge the persisted settings of all configured drives.", true);
+                c.HelpOption("-?|-h|--help");
+                c.OnExecute(() => PurgeSettings(userNames.Values));
+            });
+
+            commandLine.Execute(args);
+        }
+
+        private int Mount(string passPhrase, IList<string> userNames)
         {
             var mountSection = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None).Sections[MountSection.Name] as MountSection;
             if (mountSection == null)
                 throw new ConfigurationErrorsException("Mount configuration missing");
 
-            CompositionInitializer.Preload(typeof(IgorSoft.CloudFS.Interface.Composition.ICloudGateway));
-            CompositionInitializer.Initialize(mountSection.LibPath, "IgorSoft.CloudFS.Gateways.*.dll");
+            settingsPassPhrase = passPhrase;
+
+            CompositionInitializer.Preload(typeof(CloudFS.Interface.Composition.ICloudGateway));
+            CompositionInitializer.Initialize(new[] { typeof(Program).Assembly }, mountSection.LibPath, "IgorSoft.CloudFS.Gateways.*.dll");
             var factory = new CloudDriveFactory();
             CompositionInitializer.SatisfyImports(factory);
 
@@ -56,7 +108,7 @@ namespace DokanCloudFS.Mounter
                     var logger = logFactory.GetCurrentClassLogger();
                     using (var tokenSource = new CancellationTokenSource()) {
                         var tasks = new List<Task>();
-                        foreach (var driveElement in mountSection.Drives.Cast<DriveElement>()) {
+                        foreach (var driveElement in mountSection.Drives.Where(d => !userNames.Any() || userNames.Contains(d.UserName))) {
                             var drive = factory.CreateCloudDrive(driveElement.Schema, driveElement.UserName, driveElement.Root, new CloudDriveParameters() { EncryptionKey = driveElement.EncryptionKey, Parameters = driveElement.GetParameters() });
                             if (!drive.TryAuthenticate()) {
                                 var displayRoot = drive.DisplayRoot;
@@ -79,11 +131,40 @@ namespace DokanCloudFS.Mounter
                         Console.ReadKey(true);
 
                         tokenSource.Cancel();
+
+                        return 0;
                     }
                 }
+            } catch (Exception ex) {
+                Console.Error.WriteLine($"{ex.GetType().Name}: {ex.Message}");
+                return -1;
             } finally {
                 foreach (var driveElement in mountSection.Drives.Cast<DriveElement>())
                     Dokan.Unmount(driveElement.Root[0]);
+            }
+        }
+
+        private int PurgeSettings(IList<string> userNames)
+        {
+            var mountSection = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None).Sections[MountSection.Name] as MountSection;
+            if (mountSection == null)
+                throw new ConfigurationErrorsException("Mount configuration missing");
+
+            CompositionInitializer.Preload(typeof(CloudFS.Interface.Composition.ICloudGateway));
+            CompositionInitializer.Initialize(new[] { typeof(Program).Assembly }, mountSection.LibPath, "IgorSoft.CloudFS.Gateways.*.dll");
+            var factory = new CloudDriveFactory();
+            CompositionInitializer.SatisfyImports(factory);
+
+            try {
+                foreach (var driveElement in mountSection.Drives.Where(d => !userNames.Any() || userNames.Contains(d.UserName))) {
+                    var persistSettings = factory.CreateCloudDrive(driveElement.Schema, driveElement.UserName, driveElement.Root, default(CloudDriveParameters)) as IPersistGatewaySettings;
+                    persistSettings?.PurgeSettings(new RootName(driveElement.Schema, driveElement.UserName, driveElement.Root));
+                }
+
+                return 0;
+            } catch (Exception ex) {
+                Console.Error.WriteLine($"{ex.GetType().Name}: {ex.Message}");
+                return -1;
             }
         }
     }
