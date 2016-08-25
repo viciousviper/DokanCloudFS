@@ -57,7 +57,7 @@ namespace IgorSoft.DokanCloudFS.Mounter
         /// <exception cref="ConfigurationErrorsException">Mount configuration missing</exception>
         /// <remarks>
         /// IgorSoft.DokanCloudFS.Mounter [mount [<userNames>] [-p|--passPhrase <passPhrase>]]
-        ///                               [purge [<userNames>]]
+        ///                               [reset [<userNames>]]
         ///                               [-?|-h|--help]
         /// </remarks>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "args")]
@@ -81,10 +81,10 @@ namespace IgorSoft.DokanCloudFS.Mounter
                 c.OnExecute(() => Mount(passPhrase.Value(), userNames.Values));
             });
 
-            commandLine.Command("purge", c => {
+            commandLine.Command("reset", c => {
                 var userNames = c.Argument("<userNames>", "If specified, purge the persisted settings of the drives associated with the specified users; otherwise, purge the persisted settings of all configured drives.", true);
                 c.HelpOption("-?|-h|--help");
-                c.OnExecute(() => PurgeSettings(userNames.Values));
+                c.OnExecute(() => Reset(userNames.Values));
             });
 
             commandLine.Execute(args);
@@ -144,7 +144,7 @@ namespace IgorSoft.DokanCloudFS.Mounter
             }
         }
 
-        private int PurgeSettings(IList<string> userNames)
+        private int Reset(IList<string> userNames)
         {
             var mountSection = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None).Sections[MountSection.Name] as MountSection;
             if (mountSection == null)
