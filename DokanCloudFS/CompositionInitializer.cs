@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Composition;
 using System.Composition.Hosting;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using IgorSoft.AppDomainResolver;
 
@@ -79,23 +80,27 @@ namespace IgorSoft.DokanCloudFS
             Initialize(path, assemblyFileSearchPattern);
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2001:AvoidCallingProblematicMethods", MessageId = "System.Reflection.Assembly.LoadFrom")]
         public static void Initialize(string path, string searchPattern)
+        {
+            Initialize(Enumerable.Empty<Assembly>(), path, searchPattern);
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2001:AvoidCallingProblematicMethods", MessageId = "System.Reflection.Assembly.LoadFrom")]
+        public static void Initialize(IEnumerable<Assembly> assemblies, string path, string searchPattern)
         {
             if (path == null)
                 throw new ArgumentNullException(nameof(path));
             if (host != null)
                 throw new InvalidOperationException(Resources.CompositionHostAlreadyInitialized);
 
-            var assemblies = new List<Assembly>();
+            var combinedAssemblies = new List<Assembly>(assemblies);
 
             var directory = new DirectoryInfo(path);
             if (directory.Exists)
                 foreach (var file in directory.EnumerateFiles(searchPattern))
-                    assemblies.Add(Assembly.LoadFrom(file.FullName));
+                    combinedAssemblies.Add(Assembly.LoadFrom(file.FullName));
 
-            host = InitializeHost(assemblies);
-            OnHostInitialized();
+            Initialize(combinedAssemblies);
         }
 
         public static void Initialize(IEnumerable<Assembly> assemblies)

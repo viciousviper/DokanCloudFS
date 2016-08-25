@@ -92,10 +92,10 @@ namespace IgorSoft.DokanCloudFS.Tests
                     .Returns(Task.FromResult(root.Drive));
             }
 
-            public void SetupGetRootAsync(string apiKey)
+            public void SetupGetRootAsync(string apiKey, IDictionary<string, string> parameters)
             {
                 gateway
-                    .Setup(g => g.GetRootAsync(rootName, apiKey))
+                    .Setup(g => g.GetRootAsync(rootName, apiKey, parameters))
                     .Returns(Task.FromResult(root));
             }
 
