@@ -31,7 +31,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 {
     public sealed partial class CloudDriveBaseTests
     {
-        private class Fixture
+        private static class Fixture
         {
             private class FakeCloudDrive : CloudDriveBase
             {

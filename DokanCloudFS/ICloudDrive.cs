@@ -25,6 +25,7 @@ SOFTWARE.
 using System;
 using System.Collections.Generic;
 using System.IO;
+using IgorSoft.CloudFS.Interface;
 using IgorSoft.CloudFS.Interface.IO;
 
 namespace IgorSoft.DokanCloudFS
@@ -36,6 +37,8 @@ namespace IgorSoft.DokanCloudFS
         long? Free { get; }
 
         long? Used { get; }
+
+        IPersistGatewaySettings PersistSettings { get; }
 
         bool TryAuthenticate();
 

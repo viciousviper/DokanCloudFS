@@ -48,6 +48,8 @@ namespace IgorSoft.DokanCloudFS
             this.parameters = parameters.Parameters;
         }
 
+        public IPersistGatewaySettings PersistSettings => gateway as IPersistGatewaySettings;
+
         protected override DriveInfoContract GetDrive()
         {
             if (drive == null) {

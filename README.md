@@ -26,13 +26,15 @@ Some limitations apply concerning transfer speed, maximum file size, permissions
 - Mounting of cloud storage volumes as removable drives into Windows Explorer
   - number of mounted volumes only limited by available drive letters
   - mounting of multiple accounts of the same cloud storage service in parallel
+  - automatic re-authentication to cloud storage services after first login (optional AES encryption of persisted account credentials and authentication tokens)
 - Full support for interactive file manipulation in Winows Explorer including but not limited to
   - copying and moving of multiple files and folders between DokanCloudFS drives and other drives
   - opening of files in default application via Mouse double click
   - right-click-menu on drive, files, and folders with access to menu commands and drive/file properties
   - thumbnails display for media files
-- transparent client-side encryption and decryption of all file content via AESCrypt
+- Transparent client-side encryption and decryption of all file content via AESCrypt
   - encryption key configurable per drive
+  - unencrypted files may be read and will be encrypted on modification
 
 ## Supported Cloud storage services
 
@@ -74,7 +76,39 @@ The expected gateway interface types and a set of prefabricated gateways are pro
 
 - Configure the desired mount points in *DokanCloudFS.Mounter*'s configuration file *IgorSoft.DokanCloudFS.Mounter.exe.config*.<br/>See below for a sample configuration.
 - Ensure the presence of all required cloud service gateway assemblies and their dependencies - either from a downloaded *CloudFS* NuGet Package or a local compile - in the path specified by the *libPath* attribute in the *&lt;mount&gt;*-tag in the config file (defaults to the solution's *.\Library* directory).
-- Run *IgorSoft.DokanCloudFS.Mounter.exe* from the command line. Depending on your account configuration you *may* have to use an administrative command line.
+- Run *IgorSoft.DokanCloudFS.Mounter.exe* from the command line. Depending on your account configuration you *may* have to use an administrative command line. The following command line arguments are supported:
+  ```
+  IgorSoft.DokanCloudFS.Mounter 1.0.8
+
+  Usage: Mounter [options] [command]
+
+  Options:
+    -?|-h|--help  Show help information
+
+  Commands:
+    mount
+    reset
+
+  Usage: Mounter mount [arguments] [options]
+
+  Arguments:
+    <userNames>  If specified, mount the drives associated with the specified users; otherwise, mount all configured drives.
+
+  Options:
+    -p|--passPhrase  The pass phrase used to encrypt persisted user credentials and access tokens
+    -?|-h|--help     Show help information
+
+  Usage: Mounter reset [arguments] [options]
+
+  Arguments:
+    <userNames>  If specified, purge the persisted settings of the drives associated with the specified users; otherwise, purge the persisted settings of all configured drives.
+
+  Options:
+    -?|-h|--help  Show help information
+  ```
+    - The **mount** command will mount the drives configured in *IgorSoft.DokanCloudFS.Mounter.exe.config*, optionally filtered by the specified user names.
+      - If you use the **-p|--passPhrase** option for the first time, previously unencrypted persisted settings **of the drives mounted at this time** - and all newly acquired authentication credentials - will be encrypted with the specified pass phrase. Persisted settings of drives not mounted at this time will remain as they are.
+    - The **reset** command will purge all persisted settings and require you to explicitely login on the next start of *IgorSoft.DokanCloudFS.Mounter.exe*.
 
 ### Sample configuration
 
@@ -89,7 +123,8 @@ The expected gateway interface types and a set of prefabricated gateways are pro
       <drive schema="mega" userName="MegaUser" root="V:" encryptionKey="MyMegaSecret&amp;I" timeout="300" />
       <drive schema="onedrive" userName="OneDriveUser" root="W:" encryptionKey="MyOneDriveSecret&amp;I" timeout="300" />
       <drive schema="pcloud" userName="pCloudUser" root="X:" encryptionKey="MypCloudSecret&amp;I" timeout="300" />
-      <drive schema="yandex" userName="YandexUser" root="Y:" encryptionKey="MyYandexSecret&amp;I" timeout="300" />
+      <drive schema="webdav" userName="webDavUser" root="Y:" parameters="baseAddress=https://webdav.magentacloud.de" encryptionKey="MyWebDavSecred&amp;I" timeout="300" />
+      <drive schema="yandex" userName="YandexUser" root="Z:" encryptionKey="MyYandexSecret&amp;I" timeout="300" />
     </drives>
   </mount>
 ```
@@ -109,6 +144,7 @@ Configuration options:
     - **parameters**: Custom parameters as required by the specific cloud storage service gateway. Multiple parameters are separated by a pipe-character `|`.
       - *file* gateway - requires a *root*-parameter specifying the target directory (e.g. `parameters="root=X:\Encrypted"`)
       - *hubic* gateway - requires a *container*-parameter specifiying the desired target container (e.g. `parameters="container=default")`
+      - *webdav* gateway - requires a *baseAddress*-parameter specifying the desired WebDAV hoster's access URL (e.g. `parameters="baseAddress=https://webdav.magentacloud.de"`)
       - other gateways - no custom parameters supported so far
     - **timeout:** The timeout value for file operations on this drive measured in seconds.<br />A value of *300* should suffice for all but the slowest connections.
 
@@ -116,25 +152,24 @@ Configuration options:
 
 ## Privacy advice
 
-Certain privacy-sensitive information will be stored on your local filesystem in the clear by DokanCloudFS, specifically:
+Certain privacy-sensitive information will be stored on your local filesystem by DokanCloudFS, specifically:
 
   - The file *%UserProfile%\AppData\Local\IgorSoft\IgorSoft.DokanCloudFS.&lt;RandomizedName&gt;\1.0.0.0\user.config* contains data required for automatic re-authentication with the configured cloud storage services such as
     - account names you entered in the browser or login window when authenticating to the various cloud storage services,
-    - potentially long-lived authentication/refresh tokens, or in some cases **e-mail accounts and hashed login passwords**, as provided by the specific cloud storage service for re-login.
-  - The file *&lt;DokanCloudFS binary path&gt;\IgorSoft.DokanCloudFS.Mounter.exe.config* contains the symmetric AES encryption keys used for client-side encryption of cloud content.
-        
-If you are concerned about protecting this information from unauthorized parties you should use appropriate tools to encrypt the files mentioned above at operating system level or possibly encrypt your system drive.
+    - potentially long-lived authentication/refresh tokens, or in some cases **e-mail accounts and hashed login passwords** or even **user name and clear text password**, as provided by the specific cloud storage service for re-login.
+  - The above information will be transparently **AES-encrypted** in the *.config* file if the command line option (**-p|--passPhrase**, see above in section [Usage](#Usage)) is used on *IgorSoft.DokanCloudFS.Mounter.exe*. Failing to specify a pass phrase will result in re-authentication data being stored in the clear.
+  - The file *&lt;DokanCloudFS binary path&gt;\IgorSoft.DokanCloudFS.Mounter.exe.config* contains the symmetric AES encryption keys used for client-side encryption of cloud content.<br/>If you are concerned about protecting this information from unauthorized parties you should use appropriate tools to encrypt the files mentioned above at operating system level or possibly encrypt your system drive.
 
-DokanCloudFS does **not** store your authentication password for any cloud storage service (which would be impossible in the first place for all services employing the OAuth authentication scheme).
+DokanCloudFS **does not** store your authentication password for any cloud storage service (which would be impossible in the first place for all services employing the OAuth authentication scheme).<br/>It **does**, however, store user name and password for WebDAV accounts because there is no separate authorization token concept in WebDAV.
 
 ## Limitations
 
   - DokanCloudFS only supports mounting of a cloud storage volume's root directory.
-  - The maximum supported file size varies between different cloud storage services. Moreover, the precise limits are not always disclosed.<br />Exceeding the size limit in a file writing operation will result in either a timout or a service error.
+  - The maximum supported file size varies between different cloud storage services. Moreover, the precise limits are not always disclosed.<br />Exceeding the size limit in a file write operation will result in either a timout or a service error.
   - The files in a DokanCloudFS drive do not allow true random access, instead they are read or written sequentially as a whole.<br />Depending on the target application it *may* be possible to edit a file directly in the DokanCloudFS drive, otherwise it must be copied to a conventional drive for processing.
   - DokanCloudFS keeps an internal cache of directory metadata for increased performance. Changes made to the cloud storage volume outside of DokanCloudFS will not be automatically synchronized with this cache, therefore any form of concurrent write access may lead to unexpected results or errors.
   - The only encrypted file format supported by DokanCloudFS is the [AESCrypt](https://www.aescrypt.com/) file format.
-  - DokanCloudFS distinguishes encryption keys on a per-drive scale only. It is not possible to assign encryption keys to specific subdirectories or to individual files.<br />Although you could, in theory, mount several copies of the same cloud service volume in parallel, these copies will not synchronize their cached directory structures in any way (see above).<br />A future version of DokanCloudFS will support *read-only* access to unencrypted content on the cloud storage volume.
+  - DokanCloudFS distinguishes content encryption keys on a per-drive scale only. It is not possible to assign content encryption keys to specific subdirectories or to individual files.<br />Although you could, in theory, mount several copies of the same cloud service volume in parallel, these copies will not synchronize their cached directory structures in any way (see above).
 
 ## Known bugs
 
@@ -155,6 +190,7 @@ You have been warned.
 
 | Date       | Version     | Comments                                                                       |
 | :--------- | :---------- | :----------------------------------------------------------------------------- |
+| 2016-08-26 | 1.0.8-alpha | - 
 | 2016-08-08 | 1.0.7-alpha | - Updated DokanNet to version 1.0.0-RC4<br/>- Successful authentication is required before mounting a cloud drive<br/>- Determine effective file size of encrypted files asynchronously to avoid timeouts when opening large directories in Windows Explorer |
 | 2016-06-16 | 1.0.6-alpha | - Added separate build configurations for use with locally built CloudFS gateways or unsigned/signed CloudFS NuGet packages |
 | 2016-05-19 | 1.0.5-alpha | - Updated DokanNet to version 1.0.0-RC3<br/>- Retired Copy gateway<br/>- Allow readonly-access to unencrypted files on otherwise encrypted cloud storage volumes<br/>- Support file creation for gateways that don't allow modification of existing files (e.g. Mega)<br/>- Fixed error in size calculation when retrieving encrypted files from cloud storage<br/>- Improved online file editing capability<br/>- Various bugfixes |
@@ -171,7 +207,6 @@ You have been warned.
 - improve performance
 - allow alternate encryption schemes
 - allow mounting and unmounting of individual drives without restarting the mounter process
-- protect locally stored authentication information through encryption
 
 ## References
 

@@ -28,11 +28,13 @@ using System.Composition;
 using System.Configuration;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using DokanNet;
 using Microsoft.Extensions.CommandLineUtils;
 using NLog;
+using IgorSoft.CloudFS.Authentication;
 using IgorSoft.CloudFS.Interface;
 using IgorSoft.DokanCloudFS.Mounter.Config;
 using IgorSoft.DokanCloudFS.Parameters;
@@ -70,7 +72,7 @@ namespace IgorSoft.DokanCloudFS.Mounter
         {
             var commandLine = new CommandLineApplication() {
                 Name = "Mounter", FullName = "IgorSoft.DokanCloudFS.Mounter", Description = "A mount manager for cloud drives",
-                ShortVersionGetter = () => typeof(Program).Assembly.GetName().Version.ToString(3), LongVersionGetter = () => typeof(Program).Assembly.GetName().Version.ToString()
+                ShortVersionGetter = () => GetFileVersion(typeof(Program).Assembly, 3), LongVersionGetter = () => GetFileVersion(typeof(Program).Assembly, 4)
             };
             commandLine.HelpOption("-?|-h|--help");
 
@@ -90,6 +92,23 @@ namespace IgorSoft.DokanCloudFS.Mounter
             commandLine.Execute(args);
         }
 
+        private string GetFileVersion(Assembly assembly, int components)
+        {
+            var fileVersion = (string)assembly.CustomAttributes.Single(c => c.AttributeType == typeof(AssemblyFileVersionAttribute)).ConstructorArguments[0].Value;
+            var versionComponents = fileVersion.Split('.');
+            return string.Join(".", versionComponents.Take(components).ToArray());
+        }
+
+        private CloudDriveFactory InitializeCloudDriveFactory(string libPath)
+        {
+            CompositionInitializer.Preload(typeof(CloudFS.Interface.Composition.ICloudGateway));
+            CompositionInitializer.Initialize(new[] { typeof(Program).Assembly }, libPath, "IgorSoft.CloudFS.Gateways.*.dll");
+            var factory = new CloudDriveFactory();
+            CompositionInitializer.SatisfyImports(factory);
+            return factory;
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
         private int Mount(string passPhrase, IList<string> userNames)
         {
             var mountSection = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None).Sections[MountSection.Name] as MountSection;
@@ -98,10 +117,7 @@ namespace IgorSoft.DokanCloudFS.Mounter
 
             settingsPassPhrase = passPhrase;
 
-            CompositionInitializer.Preload(typeof(CloudFS.Interface.Composition.ICloudGateway));
-            CompositionInitializer.Initialize(new[] { typeof(Program).Assembly }, mountSection.LibPath, "IgorSoft.CloudFS.Gateways.*.dll");
-            var factory = new CloudDriveFactory();
-            CompositionInitializer.SatisfyImports(factory);
+            var factory = InitializeCloudDriveFactory(mountSection.LibPath);
 
             try {
                 using (var logFactory = new LogFactory()) {
@@ -141,23 +157,23 @@ namespace IgorSoft.DokanCloudFS.Mounter
             } finally {
                 foreach (var driveElement in mountSection.Drives.Cast<DriveElement>())
                     Dokan.Unmount(driveElement.Root[0]);
+                UIThread.Shutdown();
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
         private int Reset(IList<string> userNames)
         {
             var mountSection = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None).Sections[MountSection.Name] as MountSection;
             if (mountSection == null)
                 throw new ConfigurationErrorsException("Mount configuration missing");
 
-            CompositionInitializer.Preload(typeof(CloudFS.Interface.Composition.ICloudGateway));
-            CompositionInitializer.Initialize(new[] { typeof(Program).Assembly }, mountSection.LibPath, "IgorSoft.CloudFS.Gateways.*.dll");
-            var factory = new CloudDriveFactory();
-            CompositionInitializer.SatisfyImports(factory);
+            var factory = InitializeCloudDriveFactory(mountSection.LibPath);
 
-            try {
+            try
+            {
                 foreach (var driveElement in mountSection.Drives.Where(d => !userNames.Any() || userNames.Contains(d.UserName))) {
-                    var persistSettings = factory.CreateCloudDrive(driveElement.Schema, driveElement.UserName, driveElement.Root, default(CloudDriveParameters)) as IPersistGatewaySettings;
+                    var persistSettings = factory.CreateCloudDrive(driveElement.Schema, driveElement.UserName, driveElement.Root, new CloudDriveParameters()).PersistSettings;
                     persistSettings?.PurgeSettings(new RootName(driveElement.Schema, driveElement.UserName, driveElement.Root));
                 }
 
