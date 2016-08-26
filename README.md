@@ -87,7 +87,6 @@ The expected gateway interface types and a set of prefabricated gateways are pro
 
   Commands:
     mount
-    reset
 
   Usage: Mounter mount [arguments] [options]
 
@@ -97,18 +96,9 @@ The expected gateway interface types and a set of prefabricated gateways are pro
   Options:
     -p|--passPhrase  The pass phrase used to encrypt persisted user credentials and access tokens
     -?|-h|--help     Show help information
-
-  Usage: Mounter reset [arguments] [options]
-
-  Arguments:
-    <userNames>  If specified, purge the persisted settings of the drives associated with the specified users; otherwise, purge the persisted settings of all configured drives.
-
-  Options:
-    -?|-h|--help  Show help information
   ```
     - The **mount** command will mount the drives configured in *IgorSoft.DokanCloudFS.Mounter.exe.config*, optionally filtered by the specified user names.
       - If you use the **-p|--passPhrase** option for the first time, previously unencrypted persisted settings **of the drives mounted at this time** - and all newly acquired authentication credentials - will be encrypted with the specified pass phrase. Persisted settings of drives not mounted at this time will remain as they are.
-    - The **reset** command will purge all persisted settings and require you to explicitely login on the next start of *IgorSoft.DokanCloudFS.Mounter.exe*.
 
 ### Sample configuration
 
@@ -190,7 +180,7 @@ You have been warned.
 
 | Date       | Version     | Comments                                                                       |
 | :--------- | :---------- | :----------------------------------------------------------------------------- |
-| 2016-08-26 | 1.0.8-alpha | - 
+| 2016-08-26 | 1.0.8-alpha | - Updated CloudFS to version 1.0.8-alpha<br/>- Support encryption of account credentials and access tokens in persistent settings.<br/>- Activated static code analysis via Coverity Scan.
 | 2016-08-08 | 1.0.7-alpha | - Updated DokanNet to version 1.0.0-RC4<br/>- Successful authentication is required before mounting a cloud drive<br/>- Determine effective file size of encrypted files asynchronously to avoid timeouts when opening large directories in Windows Explorer |
 | 2016-06-16 | 1.0.6-alpha | - Added separate build configurations for use with locally built CloudFS gateways or unsigned/signed CloudFS NuGet packages |
 | 2016-05-19 | 1.0.5-alpha | - Updated DokanNet to version 1.0.0-RC3<br/>- Retired Copy gateway<br/>- Allow readonly-access to unencrypted files on otherwise encrypted cloud storage volumes<br/>- Support file creation for gateways that don't allow modification of existing files (e.g. Mega)<br/>- Fixed error in size calculation when retrieving encrypted files from cloud storage<br/>- Improved online file editing capability<br/>- Various bugfixes |

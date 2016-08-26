@@ -24,11 +24,10 @@ SOFTWARE.
 
 using System;
 using System.Reflection;
-using System.Runtime.InteropServices;
 
 [assembly: AssemblyCompany("IgorSoft")]
 [assembly: AssemblyCopyright("Copyright © 2015-2016")]
 [assembly: AssemblyTrademark("")]
 
 [assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.6.0")]
+[assembly: AssemblyFileVersion("1.0.8.0")]

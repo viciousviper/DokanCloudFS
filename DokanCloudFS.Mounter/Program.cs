@@ -83,11 +83,11 @@ namespace IgorSoft.DokanCloudFS.Mounter
                 c.OnExecute(() => Mount(passPhrase.Value(), userNames.Values));
             });
 
-            commandLine.Command("reset", c => {
-                var userNames = c.Argument("<userNames>", "If specified, purge the persisted settings of the drives associated with the specified users; otherwise, purge the persisted settings of all configured drives.", true);
-                c.HelpOption("-?|-h|--help");
-                c.OnExecute(() => Reset(userNames.Values));
-            });
+            //commandLine.Command("reset", c => {
+            //    var userNames = c.Argument("<userNames>", "If specified, purge the persisted settings of the drives associated with the specified users; otherwise, purge the persisted settings of all configured drives.", true);
+            //    c.HelpOption("-?|-h|--help");
+            //    c.OnExecute(() => Reset(userNames.Values));
+            //});
 
             commandLine.Execute(args);
         }
