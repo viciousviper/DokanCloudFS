@@ -87,6 +87,7 @@ The expected gateway interface types and a set of prefabricated gateways are pro
 
   Commands:
     mount
+    reset
 
   Usage: Mounter mount [arguments] [options]
 
@@ -96,9 +97,18 @@ The expected gateway interface types and a set of prefabricated gateways are pro
   Options:
     -p|--passPhrase  The pass phrase used to encrypt persisted user credentials and access tokens
     -?|-h|--help     Show help information
+
+  Usage: Mounter reset [arguments] [options]
+
+  Arguments:
+    <userNames>  If specified, purge the persisted settings of the drives associated with the specified users; otherwise, purge the persisted settings of all configured drives.
+
+  Options:
+    -?|-h|--help  Show help information
   ```
     - The **mount** command will mount the drives configured in *IgorSoft.DokanCloudFS.Mounter.exe.config*, optionally filtered by the specified user names.
       - If you use the **-p|--passPhrase** option for the first time, previously unencrypted persisted settings **of the drives mounted at this time** - and all newly acquired authentication credentials - will be encrypted with the specified pass phrase. Persisted settings of drives not mounted at this time will remain as they are.
+    - The **reset** command will purge all persisted settings and require you to explicitely login on the next start of *IgorSoft.DokanCloudFS.Mounter.exe*.
 
 ### Sample configuration
 
