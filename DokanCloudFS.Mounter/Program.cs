@@ -173,8 +173,9 @@ namespace IgorSoft.DokanCloudFS.Mounter
             try
             {
                 foreach (var driveElement in mountSection.Drives.Where(d => !userNames.Any() || userNames.Contains(d.UserName))) {
-                    var persistSettings = factory.CreateCloudDrive(driveElement.Schema, driveElement.UserName, driveElement.Root, new CloudDriveParameters()).PersistSettings;
-                    persistSettings?.PurgeSettings(new RootName(driveElement.Schema, driveElement.UserName, driveElement.Root));
+                    using (var drive = factory.CreateCloudDrive(driveElement.Schema, driveElement.UserName, driveElement.Root, new CloudDriveParameters())) {
+                        drive.PersistSettings?.PurgeSettings(new RootName(driveElement.Schema, driveElement.UserName, driveElement.Root));
+                    }
                 }
 
                 return 0;
