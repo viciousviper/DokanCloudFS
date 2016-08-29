@@ -78,7 +78,7 @@ The expected gateway interface types and a set of prefabricated gateways are pro
 - Ensure the presence of all required cloud service gateway assemblies and their dependencies - either from a downloaded *CloudFS* NuGet Package or a local compile - in the path specified by the *libPath* attribute in the *&lt;mount&gt;*-tag in the config file (defaults to the solution's *.\Library* directory).
 - Run *IgorSoft.DokanCloudFS.Mounter.exe* from the command line. Depending on your account configuration you *may* have to use an administrative command line. The following command line arguments are supported:
   ```
-  IgorSoft.DokanCloudFS.Mounter 1.0.8
+  IgorSoft.DokanCloudFS.Mounter 1.0.9
 
   Usage: Mounter [options] [command]
 
@@ -190,6 +190,7 @@ You have been warned.
 
 | Date       | Version     | Comments                                                                       |
 | :--------- | :---------- | :----------------------------------------------------------------------------- |
+| 2016-08-29 | 1.0.9-alpha | - Added reset command to Mounter.<br/>- Updated CloudFS to version 1.0.9-alpha<br/>- Fixed CloudFS NuGet reference.         |
 | 2016-08-26 | 1.0.8-alpha | - Updated CloudFS to version 1.0.8-alpha<br/>- Support encryption of account credentials and access tokens in persistent settings.<br/>- Activated static code analysis via Coverity Scan.
 | 2016-08-08 | 1.0.7-alpha | - Updated DokanNet to version 1.0.0-RC4<br/>- Successful authentication is required before mounting a cloud drive<br/>- Determine effective file size of encrypted files asynchronously to avoid timeouts when opening large directories in Windows Explorer |
 | 2016-06-16 | 1.0.6-alpha | - Added separate build configurations for use with locally built CloudFS gateways or unsigned/signed CloudFS NuGet packages |

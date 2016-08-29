@@ -1,4 +1,4 @@
-version: 1.0.8-alpha {build}
+version: 1.0.9-alpha {build}
 
 branches:
   only:
@@ -55,7 +55,7 @@ after_test:
     IF %APPVEYOR_REPO_BRANCH% NEQ master
     IF %CONFIGURATION% NEQ Debug EXIT
     7z a -r coverity.zip cov-int
-    curl --form token=%COVERITY_TOKEN% --form email=%COVERITY_EMAIL% --form file=@coverity.zip --form version="1.0.7-alpha" https://scan.coverity.com/builds?project=%APPVEYOR_REPO_NAME%
+    curl --form token=%COVERITY_TOKEN% --form email=%COVERITY_EMAIL% --form file=@coverity.zip --form version="1.0.9-alpha" https://scan.coverity.com/builds?project=%APPVEYOR_REPO_NAME%
 
 artifacts:
 - path: coverity.zip
