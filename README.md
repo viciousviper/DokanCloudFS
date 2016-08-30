@@ -190,6 +190,7 @@ You have been warned.
 
 | Date       | Version     | Comments                                                                       |
 | :--------- | :---------- | :----------------------------------------------------------------------------- |
+| 2016-08-31 | 1.0.9.1-alpha | - Fixed NuGet package references.                                                      |
 | 2016-08-29 | 1.0.9-alpha | - Added reset command to Mounter.<br/>- Updated CloudFS to version 1.0.9-alpha<br/>- Fixed CloudFS NuGet reference.         |
 | 2016-08-26 | 1.0.8-alpha | - Updated CloudFS to version 1.0.8-alpha<br/>- Support encryption of account credentials and access tokens in persistent settings.<br/>- Activated static code analysis via Coverity Scan.
 | 2016-08-08 | 1.0.7-alpha | - Updated DokanNet to version 1.0.0-RC4<br/>- Successful authentication is required before mounting a cloud drive<br/>- Determine effective file size of encrypted files asynchronously to avoid timeouts when opening large directories in Windows Explorer |

@@ -72,7 +72,6 @@ artifacts/
 !**/Library/IgorSoft.AppDomainResolver.*
 !**/Library/IgorSoft.CloudFS.Authentication.*
 !**/Library/IgorSoft.CloudFS.Interface.*
-!**/Library/SemanticTypes.dll
 
 
 # Chutzpah Test files

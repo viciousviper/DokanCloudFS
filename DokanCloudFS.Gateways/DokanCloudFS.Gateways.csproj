@@ -76,63 +76,63 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="IgorSoft.AppDomainResolver, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\CloudFS.1.0.9-alpha\lib\net46\IgorSoft.AppDomainResolver.dll</HintPath>
+      <HintPath>..\packages\CloudFS.1.0.9.1-alpha\lib\net46\IgorSoft.AppDomainResolver.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="IgorSoft.CloudFS.Authentication, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\CloudFS.1.0.9-alpha\lib\net46\IgorSoft.CloudFS.Authentication.dll</HintPath>
+    <Reference Include="IgorSoft.CloudFS.Authentication, Version=1.0.9.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\CloudFS.1.0.9.1-alpha\lib\net46\IgorSoft.CloudFS.Authentication.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="IgorSoft.CloudFS.Gateways.Box, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\CloudFS.1.0.9-alpha\lib\net46\Gateways\IgorSoft.CloudFS.Gateways.Box.dll</HintPath>
+    <Reference Include="IgorSoft.CloudFS.Gateways.Box, Version=1.0.9.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\CloudFS.1.0.9.1-alpha\lib\net46\Gateways\IgorSoft.CloudFS.Gateways.Box.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="IgorSoft.CloudFS.Gateways.File, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\CloudFS.1.0.9-alpha\lib\net46\Gateways\IgorSoft.CloudFS.Gateways.File.dll</HintPath>
+    <Reference Include="IgorSoft.CloudFS.Gateways.File, Version=1.0.9.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\CloudFS.1.0.9.1-alpha\lib\net46\Gateways\IgorSoft.CloudFS.Gateways.File.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="IgorSoft.CloudFS.Gateways.GDrive, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\CloudFS.1.0.9-alpha\lib\net46\Gateways\IgorSoft.CloudFS.Gateways.GDrive.dll</HintPath>
+    <Reference Include="IgorSoft.CloudFS.Gateways.GDrive, Version=1.0.9.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\CloudFS.1.0.9.1-alpha\lib\net46\Gateways\IgorSoft.CloudFS.Gateways.GDrive.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="IgorSoft.CloudFS.Gateways.GDrive-V2, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\CloudFS.1.0.9-alpha\lib\net46\Gateways\IgorSoft.CloudFS.Gateways.GDrive-V2.dll</HintPath>
+    <Reference Include="IgorSoft.CloudFS.Gateways.GDrive-V2, Version=1.0.9.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\CloudFS.1.0.9.1-alpha\lib\net46\Gateways\IgorSoft.CloudFS.Gateways.GDrive-V2.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="IgorSoft.CloudFS.Gateways.hubiC, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\CloudFS.1.0.9-alpha\lib\net46\Gateways\IgorSoft.CloudFS.Gateways.hubiC.dll</HintPath>
+    <Reference Include="IgorSoft.CloudFS.Gateways.hubiC, Version=1.0.9.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\CloudFS.1.0.9.1-alpha\lib\net46\Gateways\IgorSoft.CloudFS.Gateways.hubiC.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="IgorSoft.CloudFS.Gateways.MediaFire, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\CloudFS.1.0.9-alpha\lib\net46\Gateways\IgorSoft.CloudFS.Gateways.MediaFire.dll</HintPath>
+    <Reference Include="IgorSoft.CloudFS.Gateways.MediaFire, Version=1.0.9.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\CloudFS.1.0.9.1-alpha\lib\net46\Gateways\IgorSoft.CloudFS.Gateways.MediaFire.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="IgorSoft.CloudFS.Gateways.Mega, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\CloudFS.1.0.9-alpha\lib\net46\Gateways\IgorSoft.CloudFS.Gateways.Mega.dll</HintPath>
+    <Reference Include="IgorSoft.CloudFS.Gateways.Mega, Version=1.0.9.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\CloudFS.1.0.9.1-alpha\lib\net46\Gateways\IgorSoft.CloudFS.Gateways.Mega.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="IgorSoft.CloudFS.Gateways.OneDrive, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\CloudFS.1.0.9-alpha\lib\net46\Gateways\IgorSoft.CloudFS.Gateways.OneDrive.dll</HintPath>
+    <Reference Include="IgorSoft.CloudFS.Gateways.OneDrive, Version=1.0.9.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\CloudFS.1.0.9.1-alpha\lib\net46\Gateways\IgorSoft.CloudFS.Gateways.OneDrive.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="IgorSoft.CloudFS.Gateways.OneDrive_Legacy, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\CloudFS.1.0.9-alpha\lib\net46\Gateways\IgorSoft.CloudFS.Gateways.OneDrive_Legacy.dll</HintPath>
+    <Reference Include="IgorSoft.CloudFS.Gateways.OneDrive_Legacy, Version=1.0.9.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\CloudFS.1.0.9.1-alpha\lib\net46\Gateways\IgorSoft.CloudFS.Gateways.OneDrive_Legacy.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="IgorSoft.CloudFS.Gateways.pCloud, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\CloudFS.1.0.9-alpha\lib\net46\Gateways\IgorSoft.CloudFS.Gateways.pCloud.dll</HintPath>
+    <Reference Include="IgorSoft.CloudFS.Gateways.pCloud, Version=1.0.9.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\CloudFS.1.0.9.1-alpha\lib\net46\Gateways\IgorSoft.CloudFS.Gateways.pCloud.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="IgorSoft.CloudFS.Gateways.WebDAV, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\CloudFS.1.0.9-alpha\lib\net46\Gateways\IgorSoft.CloudFS.Gateways.WebDAV.dll</HintPath>
+    <Reference Include="IgorSoft.CloudFS.Gateways.WebDAV, Version=1.0.9.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\CloudFS.1.0.9.1-alpha\lib\net46\Gateways\IgorSoft.CloudFS.Gateways.WebDAV.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="IgorSoft.CloudFS.Gateways.Yandex, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\CloudFS.1.0.9-alpha\lib\net46\Gateways\IgorSoft.CloudFS.Gateways.Yandex.dll</HintPath>
+    <Reference Include="IgorSoft.CloudFS.Gateways.Yandex, Version=1.0.9.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\CloudFS.1.0.9.1-alpha\lib\net46\Gateways\IgorSoft.CloudFS.Gateways.Yandex.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="IgorSoft.CloudFS.Interface, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\CloudFS.1.0.9-alpha\lib\net46\IgorSoft.CloudFS.Interface.dll</HintPath>
+    <Reference Include="IgorSoft.CloudFS.Interface, Version=1.0.9.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\CloudFS.1.0.9.1-alpha\lib\net46\IgorSoft.CloudFS.Interface.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="log4net, Version=1.2.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
@@ -140,7 +140,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="MediaFireSDK, Version=1.0.0.3, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\CloudFS.1.0.9-alpha\lib\net46\Gateways\MediaFireSDK.dll</HintPath>
+      <HintPath>..\packages\CloudFS.1.0.9.1-alpha\lib\net46\Gateways\MediaFireSDK.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="MegaApiClient, Version=1.2.2.209, Culture=neutral, PublicKeyToken=0480d311efbeb4e2, processorArchitecture=MSIL">
@@ -160,7 +160,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="OneDriveSDK-Legacy, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\CloudFS.1.0.9-alpha\lib\net46\Gateways\OneDriveSDK-Legacy.dll</HintPath>
+      <HintPath>..\packages\CloudFS.1.0.9.1-alpha\lib\net46\Gateways\OneDriveSDK-Legacy.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="OneDriveSdk.WindowsForms, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -168,7 +168,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="pCloud.NET SDK, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\CloudFS.1.0.9-alpha\lib\net46\Gateways\pCloud.NET SDK.dll</HintPath>
+      <HintPath>..\packages\CloudFS.1.0.9.1-alpha\lib\net46\Gateways\pCloud.NET SDK.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="SemanticTypes, Version=1.0.0.0, Culture=neutral, PublicKeyToken=742e180f6c5ccd0d, processorArchitecture=MSIL">
@@ -181,10 +181,6 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Net.Http, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Net.Http.4.1.0\lib\net46\System.Net.Http.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System.Net.Http.Extensions, Version=2.2.29.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Net.Http.2.2.29\lib\net45\System.Net.Http.Extensions.dll</HintPath>
       <Private>True</Private>
@@ -203,6 +199,9 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="WebDav.Client">
+      <HintPath>..\packages\WebDav.Client.1.0.4.0\lib\net45\WebDav.Client.dll</HintPath>
+    </Reference>
     <Reference Include="YandexDisk.Client, Version=1.0.7.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\YandexDisk.Client.1.0.7\lib\net46\YandexDisk.Client.dll</HintPath>
       <Private>True</Private>
@@ -219,7 +218,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
@@ -230,7 +231,7 @@
 xcopy /D /Y IgorSoft.CloudFS.Gateways.*.dll.config $(SolutionDir)Library</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PreBuildEvent>xcopy /D /Y $(SolutionDir)packages\CloudFS.1.0.9-alpha\lib\net46\Gateways\IgorSoft.CloudFS.Gateways.*.dll.config .</PreBuildEvent>
+    <PreBuildEvent>xcopy /D /Y $(SolutionDir)packages\CloudFS.1.0.9.1-alpha\lib\net46\Gateways\IgorSoft.CloudFS.Gateways.*.dll.config .</PreBuildEvent>
   </PropertyGroup>
   <Import Project="..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
