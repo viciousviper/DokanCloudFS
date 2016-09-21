@@ -116,7 +116,9 @@ The expected gateway interface types and a set of prefabricated gateways are pro
   <mount libPath="..\..\..\Library" threads="5">
     <drives>
       <drive schema="box" userName="BoxUser" root="P:" encryptionKey="MyBoxSecret&amp;I" timeout="300" />
-      <!--<drive schema="file" root="R:" encryptionKey="MyFileSecret&amp;I" parameters="root=..\..\..\TestData" />-->
+      <!--<drive schema="file" root="Q:" encryptionKey="MyFileSecret&amp;I" parameters="root=..\..\..\TestData" />-->
+      <drive schema="gcs" userName="GoogleCloudStorageUser" root="R:" encryptionKey="MyGoogleCloudStorageSecret&amp;I" timeout="300"
+             apiKey="-- Enter Google Cloud Storage Credentials here --" />
       <drive schema="gdrive" userName="GDriveUser" root="S:" encryptionKey="MyGDriveSecret&amp;I" timeout="300" />
       <drive schema="hubic" userName="hubiCUser" root="T:" encryptionKey="MyhubiCSecret&amp;I" parameters="container=default" timeout="300" />
       <drive schema="mediafire" userName="MediaFireUser" root="U:" encryptionKey="MyMediaFireSecret&amp;I" timeout="300" />
@@ -136,13 +138,15 @@ Configuration options:
     - **threads**: Number of concurrent threads used for each drive by the Dokan driver.<br />Defaults to 5.
   - Per drive
     - **schema**: Selects the cloud storage service gateway to be used.<br />Must correspond to one of the *CloudFS* gateways installed in the *libPath* subdirectory. Presently supports the following values:
-      - *box*, *gdrive*, *hubic*, *mediafire*, *mega*, *onedrive*, *pcloud*, *yandex*
+      - *box*, *gcs*, *gdrive*, *hubic*, *mediafire*, *mega*, *onedrive*, *pcloud*, *yandex*
       - *file* (mounting of local folders only)
     - **userName**: User account to be displayed in the mounted drive label.
     - **root**: The drive letter to be used as mount point for the cloud drive.<br />Choose a free drive letter such as *L:*.
+    - **apiKey**: Persistable credentials to be used for authentication with the cloud storage service in place of an interactive user login.
     - **encryptionKey**: An arbitrary symmetric key for the transparent client-side AES encryption.<br />Leave this empty only if you *really* want to store content without encryption.
     - **parameters**: Custom parameters as required by the specific cloud storage service gateway. Multiple parameters are separated by a pipe-character `|`.
       - *file* gateway - requires a *root*-parameter specifying the target directory (e.g. `parameters="root=X:\Encrypted"`)
+      - *gcs* gateway - requires a *bucket*-parameter specifying the Google Cloud Storage bucket to be mounted (e.g. `parameters="bucket=xczabc-12345-test-bucket"`)
       - *hubic* gateway - requires a *container*-parameter specifiying the desired target container (e.g. `parameters="container=default")`
       - *webdav* gateway - requires a *baseAddress*-parameter specifying the desired WebDAV hoster's access URL (e.g. `parameters="baseAddress=https://webdav.magentacloud.de"`)
       - other gateways - no custom parameters supported so far
