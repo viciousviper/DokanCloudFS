@@ -125,7 +125,7 @@ namespace IgorSoft.DokanCloudFS.Mounter
                     using (var tokenSource = new CancellationTokenSource()) {
                         var tasks = new List<Task>();
                         foreach (var driveElement in mountSection.Drives.Where(d => !userNames.Any() || userNames.Contains(d.UserName))) {
-                            var drive = factory.CreateCloudDrive(driveElement.Schema, driveElement.UserName, driveElement.Root, new CloudDriveParameters() { EncryptionKey = driveElement.EncryptionKey, Parameters = driveElement.GetParameters() });
+                            var drive = factory.CreateCloudDrive(driveElement.Schema, driveElement.UserName, driveElement.Root, new CloudDriveParameters() { ApiKey = driveElement.ApiKey, EncryptionKey = driveElement.EncryptionKey, Parameters = driveElement.GetParameters() });
                             if (!drive.TryAuthenticate()) {
                                 var displayRoot = drive.DisplayRoot;
                                 drive.Dispose();
