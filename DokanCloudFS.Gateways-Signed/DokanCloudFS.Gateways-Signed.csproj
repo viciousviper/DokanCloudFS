@@ -43,7 +43,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Box.V2, Version=1.0.0.0, Culture=neutral, PublicKeyToken=ddda8fe64dde1ac3, processorArchitecture=MSIL">
-      <HintPath>..\packages\Box.V2.2.12.0\lib\portable-net40+sl50+win+wp80\Box.V2.dll</HintPath>
+      <HintPath>..\packages\Box.V2.2.12.1\lib\portable-net40+sl50+win+wp80\Box.V2.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="crypto, Version=1.8.1.0, Culture=neutral, PublicKeyToken=0e99375e54769942, processorArchitecture=MSIL">
@@ -66,12 +66,12 @@
       <HintPath>..\packages\Google.Apis.Core.1.16.0\lib\net45\Google.Apis.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Google.Apis.Drive.v2, Version=1.16.0.596, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
-      <HintPath>..\packages\Google.Apis.Drive.v2.1.16.0.596\lib\netstandard1.3\Google.Apis.Drive.v2.dll</HintPath>
+    <Reference Include="Google.Apis.Drive.v2, Version=1.16.0.621, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
+      <HintPath>..\packages\Google.Apis.Drive.v2.1.16.0.621\lib\netstandard1.3\Google.Apis.Drive.v2.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Google.Apis.Drive.v3, Version=1.16.0.596, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
-      <HintPath>..\packages\Google.Apis.Drive.v3.1.16.0.596\lib\netstandard1.3\Google.Apis.Drive.v3.dll</HintPath>
+    <Reference Include="Google.Apis.Drive.v3, Version=1.16.0.621, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
+      <HintPath>..\packages\Google.Apis.Drive.v3.1.16.0.621\lib\netstandard1.3\Google.Apis.Drive.v3.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Google.Apis.PlatformServices, Version=1.16.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
@@ -148,6 +148,14 @@
     </Reference>
     <Reference Include="MegaApiClient, Version=1.2.2.209, Culture=neutral, PublicKeyToken=0480d311efbeb4e2, processorArchitecture=MSIL">
       <HintPath>..\packages\MegaApiClient.1.2.2\lib\net45\MegaApiClient.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.IdentityModel.Clients.ActiveDirectory, Version=3.13.5.907, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.IdentityModel.Clients.ActiveDirectory.3.13.5\lib\net45\Microsoft.IdentityModel.Clients.ActiveDirectory.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.IdentityModel.Clients.ActiveDirectory.Platform, Version=3.13.5.907, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.IdentityModel.Clients.ActiveDirectory.3.13.5\lib\net45\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">

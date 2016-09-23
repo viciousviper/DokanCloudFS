@@ -35,7 +35,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="DokanNet, Version=1.1.0.0, Culture=neutral, PublicKeyToken=cef3dedf553bda55, processorArchitecture=MSIL">
-      <HintPath>..\packages\DokanNet.1.1.0-rc4\lib\net40\DokanNet.dll</HintPath>
+      <HintPath>..\packages\DokanNet.1.1.0\lib\net46\DokanNet.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="IgorSoft.AppDomainResolver, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -55,11 +55,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="SharpAESCrypt, Version=1.3.1.0, Culture=neutral, PublicKeyToken=da45da0a7b8da0d2, processorArchitecture=MSIL">
-      <HintPath>..\packages\SharpAESCrypt.dll.1.3.1\lib\net20\SharpAESCrypt.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="StringInterpolationBridge, Version=0.9.1.0, Culture=neutral, PublicKeyToken=031b5b3c3dfa34fb, processorArchitecture=MSIL">
-      <HintPath>..\packages\DokanNet.1.1.0-rc4\lib\net40\StringInterpolationBridge.dll</HintPath>
+      <HintPath>..\packages\SharpAESCrypt.dll.1.3.2\lib\net45\SharpAESCrypt.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />

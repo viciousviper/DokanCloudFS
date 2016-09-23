@@ -178,7 +178,7 @@ DokanCloudFS **does not** store your authentication password for any cloud stora
 ## Known bugs
 
   - Several gateways
-    - Writing of large (>> 10 Mb) files to cloud storage is unstable on the following platforms: *Box*, *OneDrive*, *pCloud*
+    - Writing of large (>> 10 Mb) files to cloud storage is unstable on the following platforms: *Box*, *pCloud*
   - *Mediafire* gateway
     - The Mediafire token management scheme depends on error-free operation when using long-term authentication tokens. Expect to re-authenticate via the login popup after network errors or if the DokanCloudFS process is aborted.
 
