@@ -116,6 +116,10 @@ namespace IgorSoft.DokanCloudFS
         public FileSystemInfoContract MoveItem(FileSystemInfoContract source, string movePath, DirectoryInfoContract destination)
         {
             return ExecuteInSemaphore(() => {
+                var proxySource = source as ProxyFileInfoContract;
+                if (proxySource != null)
+                    return new ProxyFileInfoContract(movePath);
+
                 Func<FileSystemInfoLocator> locator = () => new FileSystemInfoLocator(source);
                 return gateway.MoveItemAsync(rootName, source.Id, movePath, destination.Id, locator).Result;
             }, nameof(MoveItem), true);
