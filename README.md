@@ -47,7 +47,7 @@ The expected gateway interface types and a set of prefabricated gateways are pro
 - Platform
   - .NET 4.6
 - Drivers
-  - [Dokany](https://github.com/dokan-dev/dokany/releases) driver 1.0.0-RC4 or greater installed
+  - [Dokany](https://github.com/dokan-dev/dokany/releases) driver version 1.0.0 or greater installed
 - Operating system
   - tested on Windows 8.1 x64 and Windows Server 2012 R2 (until version 1.0.0-alpha) /<br/>Windows 10 x64 (from version 1.0.1-alpha)
   - expected to run on Windows 7/8/8.1/10 and Windows Server 2008(R2)/2012(R2)
@@ -78,7 +78,7 @@ The expected gateway interface types and a set of prefabricated gateways are pro
 - Ensure the presence of all required cloud service gateway assemblies and their dependencies - either from a downloaded *CloudFS* NuGet Package or a local compile - in the path specified by the *libPath* attribute in the *&lt;mount&gt;*-tag in the config file (defaults to the solution's *.\Library* directory).
 - Run *IgorSoft.DokanCloudFS.Mounter.exe* from the command line. Depending on your account configuration you *may* have to use an administrative command line. The following command line arguments are supported:
   ```
-  IgorSoft.DokanCloudFS.Mounter 1.0.9
+  IgorSoft.DokanCloudFS.Mounter 1.0.10
 
   Usage: Mounter [options] [command]
 
@@ -117,8 +117,8 @@ The expected gateway interface types and a set of prefabricated gateways are pro
     <drives>
       <drive schema="box" userName="BoxUser" root="P:" encryptionKey="MyBoxSecret&amp;I" timeout="300" />
       <!--<drive schema="file" root="Q:" encryptionKey="MyFileSecret&amp;I" parameters="root=..\..\..\TestData" />-->
-      <drive schema="gcs" userName="GoogleCloudStorageUser" root="R:" encryptionKey="MyGoogleCloudStorageSecret&amp;I" timeout="300"
-             apiKey="-- Enter Google Cloud Storage Credentials here --" />
+      <drive schema="gcs" userName="GoogleCloudStorageUser" root="R:" encryptionKey="MyGoogleCloudStorageSecret&amp;I" parameters="bucket=-- Insert bucket ID here --" timeout="300"
+             apiKey="-- Insert Google Cloud Storage Credentials here --" />
       <drive schema="gdrive" userName="GDriveUser" root="S:" encryptionKey="MyGDriveSecret&amp;I" timeout="300" />
       <drive schema="hubic" userName="hubiCUser" root="T:" encryptionKey="MyhubiCSecret&amp;I" parameters="container=default" timeout="300" />
       <drive schema="mediafire" userName="MediaFireUser" root="U:" encryptionKey="MyMediaFireSecret&amp;I" timeout="300" />
@@ -143,6 +143,7 @@ Configuration options:
     - **userName**: User account to be displayed in the mounted drive label.
     - **root**: The drive letter to be used as mount point for the cloud drive.<br />Choose a free drive letter such as *L:*.
     - **apiKey**: Persistable credentials to be used for authentication with the cloud storage service in place of an interactive user login.
+      - *gcs* gateway - The Google Cloud Service gateway presently requires that the Google credentials be specified in the API key configuration
     - **encryptionKey**: An arbitrary symmetric key for the transparent client-side AES encryption.<br />Leave this empty only if you *really* want to store content without encryption.
     - **parameters**: Custom parameters as required by the specific cloud storage service gateway. Multiple parameters are separated by a pipe-character `|`.
       - *file* gateway - requires a *root*-parameter specifying the target directory (e.g. `parameters="root=X:\Encrypted"`)
@@ -194,6 +195,7 @@ You have been warned.
 
 | Date       | Version     | Comments                                                                       |
 | :--------- | :---------- | :----------------------------------------------------------------------------- |
+| 2016-10-02 | 1.0.10-beta | - Updated DokanNet to version 1.1.0.<br/>- Updated CloudFS to version 1.0.10-beta.<br/>- Fixed NuGet references. |
 | 2016-08-31 | 1.0.9.1-alpha | - Fixed NuGet package references.                                                      |
 | 2016-08-29 | 1.0.9-alpha | - Added reset command to Mounter.<br/>- Updated CloudFS to version 1.0.9-alpha<br/>- Fixed CloudFS NuGet reference.         |
 | 2016-08-26 | 1.0.8-alpha | - Updated CloudFS to version 1.0.8-alpha<br/>- Support encryption of account credentials and access tokens in persistent settings.<br/>- Activated static code analysis via Coverity Scan.
