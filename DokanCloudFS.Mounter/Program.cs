@@ -141,6 +141,7 @@ namespace IgorSoft.DokanCloudFS.Mounter
                             var driveInfo = new DriveInfo(driveElement.Root);
                             while (!driveInfo.IsReady)
                                 Thread.Sleep(10);
+                            logger.Info($"Drive '{drive.DisplayRoot}' mounted successfully.");
                         }
 
                         Console.WriteLine("Press any key to unmount drives");

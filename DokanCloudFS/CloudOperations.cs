@@ -136,11 +136,11 @@ namespace IgorSoft.DokanCloudFS
                             } catch (Exception ex) {
                                 if (!(ex is UnauthorizedAccessException) && !((uint)((ex as IOException)?.HResult ?? 0) == 0x80070020))
                                     context.File.Remove(drive);
-                                logger.Trace($"{nameof(context.File.SetContent)} failed on file '{fileName}' with {ex.GetType().Name} '{ex.Message}'".ToString(CultureInfo.CurrentCulture));
+                                logger?.Trace($"{nameof(context.File.SetContent)} failed on file '{fileName}' with {ex.GetType().Name} '{ex.Message}'".ToString(CultureInfo.CurrentCulture));
                                 throw;
                             }
                         })
-                        .ContinueWith(t => logger.Trace($"{nameof(context.File.SetContent)} finished on file '{fileName}'".ToString(CultureInfo.CurrentCulture)), TaskContinuationOptions.OnlyOnRanToCompletion);
+                        .ContinueWith(t => logger?.Trace($"{nameof(context.File.SetContent)} finished on file '{fileName}'".ToString(CultureInfo.CurrentCulture)), TaskContinuationOptions.OnlyOnRanToCompletion);
                 }
 
                 if (context?.Task != null) {
