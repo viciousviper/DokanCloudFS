@@ -44,6 +44,12 @@ namespace IgorSoft.DokanCloudFS.Tests
 
         private readonly IDictionary<string, string> parameters;
 
+        [ClassInitialize]
+        public static void ClassInitialize(TestContext testContext)
+        {
+            ExportProvider.ResetComposition();
+        }
+
         [TestInitialize]
         public void Initialize()
         {
@@ -51,7 +57,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod]
-        public void CloudDrive_Create_Succeeds()
+        public void AsyncCloudDrive_Create_Succeeds()
         {
             using (var result = fixture.Create(apiKey, encryptionKey)) {
                 Assert.IsNotNull(result, "Missing result");
@@ -59,7 +65,20 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod]
-        public void CloudDrive_GetFree_Succeeds()
+        public void AsyncCloudDrive_TryAuthenticate_Succeeds()
+        {
+            fixture.SetupGetDriveAsync(apiKey, parameters);
+            fixture.SetupTryAuthenticate(apiKey, parameters);
+
+            using (var sut = fixture.Create(apiKey, encryptionKey)) {
+                var result = sut.TryAuthenticate();
+
+                Assert.IsTrue(result, "Unexpected result");
+            }
+        }
+
+        [TestMethod]
+        public void AsyncCloudDrive_GetFree_Succeeds()
         {
             fixture.SetupGetDriveAsync(apiKey, parameters);
 
@@ -71,7 +90,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod]
-        public void CloudDrive_GetUsed_Succeeds()
+        public void AsyncCloudDrive_GetUsed_Succeeds()
         {
             fixture.SetupGetDriveAsync(apiKey, parameters);
 
@@ -82,8 +101,18 @@ namespace IgorSoft.DokanCloudFS.Tests
             }
         }
 
+        [TestMethod, ExpectedException(typeof(ApplicationException))]
+        public void AsyncCloudDrive_GetFree_WhereGetDriveFails_Throws()
+        {
+            fixture.SetupGetDriveAsyncThrows<ApplicationException>(apiKey, parameters);
+
+            using (var sut = fixture.Create(apiKey, encryptionKey)) {
+                var result = sut.Free;
+            }
+        }
+
         [TestMethod]
-        public void CloudDrive_GetRoot_Succeeds()
+        public void AsyncCloudDrive_GetRoot_Succeeds()
         {
             fixture.SetupGetDriveAsync(apiKey, parameters);
             fixture.SetupGetRootAsync(apiKey, parameters);
@@ -96,7 +125,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod]
-        public void CloudDrive_GetDisplayRoot_Succeeds()
+        public void AsyncCloudDrive_GetDisplayRoot_Succeeds()
         {
             fixture.SetupGetDriveAsync(apiKey, parameters);
             fixture.SetupGetRootAsync(apiKey, parameters);
@@ -109,7 +138,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod]
-        public void CloudDrive_GetChildItem_WhereEncryptionKeyIsEmpty_Succeeds()
+        public void AsyncCloudDrive_GetChildItem_WhereEncryptionKeyIsEmpty_Succeeds()
         {
             fixture.SetupGetDriveAsync(apiKey, parameters);
             fixture.SetupGetRootAsync(apiKey, parameters);
@@ -123,7 +152,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod]
-        public void CloudDrive_GetChildItem_WhereEncryptionKeyIsSet_Succeeds()
+        public void AsyncCloudDrive_GetChildItem_WhereEncryptionKeyIsSet_Succeeds()
         {
             fixture.SetupGetDriveAsync(apiKey, parameters);
             fixture.SetupGetRootAsync(apiKey, parameters);
@@ -137,7 +166,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod]
-        public void CloudDrive_GetContent_Succeeds()
+        public void AsyncCloudDrive_GetContent_Succeeds()
         {
             var fileContent = Encoding.Default.GetBytes("Why did the chicken cross the road?");
             var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
@@ -158,7 +187,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod]
-        public void CloudDrive_GetContent_WhereContentIsUnencrypted_Succeeds()
+        public void AsyncCloudDrive_GetContent_WhereContentIsUnencrypted_Succeeds()
         {
             var fileContent = Encoding.Default.GetBytes("Why did the chicken cross the road?");
             var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
@@ -179,7 +208,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod]
-        public void CloudDrive_GetContent_WhereContentIsNotSeekable_Succeeds()
+        public void AsyncCloudDrive_GetContent_WhereContentIsNotSeekable_Succeeds()
         {
             var fileContent = Encoding.Default.GetBytes("Why did the chicken cross the road?");
             var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
@@ -200,7 +229,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod]
-        public void CloudDrive_MoveDirectoryItem_Succeeds()
+        public void AsyncCloudDrive_MoveDirectoryItem_Succeeds()
         {
             var sutContract = fixture.RootDirectoryItems.OfType<DirectoryInfoContract>().Last();
             var directory = fixture.TargetDirectory;
@@ -215,7 +244,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod]
-        public void CloudDrive_MoveFileItem_Succeeds()
+        public void AsyncCloudDrive_MoveFileItem_Succeeds()
         {
             var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().Last();
             var directory = fixture.TargetDirectory;
@@ -230,7 +259,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod]
-        public void CloudDrive_NewDirectoryItem_Succeeds()
+        public void AsyncCloudDrive_NewDirectoryItem_Succeeds()
         {
             const string newName = "NewDirectory";
             var directory = fixture.TargetDirectory;
@@ -245,7 +274,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod]
-        public void CloudDrive_NewFileItem_Succeeds()
+        public void AsyncCloudDrive_NewFileItem_Succeeds()
         {
             const string newName = "NewFile.ext";
             var fileContent = Encoding.Default.GetBytes("Why did the chicken cross the road?");
@@ -262,7 +291,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod]
-        public void CloudDrive_NewFileItem_WhereContentIsEmpty_Succeeds()
+        public void AsyncCloudDrive_NewFileItem_WhereContentIsEmpty_Succeeds()
         {
             const string newName = "NewFile.ext";
             var directory = fixture.TargetDirectory;
@@ -278,7 +307,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod]
-        public void CloudDrive_RemoveDirectoryItem_Succeeds()
+        public void AsyncCloudDrive_RemoveDirectoryItem_Succeeds()
         {
             var sutContract = fixture.RootDirectoryItems.OfType<DirectoryInfoContract>().First();
 
@@ -292,7 +321,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod]
-        public void CloudDrive_RemoveFileItem_Succeeds()
+        public void AsyncCloudDrive_RemoveFileItem_Succeeds()
         {
             var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
 
@@ -306,7 +335,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod]
-        public void CloudDrive_SetContent_Succeeds()
+        public void AsyncCloudDrive_SetContent_Succeeds()
         {
             var fileContent = Encoding.Default.GetBytes("Why did the chicken cross the road?");
             var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();

@@ -272,7 +272,7 @@
 xcopy /D /Y IgorSoft.CloudFS.Gateways.*.dll.config $(SolutionDir)Library</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PreBuildEvent>xcopy /D /Y $(SolutionDir)packages\CloudFS.1.0.10-beta\lib\net46\Gateways\IgorSoft.CloudFS.Gateways.*.dll.config .</PreBuildEvent>
+    <PreBuildEvent>xcopy /D /Y $(SolutionDir)packages\CloudFS.1.0.10.1-beta\lib\net46\Gateways\IgorSoft.CloudFS.Gateways.*.dll.config .</PreBuildEvent>
   </PropertyGroup>
   <Import Project="..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

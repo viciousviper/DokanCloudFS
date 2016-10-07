@@ -145,6 +145,7 @@
     <Compile Include="CompositionInitializerTests.Fixture.cs">
       <DependentUpon>CompositionInitializerTests.cs</DependentUpon>
     </Compile>
+    <Compile Include="ExportProvider.cs" />
     <Compile Include="GatewayManagerTests.cs" />
     <Compile Include="GatewayManagerTests.Fixture.cs">
       <DependentUpon>GatewayManagerTests.cs</DependentUpon>

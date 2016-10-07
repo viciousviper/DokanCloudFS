@@ -23,11 +23,13 @@ SOFTWARE.
 */
 
 using System;
+using System.Composition;
 using System.Globalization;
 using System.IO;
 using System.Runtime.Remoting;
 using System.Threading;
 using System.Threading.Tasks;
+using NLog;
 
 namespace IgorSoft.DokanCloudFS.IO
 {
@@ -43,6 +45,9 @@ namespace IgorSoft.DokanCloudFS.IO
 
         private readonly object lockObject = new object();
 
+        [Import]
+        public ILogger Logger { get; set; }
+
         public TraceStream(string name, string fileName, Stream baseStream)
         {
             this.name = name;
@@ -52,18 +57,18 @@ namespace IgorSoft.DokanCloudFS.IO
 
         private void Trace(string message)
         {
-            Console.WriteLine($"[{Thread.CurrentThread.ManagedThreadId}] {name}: '{fileName}' {message}".ToString(CultureInfo.CurrentCulture));
+            Logger.Trace($"[{Thread.CurrentThread.ManagedThreadId}] {name}: '{fileName}' {message}".ToString(CultureInfo.CurrentCulture));
         }
 
         private T Trace<T>(string message, T result)
         {
-            Console.WriteLine($"[{Thread.CurrentThread.ManagedThreadId}] {name}: '{fileName}' {message} => {result}".ToString(CultureInfo.CurrentCulture));
+            Logger.Trace($"[{Thread.CurrentThread.ManagedThreadId}] {name}: '{fileName}' {message} => {result}".ToString(CultureInfo.CurrentCulture));
             return result;
         }
 
         private void Trace<T>(T value, string message)
         {
-            Console.WriteLine($"[{Thread.CurrentThread.ManagedThreadId}] {name}: '{fileName}' {message}={value}".ToString(CultureInfo.CurrentCulture));
+            Logger.Trace($"[{Thread.CurrentThread.ManagedThreadId}] {name}: '{fileName}' {message}={value}".ToString(CultureInfo.CurrentCulture));
         }
 
         public override long Length

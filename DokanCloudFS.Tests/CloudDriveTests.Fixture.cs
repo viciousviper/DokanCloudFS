@@ -84,11 +84,26 @@ namespace IgorSoft.DokanCloudFS.Tests
                 return new CloudDrive(new RootName(SCHEMA, USER_NAME, MOUNT_POINT), gateway.Object, new CloudDriveParameters() { ApiKey = apiKey, EncryptionKey = encryptionKey });
             }
 
+            public void SetupTryAuthenticate(string apiKey, IDictionary<string, string> parameters)
+            {
+                gateway
+                    .Setup(g => g.TryAuthenticate(rootName, apiKey, parameters))
+                    .Returns(true);
+            }
+
             public void SetupGetDrive(string apiKey, IDictionary<string, string> parameters)
             {
                 gateway
                     .Setup(g => g.GetDrive(rootName, apiKey, parameters))
                     .Returns(root.Drive);
+            }
+
+            public void SetupGetDriveThrows<TException>(string apiKey, IDictionary<string, string> parameters)
+                where TException : Exception, new()
+            {
+                gateway
+                    .Setup(g => g.GetDrive(rootName, apiKey, parameters))
+                    .Throws(new AggregateException(Activator.CreateInstance<TException>()));
             }
 
             public void SetupGetRoot(string apiKey, IDictionary<string, string> parameters)

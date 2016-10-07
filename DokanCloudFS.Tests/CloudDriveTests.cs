@@ -44,6 +44,12 @@ namespace IgorSoft.DokanCloudFS.Tests
 
         private readonly IDictionary<string, string> parameters;
 
+        [ClassInitialize]
+        public static void ClassInitialize(TestContext testContext)
+        {
+            ExportProvider.ResetComposition();
+        }
+
         [TestInitialize]
         public void Initialize()
         {
@@ -55,6 +61,19 @@ namespace IgorSoft.DokanCloudFS.Tests
         {
             using (var result = fixture.Create(apiKey, encryptionKey)) {
                 Assert.IsNotNull(result, "Missing result");
+            }
+        }
+
+        [TestMethod]
+        public void CloudDrive_TryAuthenticate_Succeeds()
+        {
+            fixture.SetupGetDrive(apiKey, parameters);
+            fixture.SetupTryAuthenticate(apiKey, parameters);
+
+            using (var sut = fixture.Create(apiKey, encryptionKey)) {
+                var result = sut.TryAuthenticate();
+
+                Assert.IsTrue(result, "Unexpected result");
             }
         }
 
@@ -79,6 +98,16 @@ namespace IgorSoft.DokanCloudFS.Tests
                 var result = sut.Used;
 
                 Assert.AreEqual(Fixture.USED_SPACE, result, "Unexpected Used value");
+            }
+        }
+
+        [TestMethod, ExpectedException(typeof(ApplicationException))]
+        public void CloudDrive_GetFree_WhereGetDriveFails_Throws()
+        {
+            fixture.SetupGetDriveThrows<ApplicationException>(apiKey, parameters);
+
+            using (var sut = fixture.Create(apiKey, encryptionKey)) {
+                var result = sut.Free;
             }
         }
 

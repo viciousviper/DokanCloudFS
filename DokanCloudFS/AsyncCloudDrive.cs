@@ -92,7 +92,7 @@ namespace IgorSoft.DokanCloudFS
                 var content = gatewayContent.DecryptOrPass(encryptionKey);
 
 #if DEBUG
-                content = new TraceStream(nameof(GetContent), source.Name, content);
+                CompositionInitializer.SatisfyImports(content = new TraceStream(nameof(GetContent), source.Name, content));
 #endif
                 return content;
             }, nameof(GetContent));
@@ -105,7 +105,7 @@ namespace IgorSoft.DokanCloudFS
                 var gatewayContent = content.EncryptOrPass(encryptionKey);
 
 #if DEBUG
-                gatewayContent = new TraceStream(nameof(SetContent), target.Name, gatewayContent);
+                CompositionInitializer.SatisfyImports(gatewayContent = new TraceStream(nameof(SetContent), target.Name, gatewayContent));
 #endif
                 Func<FileSystemInfoLocator> locator = () => new FileSystemInfoLocator(target);
                 gateway.SetContentAsync(rootName, target.Id, gatewayContent, null, locator).Wait();

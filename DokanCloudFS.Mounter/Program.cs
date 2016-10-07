@@ -41,16 +41,28 @@ using IgorSoft.DokanCloudFS.Parameters;
 
 namespace IgorSoft.DokanCloudFS.Mounter
 {
-    internal class Program
+    internal sealed class Program
     {
         private static string settingsPassPhrase;
 
-        /// <summary>
-        /// Gets the passphrase used in the encryption of privacy sensitive gateway settings.
-        /// </summary>
-        /// <value>The settings encryption passphrase.</value>
-        [Export(CloudFS.Interface.Composition.ExportContracts.SettingsPassPhrase)]
-        public string SettingsPassPhrase => settingsPassPhrase;
+        private static ILogger logger;
+
+        public sealed class ExportProvider
+        {
+            /// <summary>
+            /// Gets the passphrase used in the encryption of privacy sensitive gateway settings.
+            /// </summary>
+            /// <value>The settings encryption passphrase.</value>
+            [Export(CloudFS.Interface.Composition.ExportContracts.SettingsPassPhrase)]
+            public string SettingsPassPhrase => settingsPassPhrase;
+
+            /// <summary>
+            /// Gets the logger.
+            /// </summary>
+            /// <value>The logger.</value>
+            [Export]
+            public ILogger Logger => logger;
+        }
 
         /// <summary>
         /// The main application entry point.
@@ -117,11 +129,10 @@ namespace IgorSoft.DokanCloudFS.Mounter
 
             settingsPassPhrase = passPhrase;
 
-            var factory = InitializeCloudDriveFactory(mountSection.LibPath);
-
             try {
                 using (var logFactory = new LogFactory()) {
-                    var logger = logFactory.GetCurrentClassLogger();
+                    logger = logFactory.GetCurrentClassLogger();
+                    var factory = InitializeCloudDriveFactory(mountSection.LibPath);
                     using (var tokenSource = new CancellationTokenSource()) {
                         var tasks = new List<Task>();
                         foreach (var driveElement in mountSection.Drives.Where(d => !userNames.Any() || userNames.Contains(d.UserName))) {
