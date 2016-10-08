@@ -25,6 +25,7 @@ SOFTWARE.
 using System;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using IgorSoft.DokanCloudFS.IO;
 
@@ -62,6 +63,38 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void GatherStream_SeekFromBegin_ReturnsCorrectResult()
+        {
+            const int size = 100;
+            var sut = fixture.CreateGatherStream(Enumerable.Repeat<byte>(128, size).ToArray(), new BlockMap(1));
+
+            var result = sut.Seek(size / 4, SeekOrigin.Begin);
+
+            Assert.AreEqual(size / 4, result);
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void GatherStream_SeekFromEnd_ReturnsCorrectResult()
+        {
+            const int size = 100;
+            var sut = fixture.CreateGatherStream(Enumerable.Repeat<byte>(128, size).ToArray(), new BlockMap(1));
+
+            var result = sut.Seek(-size / 4, SeekOrigin.End);
+
+            Assert.AreEqual(size * 3 / 4, result);
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        [ExpectedException(typeof(NotSupportedException))]
+        public void GatherStream_SetLength_Throws()
+        {
+            const int size = 100;
+            var sut = fixture.CreateGatherStream(Enumerable.Repeat<byte>(128, size).ToArray(), new BlockMap(1));
+
+            sut.SetLength(size * 3 / 4);
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         [ExpectedException(typeof(NotSupportedException))]
         public void GatherStream_Write_Throws()
         {
@@ -91,6 +124,59 @@ namespace IgorSoft.DokanCloudFS.Tests
             var sut = fixture.CreateScatterStream(Array.Empty<byte>(), new BlockMap(1));
 
             sut.Read(Array.Empty<byte>(), 0, 0);
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void ScatterStream_SeekFromBegin_ReturnsCorrectResult()
+        {
+            const int size = 100;
+            var sut = fixture.CreateScatterStream(Enumerable.Repeat<byte>(128, size).ToArray(), new BlockMap(1));
+
+            var result = sut.Seek(size / 4, SeekOrigin.Begin);
+
+            Assert.AreEqual(size / 4, result);
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void ScatterStream_SeekFromEnd_ReturnsCorrectResult()
+        {
+            const int size = 100;
+            var sut = fixture.CreateScatterStream(Enumerable.Repeat<byte>(128, size).ToArray(), new BlockMap(1));
+
+            var result = sut.Seek(-size / 4, SeekOrigin.End);
+
+            Assert.AreEqual(size * 3 / 4, result);
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void ScatterStream_SetLength_Succeeds()
+        {
+            const int size = 100;
+            var sut = fixture.CreateScatterStream(Enumerable.Repeat<byte>(128, size).ToArray(), new BlockMap(1));
+
+            sut.SetLength(size * 3 / 4);
+
+            Assert.AreEqual(size * 3 / 4, sut.Length);
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void ScatterGatherStreamFactory_CreateScatterGatherStream_WhereCapacityIsNegative_Throws()
+        {
+            var scatterStream = default(Stream);
+            var gatherStream = default(Stream);
+
+            ScatterGatherStreamFactory.CreateScatterGatherStreams(-1, out scatterStream, out gatherStream);
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void ScatterGatherStreamFactory_CreateScatterGatherStream_WhereTimeoutIsNegative_Throws()
+        {
+            var scatterStream = default(Stream);
+            var gatherStream = default(Stream);
+
+            ScatterGatherStreamFactory.CreateScatterGatherStreams(100, TimeSpan.FromMilliseconds(-2), out scatterStream, out gatherStream);
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]

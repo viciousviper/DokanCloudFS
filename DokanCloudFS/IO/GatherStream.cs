@@ -100,10 +100,7 @@ namespace IgorSoft.DokanCloudFS.IO
 
         public override void SetLength(long value)
         {
-            lock (assignedBlocks) {
-                base.SetLength(value);
-                Monitor.Pulse(assignedBlocks);
-            }
+            throw new NotSupportedException();
         }
 
         public override void Write(byte[] buffer, int offset, int count)
