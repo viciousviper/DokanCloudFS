@@ -768,6 +768,25 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        [ExpectedException(typeof(IOException))]
+        public void FileStream_Lock_WhereFileIsLocked_Throws()
+        {
+            var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
+
+            fixture.SetupGetRootDirectoryItems();
+
+            var root = fixture.GetDriveInfo().RootDirectory;
+            var sut = new FileInfo(root.FullName + sutContract.Name);
+            using (var fileStream = sut.OpenRead()) {
+                fileStream.Lock(0, 65536);
+
+                fileStream.Lock(0, 65536);
+            }
+
+            fixture.Verify();
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void FileStream_Unlock_Succeeds()
         {
             var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
@@ -779,6 +798,22 @@ namespace IgorSoft.DokanCloudFS.Tests
             using (var fileStream = sut.OpenRead()) {
                 fileStream.Lock(0, 65536);
 
+                fileStream.Unlock(0, 65536);
+            }
+
+            fixture.Verify();
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void FileStream_Unlock_WhereFileIsNotLocked_Throws()
+        {
+            var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
+
+            fixture.SetupGetRootDirectoryItems();
+
+            var root = fixture.GetDriveInfo().RootDirectory;
+            var sut = new FileInfo(root.FullName + sutContract.Name);
+            using (var fileStream = sut.OpenRead()) {
                 fileStream.Unlock(0, 65536);
             }
 

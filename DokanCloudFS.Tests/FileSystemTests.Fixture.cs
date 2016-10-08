@@ -356,7 +356,7 @@ namespace IgorSoft.DokanCloudFS.Tests
                 SetupGetRoot();
 
                 // HACK: handle non-unique parameter set of DokanOperations.Mount() by explicitely specifying AllocationUnitSize and SectorSize
-                (mounterThread = new Thread(new ThreadStart(() => operations.Mount(MOUNT_POINT, DokanOptions.DebugMode | DokanOptions.RemovableDrive | DokanOptions.MountManager | DokanOptions.CurrentSession, 5, 1100, TimeSpan.FromMinutes(5), null, 512, 512)))).Start();
+                (mounterThread = new Thread(new ThreadStart(() => operations.Mount(MOUNT_POINT, DokanOptions.DebugMode | DokanOptions.RemovableDrive | DokanOptions.MountManager | DokanOptions.CurrentSession | DokanOptions.UserModeLock, 5, 1100, TimeSpan.FromMinutes(5), null, 512, 512)))).Start();
                 var mountedDrive = GetDriveInfo();
                 while (!mountedDrive.IsReady)
                     Thread.Sleep(50);

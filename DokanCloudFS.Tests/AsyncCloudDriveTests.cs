@@ -101,7 +101,8 @@ namespace IgorSoft.DokanCloudFS.Tests
             }
         }
 
-        [TestMethod, ExpectedException(typeof(ApplicationException))]
+        [TestMethod]
+        [ExpectedException(typeof(ApplicationException))]
         public void AsyncCloudDrive_GetFree_WhereGetDriveFails_Throws()
         {
             fixture.SetupGetDriveAsyncThrows<ApplicationException>(apiKey, parameters);
