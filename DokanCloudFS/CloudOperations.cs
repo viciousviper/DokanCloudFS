@@ -33,6 +33,7 @@ using System.Threading.Tasks;
 using DokanNet;
 using FileAccess = DokanNet.FileAccess;
 using NLog;
+using IgorSoft.CloudFS.Interface.IO;
 using IgorSoft.DokanCloudFS.Extensions;
 using IgorSoft.DokanCloudFS.IO;
 
@@ -289,7 +290,7 @@ namespace IgorSoft.DokanCloudFS
             var childItems = parent.GetChildItems(drive).Where(i => i.IsResolved).ToList();
             files = childItems.Any()
                 ? childItems.Select(i => new FileInformation() {
-                    FileName = i.Name, Length = (i as CloudFileNode)?.Contract.Size ?? 0,
+                    FileName = i.Name, Length = (i as CloudFileNode)?.Contract.Size ?? FileSize.Empty,
                     Attributes = i is CloudDirectoryNode ? FileAttributes.Directory : FileAttributes.ReadOnly | FileAttributes.NotContentIndexed,
                     CreationTime = i.Contract.Created.DateTime, LastWriteTime = i.Contract.Updated.DateTime, LastAccessTime = i.Contract.Updated.DateTime
                 }).ToList()
@@ -310,7 +311,7 @@ namespace IgorSoft.DokanCloudFS
                 ? childItems
                     .Where(i => Regex.IsMatch(i.Name, searchPattern.Contains('?') || searchPattern.Contains('*') ? searchPattern.Replace('?', '.').Replace("*", ".*") : "^" + searchPattern + "$"))
                     .Select(i => new FileInformation() {
-                        FileName = i.Name, Length = (i as CloudFileNode)?.Contract.Size ?? 0,
+                        FileName = i.Name, Length = (i as CloudFileNode)?.Contract.Size ?? FileSize.Empty,
                         Attributes = i is CloudDirectoryNode ? FileAttributes.Directory : FileAttributes.ReadOnly | FileAttributes.NotContentIndexed,
                         CreationTime = i.Contract.Created.DateTime, LastWriteTime = i.Contract.Updated.DateTime, LastAccessTime = i.Contract.Updated.DateTime
                     }).ToList()
@@ -360,7 +361,7 @@ namespace IgorSoft.DokanCloudFS
             }
 
             fileInfo = new FileInformation() {
-                FileName = fileName, Length = (info.Context as StreamContext)?.Stream?.Length ?? (item as CloudFileNode)?.Contract.Size ?? 0,
+                FileName = fileName, Length = (info.Context as StreamContext)?.Stream?.Length ?? (item as CloudFileNode)?.Contract.Size ?? FileSize.Empty,
                 Attributes = item is CloudDirectoryNode ? FileAttributes.Directory : FileAttributes.NotContentIndexed,
                 CreationTime = item.Contract.Created.DateTime, LastWriteTime = item.Contract.Updated.DateTime, LastAccessTime = item.Contract.Updated.DateTime
             };

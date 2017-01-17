@@ -47,7 +47,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             public ICloudDrive Drive => drive.Object;
 
-            public readonly FileInfoContract TestFile = new FileInfoContract(@"\File.ext", "File.ext", "2015-01-02 10:11:12".ToDateTime(), "2015-01-02 20:21:22".ToDateTime(), 16384, "16384".ToHash());
+            public readonly FileInfoContract TestFile = new FileInfoContract(@"\File.ext", "File.ext", "2015-01-02 10:11:12".ToDateTime(), "2015-01-02 20:21:22".ToDateTime(), new FileSize("16kB"), "16384".ToHash());
 
             public readonly ProxyFileInfoContract ProxyTestFile = new ProxyFileInfoContract("File.ext");
 
@@ -57,9 +57,9 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             public FileSystemInfoContract[] SubDirectoryItems { get; } = new FileSystemInfoContract[] {
                 new DirectoryInfoContract(@"\SubDir\SubSubDir", "SubSubDir", "2015-02-01 10:11:12".ToDateTime(), "2015-02-01 20:21:22".ToDateTime()),
-                new FileInfoContract(@"\SubDir\SubFile.ext", "SubFile.ext", "2015-02-02 10:11:12".ToDateTime(), "2015-02-02 20:21:22".ToDateTime(), 981256915, "981256915".ToHash()),
-                new FileInfoContract(@"\SubDir\SecondSubFile.ext", "SecondSubFile.ext", "2015-02-03 10:11:12".ToDateTime(), "2015-02-03 20:21:22".ToDateTime(), 30858025, "30858025".ToHash()),
-                new FileInfoContract(@"\SubDir\ThirdSubFile.ext", "ThirdSubFile.ext", "2015-02-04 10:11:12".ToDateTime(), "2015-02-04 20:21:22".ToDateTime(), 45357, "45357".ToHash())
+                new FileInfoContract(@"\SubDir\SubFile.ext", "SubFile.ext", "2015-02-02 10:11:12".ToDateTime(), "2015-02-02 20:21:22".ToDateTime(), (FileSize)981256915, "981256915".ToHash()),
+                new FileInfoContract(@"\SubDir\SecondSubFile.ext", "SecondSubFile.ext", "2015-02-03 10:11:12".ToDateTime(), "2015-02-03 20:21:22".ToDateTime(), (FileSize)30858025, "30858025".ToHash()),
+                new FileInfoContract(@"\SubDir\ThirdSubFile.ext", "ThirdSubFile.ext", "2015-02-04 10:11:12".ToDateTime(), "2015-02-04 20:21:22".ToDateTime(), (FileSize)45357, "45357".ToHash())
             };
 
             public static Fixture Initialize() => new Fixture();
@@ -105,7 +105,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             {
                 drive
                     .Setup(d => d.NewFileItem(It.Is<DirectoryInfoContract>(c => c.Id == parent.Id), name, It.Is<Stream>(s => s.Contains(content))))
-                    .Returns((DirectoryInfoContract p, string n, Stream s) => new FileInfoContract($"{p.Id}\\{n}", n, DateTimeOffset.Now, DateTimeOffset.Now, s.Length, null));
+                    .Returns((DirectoryInfoContract p, string n, Stream s) => new FileInfoContract($"{p.Id}\\{n}", n, DateTimeOffset.Now, DateTimeOffset.Now, (FileSize)s.Length, null));
             }
 
             public void SetupRemove(FileInfoContract target)

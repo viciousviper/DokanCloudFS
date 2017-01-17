@@ -337,6 +337,24 @@ namespace IgorSoft.DokanCloudFS.Tests
             sut.Delete();
         }
 
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void DirectoryInfo_GetAttributes_ReturnsExpectedValue()
+        {
+            const string directoryName = "NewSubDir";
+
+            fixture.SetupGetRootDirectoryItems();
+            fixture.SetupNewDirectory(Path.DirectorySeparatorChar.ToString(), directoryName);
+
+            var sut = fixture.GetDriveInfo().RootDirectory;
+            var newDirectory = sut.CreateSubdirectory(directoryName);
+
+            Assert.IsTrue(newDirectory.Exists, "Directory creation failed");
+            Assert.AreEqual(FileAttributes.Directory, sut.Attributes, "Directory possesses unexpected Attributes");
+
+            fixture.Verify();
+        }
+
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void DirectoryInfo_MoveToDirectory_Succeeds()
         {
@@ -445,6 +463,54 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             var residualFiles = root.GetFiles(sutContract.Name);
             Assert.IsFalse(residualFiles.Any(), "Excessive file found");
+
+            fixture.Verify();
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void FileInfo_GetAttributes_ReturnsExpectedValue()
+        {
+            var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
+
+            fixture.SetupGetRootDirectoryItems();
+
+            var root = fixture.GetDriveInfo().RootDirectory;
+            var sut = root.GetFiles(sutContract.Name).Single();
+
+            Assert.IsTrue(sut.Exists, "Expected file missing");
+            Assert.AreEqual(FileAttributes.NotContentIndexed, sut.Attributes, "File possesses unexpected Attributes");
+
+            fixture.Verify();
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void FileInfo_GetIsReadOnly_ReturnsFalse()
+        {
+            var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
+
+            fixture.SetupGetRootDirectoryItems();
+
+            var root = fixture.GetDriveInfo().RootDirectory;
+            var sut = root.GetFiles(sutContract.Name).Single();
+
+            Assert.IsTrue(sut.Exists, "Expected file missing");
+            Assert.IsFalse(sut.IsReadOnly, "File is read-only");
+
+            fixture.Verify();
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void FileInfo_GetLength_ReturnsExpectedValue()
+        {
+            var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
+
+            fixture.SetupGetRootDirectoryItems();
+
+            var root = fixture.GetDriveInfo().RootDirectory;
+            var sut = root.GetFiles(sutContract.Name).Single();
+
+            Assert.IsTrue(sut.Exists, "Expected file missing");
+            Assert.AreEqual(sutContract.Size.Value, sut.Length, "File length differs");
 
             fixture.Verify();
         }
@@ -559,7 +625,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         {
             var fileContent = Encoding.Default.GetBytes("Why did the chicken cross the road?");
             var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
-            sutContract.Size = fileContent.Length;
+            sutContract.Size = (FileSize)fileContent.Length;
 
             fixture.SetupGetRootDirectoryItems();
             fixture.SetupGetFileContent(sutContract, fileContent);
@@ -935,7 +1001,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             var bufferSize = int.Parse((string)TestContext.DataRow["BufferSize"]);
             var fileSize = int.Parse((string)TestContext.DataRow["FileSize"]);
             var testInput = Enumerable.Range(0, fileSize).Select(i => (byte)(i % 251 + 1)).ToArray();
-            var sutContract = new FileInfoContract(@"\File_NativeReadOverlapped.ext", "File_NativeReadOverlapped.ext", "2016-01-02 10:11:12".ToDateTime(), "2016-01-02 20:21:22".ToDateTime(), 16384, "16384".ToHash());
+            var sutContract = new FileInfoContract(@"\File_NativeReadOverlapped.ext", "File_NativeReadOverlapped.ext", "2016-01-02 10:11:12".ToDateTime(), "2016-01-02 20:21:22".ToDateTime(), new FileSize("16kB"), "16384".ToHash());
 
             fixture.SetupGetRootDirectoryItems(fixture.RootDirectoryItems.Concat(new[] { sutContract }));
             fixture.SetupGetFileContent(sutContract, testInput);

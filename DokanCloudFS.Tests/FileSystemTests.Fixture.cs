@@ -317,29 +317,29 @@ namespace IgorSoft.DokanCloudFS.Tests
             public FileSystemInfoContract[] RootDirectoryItems { get; } = new FileSystemInfoContract[] {
                 new DirectoryInfoContract(@"\SubDir", "SubDir", "2015-01-01 10:11:12".ToDateTime(), "2015-01-01 20:21:22".ToDateTime()),
                 new DirectoryInfoContract(@"\SubDir2", "SubDir2", "2015-01-01 13:14:15".ToDateTime(), "2015-01-01 23:24:25".ToDateTime()),
-                new FileInfoContract(@"\File.ext", "File.ext", "2015-01-02 10:11:12".ToDateTime(), "2015-01-02 20:21:22".ToDateTime(), 16384, "16384".ToHash()),
-                new FileInfoContract(@"\SecondFile.ext", "SecondFile.ext", "2015-01-03 10:11:12".ToDateTime(), "2015-01-03 20:21:22".ToDateTime(), 32768, "32768".ToHash()),
-                new FileInfoContract(@"\ThirdFile.ext", "ThirdFile.ext", "2015-01-04 10:11:12".ToDateTime(), "2015-01-04 20:21:22".ToDateTime(), 65536, "65536".ToHash())
+                new FileInfoContract(@"\File.ext", "File.ext", "2015-01-02 10:11:12".ToDateTime(), "2015-01-02 20:21:22".ToDateTime(), new FileSize("16kB"), "16384".ToHash()),
+                new FileInfoContract(@"\SecondFile.ext", "SecondFile.ext", "2015-01-03 10:11:12".ToDateTime(), "2015-01-03 20:21:22".ToDateTime(), new FileSize("32kB"), "32768".ToHash()),
+                new FileInfoContract(@"\ThirdFile.ext", "ThirdFile.ext", "2015-01-04 10:11:12".ToDateTime(), "2015-01-04 20:21:22".ToDateTime(), new FileSize("64kB"), "65536".ToHash())
             };
 
             public FileSystemInfoContract[] SubDirectoryItems { get; } = new FileSystemInfoContract[] {
                 new DirectoryInfoContract(@"\SubDir\SubSubDir", "SubSubDir", "2015-02-01 10:11:12".ToDateTime(), "2015-02-01 20:21:22".ToDateTime()),
-                new FileInfoContract(@"\SubDir\SubFile.ext", "SubFile.ext", "2015-02-02 10:11:12".ToDateTime(), "2015-02-02 20:21:22".ToDateTime(), 981256915, "981256915".ToHash()),
-                new FileInfoContract(@"\SubDir\SecondSubFile.ext", "SecondSubFile.ext", "2015-02-03 10:11:12".ToDateTime(), "2015-02-03 20:21:22".ToDateTime(), 30858025, "30858025".ToHash()),
-                new FileInfoContract(@"\SubDir\ThirdSubFile.ext", "ThirdSubFile.ext", "2015-02-04 10:11:12".ToDateTime(), "2015-02-04 20:21:22".ToDateTime(), 45357, "45357".ToHash())
+                new FileInfoContract(@"\SubDir\SubFile.ext", "SubFile.ext", "2015-02-02 10:11:12".ToDateTime(), "2015-02-02 20:21:22".ToDateTime(), (FileSize)981256915, "981256915".ToHash()),
+                new FileInfoContract(@"\SubDir\SecondSubFile.ext", "SecondSubFile.ext", "2015-02-03 10:11:12".ToDateTime(), "2015-02-03 20:21:22".ToDateTime(), (FileSize)30858025, "30858025".ToHash()),
+                new FileInfoContract(@"\SubDir\ThirdSubFile.ext", "ThirdSubFile.ext", "2015-02-04 10:11:12".ToDateTime(), "2015-02-04 20:21:22".ToDateTime(), (FileSize)45357, "45357".ToHash())
             };
 
             public FileSystemInfoContract[] SubDirectory2Items { get; } = new FileSystemInfoContract[] {
                 new DirectoryInfoContract(@"\SubDir2\SubSubDir2", "SubSubDir2", "2015-02-01 10:11:12".ToDateTime(), "2015-02-01 20:21:22".ToDateTime()),
-                new FileInfoContract(@"\SubDir2\SubFile2.ext", "SubFile2.ext", "2015-02-02 10:11:12".ToDateTime(), "2015-02-02 20:21:22".ToDateTime(), 981256915, "981256915".ToHash()),
-                new FileInfoContract(@"\SubDir2\SecondSubFile2.ext", "SecondSubFile2.ext", "2015-02-03 10:11:12".ToDateTime(), "2015-02-03 20:21:22".ToDateTime(), 30858025, "30858025".ToHash()),
-                new FileInfoContract(@"\SubDir2\ThirdSubFile2.ext", "ThirdSubFile2.ext", "2015-02-04 10:11:12".ToDateTime(), "2015-02-04 20:21:22".ToDateTime(), 45357, "45357".ToHash())
+                new FileInfoContract(@"\SubDir2\SubFile2.ext", "SubFile2.ext", "2015-02-02 10:11:12".ToDateTime(), "2015-02-02 20:21:22".ToDateTime(), (FileSize)981256915, "981256915".ToHash()),
+                new FileInfoContract(@"\SubDir2\SecondSubFile2.ext", "SecondSubFile2.ext", "2015-02-03 10:11:12".ToDateTime(), "2015-02-03 20:21:22".ToDateTime(), (FileSize)30858025, "30858025".ToHash()),
+                new FileInfoContract(@"\SubDir2\ThirdSubFile2.ext", "ThirdSubFile2.ext", "2015-02-04 10:11:12".ToDateTime(), "2015-02-04 20:21:22".ToDateTime(), (FileSize)45357, "45357".ToHash())
             };
 
             public FileSystemInfoContract[] SubSubDirectoryItems { get; } = new FileSystemInfoContract[] {
-                new FileInfoContract(@"\SubDir\SubSubDir\SubSubFile.ext", "SubSubFile.ext", "2015-03-01 10:11:12".ToDateTime(), "2015-03-01 20:21:22".ToDateTime(), 7198265, "7198265".ToHash()),
-                new FileInfoContract(@"\SubDir\SubSubDir\SecondSubSubFile.ext", "SecondSubSubFile.ext", "2015-03-02 10:11:12".ToDateTime(), "2015-03-02 20:21:22".ToDateTime(), 5555, "5555".ToHash()),
-                new FileInfoContract(@"\SubDir\SubSubDir\ThirdSubSubFile.ext", "ThirdSubSubFile.ext", "2015-03-03 10:11:12".ToDateTime(), "2015-03-03 20:21:22".ToDateTime(), 102938576, "102938576".ToHash())
+                new FileInfoContract(@"\SubDir\SubSubDir\SubSubFile.ext", "SubSubFile.ext", "2015-03-01 10:11:12".ToDateTime(), "2015-03-01 20:21:22".ToDateTime(), (FileSize)7198265, "7198265".ToHash()),
+                new FileInfoContract(@"\SubDir\SubSubDir\SecondSubSubFile.ext", "SecondSubSubFile.ext", "2015-03-02 10:11:12".ToDateTime(), "2015-03-02 20:21:22".ToDateTime(), (FileSize)5555, "5555".ToHash()),
+                new FileInfoContract(@"\SubDir\SubSubDir\ThirdSubSubFile.ext", "ThirdSubSubFile.ext", "2015-03-03 10:11:12".ToDateTime(), "2015-03-03 20:21:22".ToDateTime(), (FileSize)102938576, "102938576".ToHash())
             };
 
             public static Fixture Initialize() => new Fixture();
@@ -464,7 +464,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             public FileInfoContract SetupNewFile(DirectoryId parentId, string fileName)
             {
-                var file = new FileInfoContract($"{parentId.Value.TrimEnd('\\')}\\{fileName}".ToString(CultureInfo.CurrentCulture), fileName, "2016-02-01 12:00:00".ToDateTime(), "2016-02-01 12:00:00".ToDateTime(), 0, null);
+                var file = new FileInfoContract($"{parentId.Value.TrimEnd('\\')}\\{fileName}".ToString(CultureInfo.CurrentCulture), fileName, "2016-02-01 12:00:00".ToDateTime(), "2016-02-01 12:00:00".ToDateTime(), FileSize.Empty, null);
                 drive
                     .Setup(drive => drive.NewFileItem(It.Is<DirectoryInfoContract>(parent => parent.Id == parentId), fileName, It.Is<Stream>(s => s.Length == 0)))
                     .Returns(file)

@@ -52,6 +52,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 
                 public override string FullName => Name;
 
+                [Obsolete("Unused property will be removed in a future version.")]
                 public override string Mode => "t----";
             }
 
@@ -68,7 +69,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             public readonly FileSystemInfoContract TestItem = new TestFileSystemInfoContract(@"\Item.ext", "Item.ext", "2015-12-31 10:11:12".ToDateTime(), "2015-12-31 20:21:22".ToDateTime());
 
-            public readonly FileInfoContract TestFile = new FileInfoContract(@"\File.ext", "File.ext", "2015-01-02 10:11:12".ToDateTime(), "2015-01-02 20:21:22".ToDateTime(), 16384, "16384".ToHash());
+            public readonly FileInfoContract TestFile = new FileInfoContract(@"\File.ext", "File.ext", "2015-01-02 10:11:12".ToDateTime(), "2015-01-02 20:21:22".ToDateTime(), new FileSize("16kB"), "16384".ToHash());
 
             public readonly ProxyFileInfoContract MismatchedProxyTestFile = new ProxyFileInfoContract("MismatchedFile.ext");
 

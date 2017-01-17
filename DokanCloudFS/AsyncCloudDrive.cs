@@ -101,7 +101,7 @@ namespace IgorSoft.DokanCloudFS
         public void SetContent(FileInfoContract target, Stream content)
         {
             ExecuteInSemaphore(() => {
-                target.Size = content.Length;
+                target.Size = (FileSize)content.Length;
                 var gatewayContent = content.EncryptOrPass(encryptionKey);
 
 #if DEBUG
@@ -141,7 +141,7 @@ namespace IgorSoft.DokanCloudFS
                 var gatewayContent = content.EncryptOrPass(encryptionKey);
 
                 var result = gateway.NewFileItemAsync(rootName, parent.Id, name, gatewayContent, null).Result;
-                result.Size = size;
+                result.Size = (FileSize)size;
                 return result;
             }, nameof(NewFileItem), true);
         }

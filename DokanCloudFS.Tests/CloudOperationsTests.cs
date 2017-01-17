@@ -113,7 +113,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             var root = SetupGetRoot();
             driveMock
                 .Setup(d => d.NewFileItem(root, "File.ext", Stream.Null))
-                .Returns(new FileInfoContract(@"\File.ext", "File.ext", DateTimeOffset.FromFileTime(0), DateTimeOffset.FromFileTime(0), 0, string.Empty));
+                .Returns(new FileInfoContract(@"\File.ext", "File.ext", DateTimeOffset.FromFileTime(0), DateTimeOffset.FromFileTime(0), FileSize.Empty, string.Empty));
 
             var result = sut.CreateFile("File.ext", FileAccess.ReadData, default(FileShare), FileMode.OpenOrCreate, default(FileOptions), default(FileAttributes), info);
 
