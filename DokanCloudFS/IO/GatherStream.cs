@@ -36,26 +36,29 @@ namespace IgorSoft.DokanCloudFS.IO
 
         private readonly TimeSpan timeout;
 
-        internal GatherStream(byte[] buffer, BlockMap assignedBlocks, TimeSpan timeout) : base(buffer, false)
-        {
-            if (assignedBlocks == null)
-                throw new ArgumentNullException(nameof(assignedBlocks));
-
-            this.assignedBlocks = assignedBlocks;
-            this.timeout = timeout;
-        }
-
         public override bool CanRead => true;
 
         public override bool CanSeek => true;
 
         public override bool CanWrite => false;
 
+        public override int Capacity
+        {
+            get {
+                lock (assignedBlocks) {
+                    return assignedBlocks.Capacity;
+                }
+            }
+            set {
+                throw new NotSupportedException();
+            }
+        }
+
         public override long Length
         {
             get {
                 lock (assignedBlocks) {
-                    return Capacity;
+                    return assignedBlocks.Capacity;
                 }
             }
         }
@@ -73,6 +76,17 @@ namespace IgorSoft.DokanCloudFS.IO
                     Monitor.Pulse(assignedBlocks);
                 }
             }
+        }
+
+        internal GatherStream(byte[] buffer, BlockMap assignedBlocks, TimeSpan timeout) : base(buffer, false)
+        {
+            if (assignedBlocks == null)
+                throw new ArgumentNullException(nameof(assignedBlocks));
+            if (buffer.Length != assignedBlocks.Capacity)
+                throw new ArgumentException($"{nameof(assignedBlocks)} capacity does not match {nameof(buffer)} length".ToString(CultureInfo.CurrentCulture));
+
+            this.assignedBlocks = assignedBlocks;
+            this.timeout = timeout;
         }
 
         public override int Read(byte[] buffer, int offset, int count)

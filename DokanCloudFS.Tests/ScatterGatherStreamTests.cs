@@ -63,10 +63,17 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        [ExpectedException(typeof(ArgumentException))]
+        public void GatherStream_Create_WhereBlockMapCapacityDiffersFromBufferSize_Throws()
+        {
+            fixture.CreateGatherStream(fixture.InitializeBuffer(20), new BlockMap(10));
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void GatherStream_SeekFromBegin_ReturnsCorrectResult()
         {
             const int size = 100;
-            var sut = fixture.CreateGatherStream(Enumerable.Repeat<byte>(128, size).ToArray(), new BlockMap(1));
+            var sut = fixture.CreateGatherStream(size);
 
             var result = sut.Seek(size / 4, SeekOrigin.Begin);
 
@@ -77,7 +84,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         public void GatherStream_SeekFromEnd_ReturnsCorrectResult()
         {
             const int size = 100;
-            var sut = fixture.CreateGatherStream(Enumerable.Repeat<byte>(128, size).ToArray(), new BlockMap(1));
+            var sut = fixture.CreateGatherStream(size);
 
             var result = sut.Seek(-size / 4, SeekOrigin.End);
 
@@ -89,7 +96,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         public void GatherStream_SetLength_Throws()
         {
             const int size = 100;
-            var sut = fixture.CreateGatherStream(Enumerable.Repeat<byte>(128, size).ToArray(), new BlockMap(1));
+            var sut = fixture.CreateGatherStream(size);
 
             sut.SetLength(size * 3 / 4);
         }
@@ -98,7 +105,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         [ExpectedException(typeof(NotSupportedException))]
         public void GatherStream_Write_Throws()
         {
-            var sut = fixture.CreateGatherStream(Array.Empty<byte>(), new BlockMap(1));
+            var sut = fixture.CreateGatherStream(1);
 
             sut.Write(Array.Empty<byte>(), 0, 0);
         }
@@ -108,6 +115,13 @@ namespace IgorSoft.DokanCloudFS.Tests
         public void ScatterStream_Create_WhereBufferIsNull_Throws()
         {
             fixture.CreateScatterStream(null, new BlockMap(1));
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        [ExpectedException(typeof(ArgumentException))]
+        public void ScatterStream_Create_WhereBlockMapCapacityDiffersFromBufferSize_Throws()
+        {
+            fixture.CreateScatterStream(Enumerable.Repeat<byte>(0, 20).ToArray(), new BlockMap(10));
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -121,16 +135,33 @@ namespace IgorSoft.DokanCloudFS.Tests
         [ExpectedException(typeof(NotSupportedException))]
         public void ScatterStream_Read_Throws()
         {
-            var sut = fixture.CreateScatterStream(Array.Empty<byte>(), new BlockMap(1));
+            var sut = fixture.CreateScatterStream(1);
 
             sut.Read(Array.Empty<byte>(), 0, 0);
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void ScatterStream_Read_WhereGatherStreamIsSpecified_Succeeds()
+        {
+            var size = 256;
+            var buffer = fixture.InitializeBuffer(size);
+            var assignedBlocks = new BlockMap(size);
+            assignedBlocks.AssignBytes(0, size);
+
+            var sut = fixture.CreateScatterStream(buffer, assignedBlocks);
+            sut.AssignGatherStream(fixture.CreateGatherStream(buffer, assignedBlocks));
+
+            var result = new byte[size];
+            sut.Read(result, 0, size);
+
+            CollectionAssert.AreEqual(buffer, result);
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void ScatterStream_SeekFromBegin_ReturnsCorrectResult()
         {
             const int size = 100;
-            var sut = fixture.CreateScatterStream(Enumerable.Repeat<byte>(128, size).ToArray(), new BlockMap(1));
+            var sut = fixture.CreateScatterStream(size);
 
             var result = sut.Seek(size / 4, SeekOrigin.Begin);
 
@@ -141,7 +172,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         public void ScatterStream_SeekFromEnd_ReturnsCorrectResult()
         {
             const int size = 100;
-            var sut = fixture.CreateScatterStream(Enumerable.Repeat<byte>(128, size).ToArray(), new BlockMap(1));
+            var sut = fixture.CreateScatterStream(size);
 
             var result = sut.Seek(-size / 4, SeekOrigin.End);
 
@@ -152,7 +183,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         public void ScatterStream_SetLength_Succeeds()
         {
             const int size = 100;
-            var sut = fixture.CreateScatterStream(Enumerable.Repeat<byte>(128, size).ToArray(), new BlockMap(1));
+            var sut = fixture.CreateScatterStream(size);
 
             sut.SetLength(size * 3 / 4);
 
@@ -177,6 +208,61 @@ namespace IgorSoft.DokanCloudFS.Tests
             var gatherStream = default(Stream);
 
             ScatterGatherStreamFactory.CreateScatterGatherStreams(100, TimeSpan.FromMilliseconds(-2), out scatterStream, out gatherStream);
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void ScatterStream_SetCapacity_ToLowerValue_Succeeds()
+        {
+            var size = 1000;
+
+            var scatterStream = fixture.CreateScatterStream(size);
+
+            scatterStream.Capacity -= 1;
+
+            Assert.AreEqual(size - 1, scatterStream.Capacity);
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void ScatterStream_SetCapacity_ToHigherValue_Succeeds()
+        {
+            var size = 1000;
+
+            var scatterStream = fixture.CreateScatterStream(size);
+
+            scatterStream.Capacity += 1;
+
+            Assert.AreEqual(size + 1, scatterStream.Capacity);
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void ScatterStream_SetCapacity_SetsMatchingCapacityOnGatherStream()
+        {
+            var size = 1000;
+
+            var scatterStream = default(Stream);
+            var gatherStream = default(Stream);
+            ScatterGatherStreamFactory.CreateScatterGatherStreams(size, out scatterStream, out gatherStream);
+
+            var changedSize = size / 4;
+            ((ScatterStream)scatterStream).Capacity = changedSize;
+
+            Assert.AreEqual(changedSize, ((GatherStream)gatherStream).Capacity);
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void ScatterStream_SetCapacity_WhereBlockMapWouldBeTruncated_Throws()
+        {
+            var size = 256;
+            var buffer = fixture.InitializeBuffer(size);
+            var assignedBlocks = new BlockMap(size);
+            assignedBlocks.AssignBytes(0, size / 2);
+
+            var scatterStream = fixture.CreateScatterStream(buffer, assignedBlocks);
+            var gatherStream = fixture.CreateGatherStream(buffer, assignedBlocks);
+
+            var changedSize = size / 2 - 1;
+            ((ScatterStream)scatterStream).Capacity = changedSize;
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]

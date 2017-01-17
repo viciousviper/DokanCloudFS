@@ -55,6 +55,8 @@ namespace IgorSoft.DokanCloudFS
 
             public bool IsLocked { get; set; }
 
+            public bool CanWriteDelayed => Access.HasFlag(FileAccess.WriteData) && (Stream?.CanRead ?? false) && Task == null;
+
             public StreamContext(CloudFileNode file, FileAccess access)
             {
                 File = file;
@@ -129,7 +131,7 @@ namespace IgorSoft.DokanCloudFS
                 (GetItem(fileName) as CloudFileNode)?.Remove(drive);
             } else if (!info.IsDirectory) {
                 var context = info.Context as StreamContext;
-                if (context != null && context.Access.HasFlag(FileAccess.WriteData) && (context.Stream?.CanRead ?? false)) {
+                if (context?.CanWriteDelayed ?? false) {
                     context.Stream.Seek(0, SeekOrigin.Begin);
                     context.Task = Task.Run(() => {
                             try {
@@ -291,7 +293,7 @@ namespace IgorSoft.DokanCloudFS
             files = childItems.Any()
                 ? childItems.Select(i => new FileInformation() {
                     FileName = i.Name, Length = (i as CloudFileNode)?.Contract.Size ?? FileSize.Empty,
-                    Attributes = i is CloudDirectoryNode ? FileAttributes.Directory : FileAttributes.ReadOnly | FileAttributes.NotContentIndexed,
+                    Attributes = i is CloudDirectoryNode ? FileAttributes.Directory : FileAttributes.NotContentIndexed,
                     CreationTime = i.Contract.Created.DateTime, LastWriteTime = i.Contract.Updated.DateTime, LastAccessTime = i.Contract.Updated.DateTime
                 }).ToList()
                 : emptyDirectoryDefaultFiles;
@@ -312,7 +314,7 @@ namespace IgorSoft.DokanCloudFS
                     .Where(i => Regex.IsMatch(i.Name, searchPattern.Contains('?') || searchPattern.Contains('*') ? searchPattern.Replace('?', '.').Replace("*", ".*") : "^" + searchPattern + "$"))
                     .Select(i => new FileInformation() {
                         FileName = i.Name, Length = (i as CloudFileNode)?.Contract.Size ?? FileSize.Empty,
-                        Attributes = i is CloudDirectoryNode ? FileAttributes.Directory : FileAttributes.ReadOnly | FileAttributes.NotContentIndexed,
+                        Attributes = i is CloudDirectoryNode ? FileAttributes.Directory : FileAttributes.NotContentIndexed,
                         CreationTime = i.Contract.Created.DateTime, LastWriteTime = i.Contract.Updated.DateTime, LastAccessTime = i.Contract.Updated.DateTime
                     }).ToList()
                 : emptyDirectoryDefaultFiles;
@@ -461,24 +463,30 @@ namespace IgorSoft.DokanCloudFS
                 throw new ArgumentNullException(nameof(info));
 
             var context = (StreamContext)info.Context;
-            if (length > 0 && context.Stream == null) {
-                var scatterStream = default(Stream);
-                var gatherStream = default(Stream);
-                ScatterGatherStreamFactory.CreateScatterGatherStreams((int)length, out scatterStream, out gatherStream);
+            if (length > 0) {
+                if (context.Stream == null) {
+                    var scatterStream = default(Stream);
+                    var gatherStream = default(Stream);
+                    ScatterGatherStreamFactory.CreateScatterGatherStreams((int)length, out scatterStream, out gatherStream);
 
-                context.Stream = scatterStream;
+                    context.Stream = scatterStream;
 
-                context.Task = Task.Run(() => {
-                        try {
-                            context.File.SetContent(drive, gatherStream);
-                        } catch (Exception ex) {
-                            if (!(ex is UnauthorizedAccessException))
-                                context.File.Remove(drive);
-                            logger.Trace($"{nameof(context.File.SetContent)} failed on file '{fileName}' with {ex.GetType().Name} '{ex.Message}'".ToString(CultureInfo.CurrentCulture));
-                            throw;
-                        }
-                    })
-                    .ContinueWith(t => logger.Trace($"{nameof(context.File.SetContent)} finished on file '{fileName}'".ToString(CultureInfo.CurrentCulture)), TaskContinuationOptions.OnlyOnRanToCompletion);
+                    context.Task = Task.Run(() => {
+                            try {
+                                context.File.SetContent(drive, gatherStream);
+                            } catch (Exception ex) {
+                                if (!(ex is UnauthorizedAccessException))
+                                    context.File.Remove(drive);
+                                logger.Trace($"{nameof(context.File.SetContent)} failed on file '{fileName}' with {ex.GetType().Name} '{ex.Message}'".ToString(CultureInfo.CurrentCulture));
+                                throw;
+                            }
+                        })
+                        .ContinueWith(t => logger.Trace($"{nameof(context.File.SetContent)} finished on file '{fileName}'".ToString(CultureInfo.CurrentCulture)), TaskContinuationOptions.OnlyOnRanToCompletion);
+                } else {
+                    var scatterStream = context.Stream as ScatterStream;
+                    if (scatterStream != null)
+                        scatterStream.Capacity = (int)length;
+                }
             }
 
             return Trace(nameof(SetAllocationSize), fileName, info, DokanResult.Success, length.ToString(CultureInfo.InvariantCulture));

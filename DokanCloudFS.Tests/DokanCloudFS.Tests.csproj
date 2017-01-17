@@ -163,7 +163,7 @@
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScatterGatherStreamTests.cs" />
-    <Compile Include="StreamTests.Fixture.cs">
+    <Compile Include="ScatterGatherStreamTests.Fixture.cs">
       <DependentUpon>ScatterGatherStreamTests.cs</DependentUpon>
     </Compile>
     <Compile Include="ArrayExtensions.cs" />

@@ -36,20 +36,29 @@ namespace IgorSoft.DokanCloudFS.IO
 
         private readonly TimeSpan timeout;
 
-        internal ScatterStream(byte[] buffer, BlockMap assignedBlocks, TimeSpan timeout) : base(buffer)
-        {
-            if (assignedBlocks == null)
-                throw new ArgumentNullException(nameof(assignedBlocks));
+        private GatherStream gatherStream;
 
-            this.assignedBlocks = assignedBlocks;
-            this.timeout = timeout;
-        }
-
-        public override bool CanRead => false;
+        public override bool CanRead => gatherStream != null;
 
         public override bool CanSeek => true;
 
         public override bool CanWrite => true;
+
+        public override int Capacity
+        {
+            get {
+                lock (assignedBlocks) {
+                    return assignedBlocks.Capacity;
+                }
+            }
+            set {
+                lock (assignedBlocks) {
+                    assignedBlocks.Capacity = value;
+                    if (value < Length)
+                        base.SetLength(value);
+                }
+            }
+        }
 
         public override long Length
         {
@@ -75,9 +84,23 @@ namespace IgorSoft.DokanCloudFS.IO
             }
         }
 
+        internal ScatterStream(byte[] buffer, BlockMap assignedBlocks, TimeSpan timeout) : base(buffer)
+        {
+            if (assignedBlocks == null)
+                throw new ArgumentNullException(nameof(assignedBlocks));
+            if (buffer.Length != assignedBlocks.Capacity)
+                throw new ArgumentException($"{nameof(assignedBlocks)} capacity does not match {nameof(buffer)} length".ToString(CultureInfo.CurrentCulture));
+
+            this.assignedBlocks = assignedBlocks;
+            this.timeout = timeout;
+        }
+
         public override int Read(byte[] buffer, int offset, int count)
         {
-            throw new NotSupportedException();
+            if (gatherStream == null)
+                throw new NotSupportedException();
+
+            return gatherStream.Read(buffer, offset, count);
         }
 
         public override long Seek(long offset, SeekOrigin loc)
@@ -108,6 +131,16 @@ namespace IgorSoft.DokanCloudFS.IO
                 assignedBlocks.AssignBytes(position, count);
                 Monitor.Pulse(assignedBlocks);
             }
+        }
+
+        internal void AssignGatherStream(GatherStream gatherStream)
+        {
+            if (gatherStream == null)
+                throw new ArgumentNullException(nameof(gatherStream));
+            if (this.gatherStream != null)
+                throw new InvalidOperationException();
+
+            this.gatherStream = gatherStream;
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Debugger Display")]

@@ -155,8 +155,14 @@ namespace IgorSoft.DokanCloudFS.Mounter
                             logger.Info($"Drive '{drive.DisplayRoot}' mounted successfully.");
                         }
 
-                        Console.WriteLine("Press any key to unmount drives");
-                        Console.ReadKey(true);
+                        Console.WriteLine("Press CTRL-BACKSPACE to clear log, any other key to unmount drives");
+                        while (true) {
+                            var keyInfo = Console.ReadKey(true);
+                            if (keyInfo.Modifiers.HasFlag(ConsoleModifiers.Control) && keyInfo.Key == ConsoleKey.Backspace)
+                                Console.Clear();
+                            else
+                                break;
+                        }
 
                         tokenSource.Cancel();
 

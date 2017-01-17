@@ -52,6 +52,8 @@ namespace IgorSoft.DokanCloudFS.IO
             var assignedBlocks = new BlockMap(capacity);
             scatterStream = new ScatterStream(buffer, assignedBlocks, timeout);
             gatherStream = new GatherStream(buffer, assignedBlocks, timeout);
+
+            ((ScatterStream)scatterStream).AssignGatherStream((GatherStream)gatherStream);
         }
     }
 }

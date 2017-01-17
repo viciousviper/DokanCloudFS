@@ -54,17 +54,24 @@ namespace IgorSoft.DokanCloudFS.Tests
                 return new FakeGatherStream(buffer, assignedBlocks, TimeSpan.FromSeconds(1));
             }
 
+            public GatherStream CreateGatherStream(int size)
+            {
+                return CreateGatherStream(InitializeBuffer(size), new BlockMap(size));
+            }
+
             public ScatterStream CreateScatterStream(byte[] buffer, BlockMap assignedBlocks)
             {
                 return new FakeScatterStream(buffer, assignedBlocks, TimeSpan.FromSeconds(1));
             }
 
+            public ScatterStream CreateScatterStream(int size)
+            {
+                return CreateScatterStream(InitializeBuffer(size), new BlockMap(size));
+            }
+
             public byte[] InitializeBuffer(int size)
             {
-                var buffer = new byte[size];
-                for (int i = 0; i < buffer.Length; ++i)
-                    buffer[i] = (byte)(i % 253);
-                return buffer;
+                return Enumerable.Range(0, size).Select(i => (byte)(i % 253)).ToArray();
             }
 
             public byte[] CopyBufferConcurrently(byte[] sourceBuffer, TimeSpan initialWriteDelay, int writeChunkSize, TimeSpan writeDelay, TimeSpan initialReadDelay, int readChunkSize, TimeSpan readDelay, bool flush = true)

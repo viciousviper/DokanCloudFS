@@ -94,16 +94,29 @@ namespace IgorSoft.DokanCloudFS.IO
 
         private readonly List<Block> blocks = new List<Block>();
 
+        private int capacity;
+
         public ReadOnlyCollection<Block> Blocks => new ReadOnlyCollection<Block>(blocks);
 
-        public int Capacity { get; }
+        public int Capacity {
+            get { return capacity; }
+            set {
+                if (blocks.Any()) {
+                    var assignedCapacity = blocks.Max(b => b.Offset + b.Count);
+                    if (value < assignedCapacity)
+                        throw new ArgumentOutOfRangeException($"{nameof(Capacity)} cannot be set below {assignedCapacity}.".ToString(CultureInfo.CurrentCulture));
+                }
+
+                capacity = value;
+            }
+        }
 
         public BlockMap(int capacity)
         {
             if (capacity <= 0)
                 throw new ArgumentOutOfRangeException(nameof(capacity), $"{nameof(capacity)} must be positive.".ToString(CultureInfo.CurrentCulture));
 
-            Capacity = capacity;
+            this.capacity = capacity;
         }
 
         private int GetAvailableBytes(int index, int offset, int count)

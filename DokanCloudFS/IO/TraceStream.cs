@@ -50,6 +50,13 @@ namespace IgorSoft.DokanCloudFS.IO
 
         public TraceStream(string name, string fileName, Stream baseStream)
         {
+            if (string.IsNullOrEmpty(name))
+                throw new ArgumentNullException(nameof(name));
+            if (string.IsNullOrEmpty(fileName))
+                throw new ArgumentNullException(nameof(fileName));
+            if (baseStream == null)
+                throw new ArgumentNullException(nameof(baseStream));
+
             this.name = name;
             this.fileName = fileName;
             this.baseStream = baseStream;
