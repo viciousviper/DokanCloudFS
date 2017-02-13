@@ -87,6 +87,8 @@ namespace IgorSoft.DokanCloudFS.IO
 
             public override int GetHashCode() => Offset.GetHashCode() ^ Count.GetHashCode();
 
+            public override string ToString() => DebuggerDisplay;
+
             [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Debugger Display")]
             [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
             private string DebuggerDisplay => $"{nameof(Block)}({Offset}, {Count})".ToString(CultureInfo.CurrentCulture);
@@ -170,6 +172,8 @@ namespace IgorSoft.DokanCloudFS.IO
                 blocks.Insert(successorIndex, block);
             }
         }
+
+        public override string ToString() => DebuggerDisplay;
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Debugger Display")]
         [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]

@@ -35,23 +35,9 @@ namespace IgorSoft.DokanCloudFS.Tests
     {
         private sealed class Fixture
         {
-            private sealed class FakeGatherStream : GatherStream
-            {
-                public FakeGatherStream(byte[] buffer, BlockMap assignedBlocks, TimeSpan timeout) : base(buffer, assignedBlocks, timeout)
-                {
-                }
-            }
-
-            private sealed class FakeScatterStream : ScatterStream
-            {
-                public FakeScatterStream(byte[] buffer, BlockMap assignedBlocks, TimeSpan timeout) : base(buffer, assignedBlocks, timeout)
-                {
-                }
-            }
-
             public GatherStream CreateGatherStream(byte[] buffer, BlockMap assignedBlocks)
             {
-                return new FakeGatherStream(buffer, assignedBlocks, TimeSpan.FromSeconds(1));
+                return new GatherStream(buffer, assignedBlocks, TimeSpan.FromSeconds(1));
             }
 
             public GatherStream CreateGatherStream(int size)
@@ -61,7 +47,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             public ScatterStream CreateScatterStream(byte[] buffer, BlockMap assignedBlocks)
             {
-                return new FakeScatterStream(buffer, assignedBlocks, TimeSpan.FromSeconds(1));
+                return new ScatterStream(buffer, assignedBlocks, TimeSpan.FromSeconds(1));
             }
 
             public ScatterStream CreateScatterStream(int size)
@@ -137,24 +123,21 @@ namespace IgorSoft.DokanCloudFS.Tests
 
                 await Task.Delay(initialDelay);
 
-                var volume = 0;
-                for (int i = 0, bytesRead = 0; volume < buffer.Length; ++i) {
-                    bytesRead = 0;
+                var completed = 0;
+                for (var i = 0; completed < buffer.Length; ++i) {
+                    var bytesRead = 0;
                     stream.Position = readPermutation[i] * chunkSize;
                     do {
-                        bytesRead += buffer.Length - volume > 0 ? await stream.ReadAsync(buffer, readPermutation[i] * chunkSize + bytesRead, Math.Min(chunkSize - bytesRead, buffer.Length - volume)) : 0;
+                        bytesRead += buffer.Length - completed > 0 ? await stream.ReadAsync(buffer, readPermutation[i] * chunkSize + bytesRead, Math.Min(chunkSize - bytesRead, buffer.Length - completed)) : 0;
                         await Task.Delay(readDelay);
                     } while (bytesRead < chunkSize);
-                    volume += bytesRead;
+                    completed += bytesRead;
                     Console.WriteLine($"{nameof(ReadAsync)}[{readPermutation[i] * chunkSize}] <- {bytesRead}".ToString(CultureInfo.CurrentCulture));
-
-                    if (bytesRead == 0)
-                        break;
                 }
 
                 Console.WriteLine($"{nameof(ReadAsync)} End".ToString(CultureInfo.CurrentCulture));
 
-                return volume;
+                return completed;
             }
 
             public async Task<bool> WriteAsync(Stream stream, byte[] buffer, TimeSpan initialDelay, int chunkSize, TimeSpan writeDelay, int[] writePermutation = null, bool flush = true)
@@ -166,11 +149,11 @@ namespace IgorSoft.DokanCloudFS.Tests
 
                 await Task.Delay(initialDelay);
 
-                var volume = 0;
-                for (int i = 0; volume < buffer.Length; ++i) {
+                var completed = 0;
+                for (int i = 0; completed < buffer.Length; ++i) {
                     stream.Position = writePermutation[i] * chunkSize;
                     await stream.WriteAsync(buffer, writePermutation[i] * chunkSize, chunkSize);
-                    volume += chunkSize;
+                    completed += chunkSize;
                     Console.WriteLine($"{nameof(WriteAsync)}[{writePermutation[i] * chunkSize}] -> {chunkSize}".ToString(CultureInfo.CurrentCulture));
                     await Task.Delay(writeDelay);
                 }
