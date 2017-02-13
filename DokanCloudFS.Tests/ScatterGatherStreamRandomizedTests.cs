@@ -57,7 +57,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
-        public void RandomlyGatheredReadOfLinearWrite_ReturnsContent()
+        public void RandomlyGatheredReadFromLinearWrite_ReturnsContent()
         {
             Prop.ForAll(Fixture.Partitions(), partition =>
             {
@@ -69,7 +69,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
-        public void RandomlyGatheredReadOfRandomlyScatteredWrite_ReturnsContent()
+        public void RandomlyGatheredReadFromRandomlyScatteredWrite_ReturnsContent()
         {
             Prop.ForAll(Fixture.Partitions(), Fixture.Partitions(), (writePartition, readPartition) =>
             {
