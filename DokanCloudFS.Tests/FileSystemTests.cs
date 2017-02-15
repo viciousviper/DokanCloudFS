@@ -55,7 +55,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestInitialize]
         public void Initialize()
         {
-            fixture.Reset();
+            fixture.Reset(TestContext.TestName);
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -233,7 +233,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void DirectoryInfo_Create_Succeeds()
         {
-            const string directoryName = "NewDir";
+            var directoryName = fixture.Named("NewDir");
 
             fixture.SetupGetRootDirectoryItems();
             fixture.SetupNewDirectory(Path.DirectorySeparatorChar.ToString(), directoryName);
@@ -250,8 +250,8 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void DirectoryInfo_Create_WhereParentIsUndefined_Succeeds()
         {
-            const string directoryName = "NewDir";
-            const string parentDirectoryName = "Parent";
+            var directoryName = fixture.Named("NewDir");
+            var parentDirectoryName = fixture.Named("Parent");
 
             fixture.SetupGetRootDirectoryItems();
             fixture.SetupNewDirectory(Path.DirectorySeparatorChar.ToString(), parentDirectoryName);
@@ -266,7 +266,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void DirectoryInfo_CreateSubdirectory_Succeeds()
         {
-            const string directoryName = "NewSubDir";
+            var directoryName = fixture.Named("NewSubDir");
 
             fixture.SetupGetRootDirectoryItems();
             fixture.SetupNewDirectory(Path.DirectorySeparatorChar.ToString(), directoryName);
@@ -341,7 +341,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void DirectoryInfo_GetAttributes_ReturnsExpectedValue()
         {
-            const string directoryName = "NewSubDir";
+            var directoryName = fixture.Named("NewSubDir");
 
             fixture.SetupGetRootDirectoryItems();
             fixture.SetupNewDirectory(Path.DirectorySeparatorChar.ToString(), directoryName);
@@ -386,7 +386,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void DirectoryInfo_Rename_Succeeds()
         {
-            const string directoryName = "RenamedDirectory";
+            var directoryName = fixture.Named("RenamedDirectory");
 
             var sutContract = fixture.RootDirectoryItems.OfType<DirectoryInfoContract>().First();
 
@@ -410,7 +410,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void FileInfo_Create_Succeeds()
         {
-            const string fileName = "NewFile.ext";
+            var fileName = fixture.Named("NewFile.ext");
             var fileContent = Encoding.Default.GetBytes("Why did the chicken cross the road?");
 
             fixture.SetupGetRootDirectoryItems();
@@ -433,7 +433,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         [ExpectedException(typeof(DirectoryNotFoundException))]
         public void FileInfo_Create_WhereParentIsUndefined_Throws()
         {
-            const string fileName = "NewFile.ext";
+            var fileName = fixture.Named("NewFile.ext");
 
             fixture.SetupGetRootDirectoryItems();
 
@@ -581,7 +581,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         [ExpectedException(typeof(IOException))]
         public void FileInfo_Open_CreateNew_WhereFileExists_Throws()
         {
-            const string fileName = "NewFile.ext";
+            var fileName = fixture.Named("NewFile.ext");
 
             fixture.SetupGetRootDirectoryItems();
             var file = fixture.SetupNewFile(Path.DirectorySeparatorChar.ToString(), fileName);
@@ -599,7 +599,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void FileInfo_Rename_Succeeds()
         {
-            const string fileName = "RenamedFile";
+            var fileName = fixture.Named("RenamedFile");
 
             var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
 
@@ -706,7 +706,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void FileStream_Write_OnOpen_WhereModeIsCreateNew_Succeeds()
         {
-            const string fileName = "NewFile.ext";
+            var fileName = fixture.Named("NewFile.ext");
             var fileContent = Encoding.Default.GetBytes("Why did the chicken cross the road?");
 
             fixture.SetupGetRootDirectoryItems();

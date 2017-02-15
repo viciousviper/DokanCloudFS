@@ -312,6 +312,8 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             private readonly Thread mounterThread;
 
+            private string currentTestName;
+
             private Mock<ICloudDrive> drive;
 
             public FileSystemInfoContract[] RootDirectoryItems { get; } = new FileSystemInfoContract[] {
@@ -352,7 +354,7 @@ namespace IgorSoft.DokanCloudFS.Tests
                 loggerMock.Setup(l => l.Trace(It.IsAny<string>())).Callback((string message) => Console.WriteLine(message));
                 logger = loggerMock.Object;
 
-                Reset();
+                Reset(null);
                 SetupGetRoot();
 
                 // HACK: handle non-unique parameter set of DokanOperations.Mount() by explicitely specifying AllocationUnitSize and SectorSize
@@ -362,8 +364,16 @@ namespace IgorSoft.DokanCloudFS.Tests
                     Thread.Sleep(50);
             }
 
-            public void Reset()
+#if !SPECIFIC_NAMES
+            public string Named(string name) => name;
+#else
+            public string Named(string name) => $"{currentTestName}_{name}";
+#endif
+
+            public void Reset(string currentTestName)
             {
+                this.currentTestName = currentTestName;
+
                 drive = new Mock<ICloudDrive>(MockBehavior.Strict);
 
                 interceptor.RedirectInvocationsTo(new CloudOperations(drive.Object, logger));
