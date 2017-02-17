@@ -32,7 +32,7 @@ namespace IgorSoft.DokanCloudFS.Tests
     [TestClass]
     public partial class ScatterGatherStreamRandomizedTests
     {
-        [TestMethod, TestCategory(nameof(TestCategories.Manual))]
+        [TestMethod, TestCategory(nameof(TestCategories.Manual)), System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public void SamplePartitions()
         {
             foreach (var size in new[] { 10, 20, 50, 100 }) {

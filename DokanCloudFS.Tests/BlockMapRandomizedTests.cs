@@ -23,7 +23,6 @@ SOFTWARE.
 */
 
 using System;
-using System.Linq;
 using FsCheck;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using IgorSoft.DokanCloudFS.IO;
@@ -33,7 +32,7 @@ namespace IgorSoft.DokanCloudFS.Tests
     [TestClass]
     public partial class BlockMapRandomizedTests
     {
-        [TestMethod, TestCategory(nameof(TestCategories.Manual))]
+        [TestMethod, TestCategory(nameof(TestCategories.Manual)), System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public void GenerateBlockMaps()
         {
             foreach (var size in new[] { 10, 20, 50, 100 }) {
@@ -43,7 +42,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             }
         }
 
-        [TestMethod, TestCategory(nameof(TestCategories.Manual))]
+        [TestMethod, TestCategory(nameof(TestCategories.Manual)), System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public void GenerateFreeBlocks()
         {
             foreach (var size in new[] { 10, 20, 50, 100 }) {
