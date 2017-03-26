@@ -141,23 +141,6 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
-        public void ScatterStream_Read_WhereGatherStreamIsSpecified_Succeeds()
-        {
-            var size = 256;
-            var buffer = fixture.InitializeBuffer(size);
-            var assignedBlocks = new BlockMap(size);
-            assignedBlocks.AssignBytes(0, size);
-
-            var sut = fixture.CreateScatterStream(buffer, assignedBlocks);
-            sut.AssignGatherStream(fixture.CreateGatherStream(buffer, assignedBlocks));
-
-            var result = new byte[size];
-            sut.Read(result, 0, size);
-
-            CollectionAssert.AreEqual(buffer, result);
-        }
-
-        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void ScatterStream_SeekFromBegin_ReturnsCorrectResult()
         {
             const int size = 100;
@@ -250,6 +233,21 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void ScatterStream_SetCapacity_SetsMatchingCapacityOnAllGatherStreams()
+        {
+            var size = 1000;
+
+            var scatterStream = default(Stream);
+            var gatherStreams = new Stream[5];
+            ScatterGatherStreamFactory.CreateScatterGatherStreams(size, out scatterStream, gatherStreams);
+
+            var changedSize = size / 4;
+            ((ScatterStream)scatterStream).Capacity = changedSize;
+
+            Assert.IsTrue(gatherStreams.Cast<GatherStream>().All(s => s.Capacity == changedSize));
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void ScatterStream_SetCapacity_WhereBlockMapWouldBeTruncated_Throws()
         {
@@ -266,7 +264,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
-        public void CopyBuffersConcurrently_WhereReaderIsFlooded_ReturnsCorrectResult()
+        public void CopyBufferConcurrently_WhereReaderIsFlooded_ReturnsCorrectResult()
         {
             var source = fixture.InitializeBuffer(1000);
             var target = fixture.CopyBufferConcurrently(source, TimeSpan.Zero, 100, TimeSpan.Zero, TimeSpan.FromMilliseconds(10), 50, TimeSpan.FromMilliseconds(10));
@@ -275,7 +273,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
-        public void CopyBuffersConcurrently_WhereReaderIsSynced_ReturnsCorrectResult()
+        public void CopyBufferConcurrently_WhereReaderIsSynced_ReturnsCorrectResult()
         {
             var source = fixture.InitializeBuffer(1000);
             var target = fixture.CopyBufferConcurrently(source, TimeSpan.Zero, 50, TimeSpan.FromMilliseconds(5), TimeSpan.FromMilliseconds(10), 50, TimeSpan.FromMilliseconds(5));
@@ -284,7 +282,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
-        public void CopyBuffersConcurrently_WhereReaderIsStarved_ReturnsCorrectResult()
+        public void CopyBufferConcurrently_WhereReaderIsStarved_ReturnsCorrectResult()
         {
             var source = fixture.InitializeBuffer(1000);
             var target = fixture.CopyBufferConcurrently(source, TimeSpan.FromMilliseconds(10), 50, TimeSpan.FromMilliseconds(10), TimeSpan.Zero, 100, TimeSpan.Zero);
@@ -293,7 +291,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
-        public void CopyBuffersConcurrently_WhereLimitIsSpecified_ReturnsCorrectResult()
+        public void CopyBufferConcurrently_WhereLimitIsSpecified_ReturnsCorrectResult()
         {
             var source = fixture.InitializeBuffer(1000);
             var target = fixture.CopyBufferConcurrently(source, TimeSpan.Zero, 50, TimeSpan.FromMilliseconds(5), TimeSpan.FromMilliseconds(10), 50, TimeSpan.FromMilliseconds(5), false);
@@ -302,7 +300,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
-        public void CopyBuffersConcurrently_WithExplicitPermutationRetrograde_ReturnsCorrectResult()
+        public void CopyBufferConcurrently_WithExplicitPermutationRetrograde_ReturnsCorrectResult()
         {
             var source = fixture.InitializeBuffer(1000);
             var target = fixture.CopyBufferConcurrentlyByPermutation(source, TimeSpan.FromMilliseconds(10), 200, TimeSpan.FromMilliseconds(10), new int[] { 4, 3, 2, 1, 0 }, TimeSpan.Zero, 200, TimeSpan.Zero, new int[] { 0, 1, 2, 3, 4 });
@@ -311,12 +309,30 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
-        public void CopyBuffersConcurrently_WithExplicitPermutationInterleaved_ReturnsCorrectResult()
+        public void CopyBufferConcurrently_WithExplicitPermutationInterleaved_ReturnsCorrectResult()
         {
             var source = fixture.InitializeBuffer(1000);
             var target = fixture.CopyBufferConcurrentlyByPermutation(source, TimeSpan.FromMilliseconds(10), 200, TimeSpan.FromMilliseconds(10), new int[] { 4, 2, 0, 3, 1 }, TimeSpan.Zero, 200, TimeSpan.Zero, new int[] { 0, 2, 4, 1, 3 });
 
             CollectionAssert.AreEqual(source, target, "Unexpected result");
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void CopyBuffersConcurrently_WhereReaderIsFlooded_ReturnsCorrectResult()
+        {
+            var source = fixture.InitializeBuffer(1000);
+            var targets = fixture.CopyBuffersConcurrently(source, 5, TimeSpan.Zero, 100, TimeSpan.Zero, TimeSpan.FromMilliseconds(10), 50, TimeSpan.FromMilliseconds(10));
+
+            Assert.IsTrue(targets.All(t => t.SequenceEqual(source)), "Unexpected result");
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void CopyBuffersConcurrently_WhereReaderIsStarved_ReturnsCorrectResult()
+        {
+            var source = fixture.InitializeBuffer(1000);
+            var targets = fixture.CopyBuffersConcurrently(source, 5, TimeSpan.FromMilliseconds(10), 50, TimeSpan.FromMilliseconds(10), TimeSpan.Zero, 100, TimeSpan.Zero);
+
+            Assert.IsTrue(targets.All(t => t.SequenceEqual(source)), "Unexpected result");
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]

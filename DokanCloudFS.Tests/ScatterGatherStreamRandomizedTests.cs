@@ -52,7 +52,7 @@ namespace IgorSoft.DokanCloudFS.Tests
                 var size = partition.Max(p => p.Offset + p.Count);
                 var buffer = Enumerable.Range(0, size).Select(i => (byte)(i % 251)).ToArray();
 
-                Fixture.CopyBufferConcurrentlyByPermutation(buffer, partition, null).SequenceEqual(buffer);
+                return Fixture.CopyBufferConcurrentlyByPermutation(buffer, partition, null).SequenceEqual(buffer);
             }).Check(Fixture.QuickConfig);
         }
 
@@ -64,7 +64,7 @@ namespace IgorSoft.DokanCloudFS.Tests
                 var size = partition.Max(p => p.Offset + p.Count);
                 var buffer = Enumerable.Range(0, size).Select(i => (byte)(i % 251)).ToArray();
 
-                Fixture.CopyBufferConcurrentlyByPermutation(buffer, null, partition).SequenceEqual(buffer);
+                return Fixture.CopyBufferConcurrentlyByPermutation(buffer, null, partition).SequenceEqual(buffer);
             }).Check(Fixture.QuickConfig);
         }
 
@@ -80,7 +80,23 @@ namespace IgorSoft.DokanCloudFS.Tests
 
                 var buffer = Enumerable.Range(0, writeSize).Select(i => (byte)(i % 251)).ToArray();
 
-                Fixture.CopyBufferConcurrentlyByPermutation(buffer, writePartition, readPartition).SequenceEqual(buffer);
+                return Fixture.CopyBufferConcurrentlyByPermutation(buffer, writePartition, readPartition).SequenceEqual(buffer);
+            }).Check(Fixture.QuickConfig);
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void RandomlyGatheredReadsFromRandomlyScatteredWrite_ReturnContent()
+        {
+            Prop.ForAll(Fixture.Partitions(), Fixture.PartitionsList(5), (writePartition, readPartitions) =>
+            {
+                var writeSize = writePartition.Max(p => p.Offset + p.Count);
+                var readSizes = readPartitions.Select(r => r.Max(p => p.Offset + p.Count));
+
+                Assert.IsTrue(readSizes.All(r => writeSize == r), $"Partition size mismatch: write={writeSize}, read=[{string.Join(",", readSizes)}]");
+
+                var buffer = Enumerable.Range(0, writeSize).Select(i => (byte)(i % 251)).ToArray();
+
+                return Fixture.CopyBuffersConcurrentlyByPermutation(buffer, writePartition, readPartitions.ToArray()).All(b => b.SequenceEqual(buffer));
             }).Check(Fixture.QuickConfig);
         }
     }

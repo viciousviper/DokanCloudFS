@@ -61,6 +61,22 @@ namespace IgorSoft.DokanCloudFS.Tests
                 return targetBuffer;
             }
 
+            public static byte[][] CopyBuffersConcurrentlyByPermutation(byte[] sourceBuffer, BlockMap.Block[] writePermutation, BlockMap.Block[][] readPermutations)
+            {
+                var targetBuffers = Enumerable.Range(0, readPermutations.Length).Select(i => new byte[sourceBuffer.Length]).ToArray();
+
+                var scatterStream = default(Stream);
+                var gatherStreams = new Stream[readPermutations.Length];
+                ScatterGatherStreamFactory.CreateScatterGatherStreams(sourceBuffer.Length, out scatterStream, gatherStreams);
+
+                var writeTask = WriteAsync(scatterStream, writePermutation, sourceBuffer);
+                var readTasks = Enumerable.Range(0, readPermutations.Length).Select(i => ReadAsync(gatherStreams[i], readPermutations[i], targetBuffers[i]));
+
+                Task.WaitAll(new Task[] { writeTask }.Concat(readTasks).ToArray());
+
+                return targetBuffers;
+            }
+
             public static async Task<bool> ReadAsync(Stream stream, BlockMap.Block[] readPermutation, byte[] buffer)
             {
                 await Task.Delay(initialReadDelay);
@@ -131,6 +147,8 @@ namespace IgorSoft.DokanCloudFS.Tests
                 select ApplyPermutation(ToPartition(size, offsets.ToArray()), permutation));
 
             public static Arbitrary<BlockMap.Block[]> Partitions() => Arb.From(PartitionsGen());
+
+            public static Arbitrary<IList<BlockMap.Block[]>> PartitionsList(int count) => Arb.From(PartitionsGen().ListOf(count));
         }
     }
 }

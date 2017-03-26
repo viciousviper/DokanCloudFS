@@ -42,7 +42,9 @@ namespace IgorSoft.DokanCloudFS.Tests
 
         private const string encryptionKey = "<MyEncryptionKey>";
 
+#pragma warning disable 649
         private readonly IDictionary<string, string> parameters;
+#pragma warning restore 649
 
         [ClassInitialize]
         public static void ClassInitialize(TestContext testContext)
