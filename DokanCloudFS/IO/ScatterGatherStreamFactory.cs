@@ -25,6 +25,7 @@ SOFTWARE.
 using System;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 
 namespace IgorSoft.DokanCloudFS.IO
 {
@@ -52,8 +53,29 @@ namespace IgorSoft.DokanCloudFS.IO
             var assignedBlocks = new BlockMap(capacity);
             scatterStream = new ScatterStream(buffer, assignedBlocks, timeout);
             gatherStream = new GatherStream(buffer, assignedBlocks, timeout);
+        }
 
-            ((ScatterStream)scatterStream).AssignGatherStream((GatherStream)gatherStream);
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1021:AvoidOutParameters", MessageId = "1#")]
+        public static void CreateScatterGatherStreams(int capacity, out Stream scatterStream, Stream[] gatherStreams)
+        {
+            CreateScatterGatherStreams(capacity, defaultTimeout, out scatterStream, gatherStreams);
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1021:AvoidOutParameters", MessageId = "2#")]
+        public static void CreateScatterGatherStreams(int capacity, TimeSpan timeout, out Stream scatterStream, Stream[] gatherStreams)
+        {
+            if (capacity <= 0)
+                throw new ArgumentOutOfRangeException(nameof(capacity), $"{nameof(capacity)} must be positive.".ToString(CultureInfo.CurrentCulture));
+            if (timeout < defaultTimeout)
+                throw new ArgumentOutOfRangeException(nameof(timeout), $"{nameof(timeout)} must be greater than {defaultTimeout:c}.".ToString(CultureInfo.CurrentCulture));
+            if (gatherStreams == null)
+                throw new ArgumentNullException(nameof(gatherStreams));
+
+            var buffer = new byte[capacity];
+            var assignedBlocks = new BlockMap(capacity);
+            scatterStream = new ScatterStream(buffer, assignedBlocks, timeout);
+            foreach (var i in Enumerable.Range(0, gatherStreams.Length))
+                gatherStreams[i] = new GatherStream(buffer, assignedBlocks, timeout);
         }
     }
 }

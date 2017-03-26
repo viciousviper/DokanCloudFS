@@ -78,10 +78,9 @@ namespace IgorSoft.DokanCloudFS.IO
                     break;
             }
 
-            stream.Close();
-            stream = buffer;
-            stream.Seek(0, SeekOrigin.Begin);
-            return stream;
+
+            buffer.Seek(0, SeekOrigin.Begin);
+            return buffer;
         }
     }
 }

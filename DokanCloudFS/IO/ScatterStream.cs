@@ -36,13 +36,7 @@ namespace IgorSoft.DokanCloudFS.IO
 
         private readonly TimeSpan timeout;
 
-        private GatherStream gatherStream;
-
-        public override bool CanRead => gatherStream != null;
-
-        public override bool CanSeek => true;
-
-        public override bool CanWrite => true;
+        public override bool CanRead => false;
 
         public override int Capacity
         {
@@ -97,10 +91,7 @@ namespace IgorSoft.DokanCloudFS.IO
 
         public override int Read(byte[] buffer, int offset, int count)
         {
-            if (gatherStream == null)
-                throw new NotSupportedException();
-
-            return gatherStream.Read(buffer, offset, count);
+            throw new NotSupportedException();
         }
 
         public override long Seek(long offset, SeekOrigin loc)
@@ -131,16 +122,6 @@ namespace IgorSoft.DokanCloudFS.IO
                 assignedBlocks.AssignBytes(position, count);
                 Monitor.Pulse(assignedBlocks);
             }
-        }
-
-        internal void AssignGatherStream(GatherStream gatherStream)
-        {
-            if (gatherStream == null)
-                throw new ArgumentNullException(nameof(gatherStream));
-            if (this.gatherStream != null)
-                throw new InvalidOperationException();
-
-            this.gatherStream = gatherStream;
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Debugger Display")]

@@ -43,10 +43,14 @@ namespace IgorSoft.DokanCloudFS.IO
 
         private Stream baseStream;
 
+        private bool disposed;
+
         private readonly object lockObject = new object();
 
         [Import]
+#pragma warning disable CS3003
         public ILogger Logger { get; set; }
+#pragma warning restore CS3003
 
         public TraceStream(string name, string fileName, Stream baseStream)
         {
@@ -216,11 +220,11 @@ namespace IgorSoft.DokanCloudFS.IO
         protected override void Dispose(bool disposing)
         {
             lock (lockObject) {
-                if (baseStream != null) {
+                if (disposing && !disposed) {
                     Trace($"{nameof(Dispose)}(disposing={disposing})".ToString(CultureInfo.CurrentCulture));
 
                     baseStream.Dispose();
-                    baseStream = null;
+                    disposed = true;
                 }
             }
 
