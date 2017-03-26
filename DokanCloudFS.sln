@@ -37,6 +37,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DokanCloudFS.Gateways", "Do
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DokanCloudFS.Gateways-Signed", "DokanCloudFS.Gateways-Signed\DokanCloudFS.Gateways-Signed.csproj", "{DD94D5A7-0181-4B2F-938F-B3F8D62A1970}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DokanCloudFS.LegacyGateways", "DokanCloudFS.LegacyGateways\DokanCloudFS.LegacyGateways.csproj", "{B5EB391C-3702-4D38-A8C9-F281645A45D1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug (NuGet)|Any CPU = Debug (NuGet)|Any CPU
@@ -99,6 +101,18 @@ Global
 		{DD94D5A7-0181-4B2F-938F-B3F8D62A1970}.Release (NuGet-Signed)|Any CPU.ActiveCfg = Release|Any CPU
 		{DD94D5A7-0181-4B2F-938F-B3F8D62A1970}.Release (NuGet-Signed)|Any CPU.Build.0 = Release|Any CPU
 		{DD94D5A7-0181-4B2F-938F-B3F8D62A1970}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5EB391C-3702-4D38-A8C9-F281645A45D1}.Debug (NuGet)|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5EB391C-3702-4D38-A8C9-F281645A45D1}.Debug (NuGet)|Any CPU.Build.0 = Debug|Any CPU
+		{B5EB391C-3702-4D38-A8C9-F281645A45D1}.Debug (NuGet-Signed)|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5EB391C-3702-4D38-A8C9-F281645A45D1}.Debug (NuGet-Signed)|Any CPU.Build.0 = Debug|Any CPU
+		{B5EB391C-3702-4D38-A8C9-F281645A45D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5EB391C-3702-4D38-A8C9-F281645A45D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5EB391C-3702-4D38-A8C9-F281645A45D1}.Release (NuGet)|Any CPU.ActiveCfg = Release|Any CPU
+		{B5EB391C-3702-4D38-A8C9-F281645A45D1}.Release (NuGet)|Any CPU.Build.0 = Release|Any CPU
+		{B5EB391C-3702-4D38-A8C9-F281645A45D1}.Release (NuGet-Signed)|Any CPU.ActiveCfg = Release|Any CPU
+		{B5EB391C-3702-4D38-A8C9-F281645A45D1}.Release (NuGet-Signed)|Any CPU.Build.0 = Release|Any CPU
+		{B5EB391C-3702-4D38-A8C9-F281645A45D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5EB391C-3702-4D38-A8C9-F281645A45D1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
