@@ -87,6 +87,9 @@ namespace IgorSoft.DokanCloudFS
                 var gatewayContent = gateway.GetContent(rootName, source.Id).ToSeekableStream();
 
                 var content = gatewayContent.DecryptOrPass(encryptionKey);
+                if (content != gatewayContent)
+                    gatewayContent.Close();
+                source.Size = (FileSize)content.Length;
 
 #if DEBUG
                 CompositionInitializer.SatisfyImports(content = new TraceStream(nameof(source), source.Name, content));
@@ -98,13 +101,15 @@ namespace IgorSoft.DokanCloudFS
         public void SetContent(FileInfoContract target, Stream content)
         {
             ExecuteInSemaphore(() => {
-                target.Size = (FileSize)content.Length;
                 var gatewayContent = content.EncryptOrPass(encryptionKey);
+                target.Size = (FileSize)content.Length;
 
 #if DEBUG
                 CompositionInitializer.SatisfyImports(gatewayContent = new TraceStream(nameof(target), target.Name, gatewayContent));
 #endif
                 gateway.SetContent(rootName, target.Id, gatewayContent, null);
+                if (content != gatewayContent)
+                    gatewayContent.Close();
             }, nameof(SetContent), true);
         }
 
@@ -127,12 +132,11 @@ namespace IgorSoft.DokanCloudFS
             return ExecuteInSemaphore(() => {
                 if (content.Length == 0)
                     return new ProxyFileInfoContract(name);
-                var size = content.Length;
 
                 var gatewayContent = content.EncryptOrPass(encryptionKey);
 
                 var result = gateway.NewFileItem(rootName, parent.Id, name, gatewayContent, null);
-                result.Size = (FileSize)size;
+                result.Size = (FileSize)content.Length;
                 return result;
             }, nameof(NewFileItem),true);
         }
