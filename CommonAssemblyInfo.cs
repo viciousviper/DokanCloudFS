@@ -26,9 +26,9 @@ using System;
 using System.Reflection;
 
 [assembly: AssemblyCompany("IgorSoft")]
-[assembly: AssemblyCopyright("Copyright © 2015-2016")]
+[assembly: AssemblyCopyright("Copyright © 2015-2017")]
 [assembly: AssemblyTrademark("")]
 
-[assembly: AssemblyVersion("1.0.10.0")]
-[assembly: AssemblyFileVersion("1.0.10.1")]
-[assembly: AssemblyInformationalVersion("1.0.10.1-beta")]
+[assembly: AssemblyVersion("1.0.11.0")]
+[assembly: AssemblyFileVersion("1.0.11.0")]
+[assembly: AssemblyInformationalVersion("1.0.11-beta")]
