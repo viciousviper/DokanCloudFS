@@ -42,10 +42,6 @@
       <HintPath>..\packages\Box.V2.2.14.0\lib\portable-net40+sl50+win+wp80\Box.V2.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="crypto, Version=1.8.1.0, Culture=neutral, PublicKeyToken=0e99375e54769942, processorArchitecture=MSIL">
-      <HintPath>..\packages\Portable.BouncyCastle.1.8.1.1\lib\netstandard1.3\crypto.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="Google.Api.Gax, Version=1.0.0.0, Culture=neutral, PublicKeyToken=3ec5ea7f18953e47, processorArchitecture=MSIL">
       <HintPath>..\packages\Google.Api.Gax.1.0.0-beta12\lib\net45\Google.Api.Gax.dll</HintPath>
       <Private>True</Private>
@@ -92,7 +88,7 @@
     </Reference>
     <Reference Include="IgorSoft.CloudFS.Authentication, Version=1.0.11.0, Culture=neutral, PublicKeyToken=1f35af1d8b0c0a75, processorArchitecture=MSIL">
       <HintPath>..\packages\CloudFS-Signed.1.0.11-beta\lib\net46\IgorSoft.CloudFS.Authentication.dll</HintPath>
-      <Private>False</Private>
+      <Private>True</Private>
     </Reference>
     <Reference Include="IgorSoft.CloudFS.Gateways.Box, Version=1.0.11.0, Culture=neutral, PublicKeyToken=1f35af1d8b0c0a75, processorArchitecture=MSIL">
       <HintPath>..\packages\CloudFS-Signed.1.0.11-beta\lib\net46\Gateways\IgorSoft.CloudFS.Gateways.Box.dll</HintPath>
@@ -101,6 +97,9 @@
     <Reference Include="IgorSoft.CloudFS.Gateways.File, Version=1.0.11.0, Culture=neutral, PublicKeyToken=1f35af1d8b0c0a75, processorArchitecture=MSIL">
       <HintPath>..\packages\CloudFS-Signed.1.0.11-beta\lib\net46\Gateways\IgorSoft.CloudFS.Gateways.File.dll</HintPath>
       <Private>True</Private>
+    </Reference>
+    <Reference Include="IgorSoft.CloudFS.Gateways.GDrive">
+      <HintPath>..\packages\CloudFS-Signed.1.0.11-beta\lib\net46\Gateways\IgorSoft.CloudFS.Gateways.GDrive.dll</HintPath>
     </Reference>
     <Reference Include="IgorSoft.CloudFS.Gateways.GoogleCloudStorage, Version=1.0.11.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\CloudFS-Signed.1.0.11-beta\lib\net46\Gateways\IgorSoft.CloudFS.Gateways.GoogleCloudStorage.dll</HintPath>
@@ -136,7 +135,7 @@
     </Reference>
     <Reference Include="IgorSoft.CloudFS.Interface, Version=1.0.11.0, Culture=neutral, PublicKeyToken=1f35af1d8b0c0a75, processorArchitecture=MSIL">
       <HintPath>..\packages\CloudFS-Signed.1.0.11-beta\lib\net46\IgorSoft.CloudFS.Interface.dll</HintPath>
-      <Private>False</Private>
+      <Private>True</Private>
     </Reference>
     <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
