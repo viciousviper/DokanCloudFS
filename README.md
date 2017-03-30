@@ -47,10 +47,10 @@ The expected gateway interface types and a set of prefabricated gateways are pro
 - Platform
   - .NET 4.6
 - Drivers
-  - [Dokany](https://github.com/dokan-dev/dokany/releases) driver version 1.0.0 or greater installed
+  - [Dokany](https://github.com/dokan-dev/dokany/releases) driver version 1.0.3 or greater installed
 - Operating system
   - tested on Windows 8.1 x64 and Windows Server 2012 R2 (until version 1.0.0-alpha) /<br/>Windows 10 x64 (from version 1.0.1-alpha)
-  - expected to run on Windows 7/8/8.1/10 and Windows Server 2008(R2)/2012(R2)
+  - expected to run on Windows 7/8/8.1/10 and Windows Server 2008(R2)/2012(R2)/2016
 
 ## Local compilation
 
@@ -78,7 +78,7 @@ The expected gateway interface types and a set of prefabricated gateways are pro
 - Ensure the presence of all required cloud service gateway assemblies and their dependencies - either from a downloaded *CloudFS* NuGet Package or a local compile - in the path specified by the *libPath* attribute in the *&lt;mount&gt;*-tag in the config file (defaults to the solution's *.\Library* directory).
 - Run *IgorSoft.DokanCloudFS.Mounter.exe* from the command line. Depending on your account configuration you *may* have to use an administrative command line. The following command line arguments are supported:
   ```
-  IgorSoft.DokanCloudFS.Mounter 1.0.10
+  IgorSoft.DokanCloudFS.Mounter 1.0.11
 
   Usage: Mounter [options] [command]
 
@@ -171,7 +171,7 @@ DokanCloudFS **does not** store your authentication password for any cloud stora
 
   - DokanCloudFS only supports mounting of a cloud storage volume's root directory.
   - The maximum supported file size varies between different cloud storage services. Moreover, the precise limits are not always disclosed.<br />Exceeding the size limit in a file write operation will result in either a timout or a service error.
-  - The files in a DokanCloudFS drive do not allow true random access, instead they are read or written sequentially as a whole.<br />Depending on the target application it *may* be possible to edit a file directly in the DokanCloudFS drive, otherwise it must be copied to a conventional drive for processing.
+  - The files in a DokanCloudFS drive do not allow true random access, instead they are read or written sequentially as a whole. Furthermore, there is no support for file attributes (*read-only*, *hidden*, *archived*) or permissions.<br/>Depending on the target application, editing a file directly in the DokanCloudFS drive *may* work to a varying extent, otherwise the file must be copied to a conventional drive for processing and subsequently re-uploaded.<br/>*Example*: Microsoft Word can open and save .docx files from a DokancloudFS drive, but cannot update a file in place.
   - DokanCloudFS keeps an internal cache of directory metadata for increased performance. Changes made to the cloud storage volume outside of DokanCloudFS will not be automatically synchronized with this cache, therefore any form of concurrent write access may lead to unexpected results or errors.
   - The only encrypted file format supported by DokanCloudFS is the [AESCrypt](https://www.aescrypt.com/) file format.
   - DokanCloudFS distinguishes content encryption keys on a per-drive scale only. It is not possible to assign content encryption keys to specific subdirectories or to individual files.<br />Although you could, in theory, mount several copies of the same cloud service volume in parallel, these copies will not synchronize their cached directory structures in any way (see above).
@@ -195,6 +195,7 @@ You have been warned.
 
 | Date       | Version     | Comments                                                                       |
 | :--------- | :---------- | :----------------------------------------------------------------------------- |
+| 2016-03-31 | 1.0.11-beta | - Updated DokanNet to version 1.1.0.<br/>- Updated CloudFS to version 1.0.10-beta.<br/>- Fixed NuGet references. |
 | 2016-10-05 | 1.0.10.1-beta | - Updated CloudFS to version 1.0.10-beta.<br/>- Fixed NuGet package references. |
 | 2016-10-02 | 1.0.10-beta | - Updated DokanNet to version 1.1.0.<br/>- Updated CloudFS to version 1.0.10-beta.<br/>- Fixed NuGet references. |
 | 2016-08-31 | 1.0.9.1-alpha | - Fixed NuGet package references.                                                      |
