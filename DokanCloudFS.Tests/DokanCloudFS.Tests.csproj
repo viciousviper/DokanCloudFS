@@ -43,8 +43,8 @@
       <HintPath>..\packages\Castle.Core.4.0.0\lib\net45\Castle.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="DokanNet, Version=1.1.0.0, Culture=neutral, PublicKeyToken=cef3dedf553bda55, processorArchitecture=MSIL">
-      <HintPath>..\packages\DokanNet.1.1.0.1\lib\net46\DokanNet.dll</HintPath>
+    <Reference Include="DokanNet, Version=1.1.0.3, Culture=neutral, PublicKeyToken=cef3dedf553bda55, processorArchitecture=MSIL">
+      <HintPath>..\packages\DokanNet.1.1.0.3\lib\net46\DokanNet.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="FsCheck, Version=2.8.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -52,7 +52,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="FSharp.Core, Version=4.4.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\FSharp.Core.4.1.0.2\lib\net45\FSharp.Core.dll</HintPath>
+      <HintPath>..\packages\FSharp.Core.4.1.2\lib\net45\FSharp.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="IgorSoft.AppDomainResolver, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -64,8 +64,8 @@
       <HintPath>..\Library\IgorSoft.CloudFS.Interface.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Moq, Version=4.7.1.0, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
-      <HintPath>..\packages\Moq.4.7.1\lib\net45\Moq.dll</HintPath>
+    <Reference Include="Moq, Version=4.7.8.0, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
+      <HintPath>..\packages\Moq.4.7.8\lib\net45\Moq.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="NLog, Version=5.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
@@ -163,11 +163,15 @@
     </Compile>
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="LinearReadMemoryStream.cs" />
+    <Compile Include="ReadWriteSegregatingStreamTest.Fixture.cs">
+      <DependentUpon>ReadWriteSegregatingStreamTest.cs</DependentUpon>
+    </Compile>
     <Compile Include="ScatterGatherStreamRandomizedTests.cs" />
     <Compile Include="BlockMapRandomizedTests.cs" />
     <Compile Include="ScatterGatherStreamRandomizedTests.Fixture.cs">
       <DependentUpon>ScatterGatherStreamRandomizedTests.cs</DependentUpon>
     </Compile>
+    <Compile Include="ReadWriteSegregatingStreamTest.cs" />
     <Compile Include="StreamExtensionsTest.cs" />
     <Compile Include="CloudFileNodeTests.cs" />
     <Compile Include="CloudFileNodeTests.Fixture.cs">

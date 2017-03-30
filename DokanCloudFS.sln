@@ -1,10 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DokanCloudFS", "DokanCloudFS\DokanCloudFS.csproj", "{87F4BEE8-FE6A-4ACF-9234-FDAEB28C786B}"
 	ProjectSection(ProjectDependencies) = postProject
+		{B5EB391C-3702-4D38-A8C9-F281645A45D1} = {B5EB391C-3702-4D38-A8C9-F281645A45D1}
 		{F88E8E7D-B7D4-476F-A66B-7A0D097BB913} = {F88E8E7D-B7D4-476F-A66B-7A0D097BB913}
 		{DD94D5A7-0181-4B2F-938F-B3F8D62A1970} = {DD94D5A7-0181-4B2F-938F-B3F8D62A1970}
 	EndProjectSection
@@ -17,10 +18,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Library", "Library", "{7D6A
 	ProjectSection(SolutionItems) = preProject
 		Library\IgorSoft.AppDomainResolver.dll = Library\IgorSoft.AppDomainResolver.dll
 		Library\IgorSoft.AppDomainResolver.pdb = Library\IgorSoft.AppDomainResolver.pdb
-		Library\IgorSoft.CloudFS.Authentication.dll = Library\IgorSoft.CloudFS.Authentication.dll
-		Library\IgorSoft.CloudFS.Authentication.pdb = Library\IgorSoft.CloudFS.Authentication.pdb
-		Library\IgorSoft.CloudFS.Interface.dll = Library\IgorSoft.CloudFS.Interface.dll
-		Library\IgorSoft.CloudFS.Interface.pdb = Library\IgorSoft.CloudFS.Interface.pdb
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0BB1F64B-56CD-4856-A0C4-D35092681ED7}"
@@ -38,6 +35,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DokanCloudFS.Gateways-Signed", "DokanCloudFS.Gateways-Signed\DokanCloudFS.Gateways-Signed.csproj", "{DD94D5A7-0181-4B2F-938F-B3F8D62A1970}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DokanCloudFS.LegacyGateways", "DokanCloudFS.LegacyGateways\DokanCloudFS.LegacyGateways.csproj", "{B5EB391C-3702-4D38-A8C9-F281645A45D1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DokanCloudFS.AdditionalPackages", "DokanCloudFS.AdditionalPackages\DokanCloudFS.AdditionalPackages.csproj", "{EDF569CA-98DD-4CCC-82F5-C9DADC15C67A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -113,6 +112,18 @@ Global
 		{B5EB391C-3702-4D38-A8C9-F281645A45D1}.Release (NuGet-Signed)|Any CPU.Build.0 = Release|Any CPU
 		{B5EB391C-3702-4D38-A8C9-F281645A45D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B5EB391C-3702-4D38-A8C9-F281645A45D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EDF569CA-98DD-4CCC-82F5-C9DADC15C67A}.Debug (NuGet)|Any CPU.ActiveCfg = Debug|Any CPU
+		{EDF569CA-98DD-4CCC-82F5-C9DADC15C67A}.Debug (NuGet)|Any CPU.Build.0 = Debug|Any CPU
+		{EDF569CA-98DD-4CCC-82F5-C9DADC15C67A}.Debug (NuGet-Signed)|Any CPU.ActiveCfg = Debug|Any CPU
+		{EDF569CA-98DD-4CCC-82F5-C9DADC15C67A}.Debug (NuGet-Signed)|Any CPU.Build.0 = Debug|Any CPU
+		{EDF569CA-98DD-4CCC-82F5-C9DADC15C67A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EDF569CA-98DD-4CCC-82F5-C9DADC15C67A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EDF569CA-98DD-4CCC-82F5-C9DADC15C67A}.Release (NuGet)|Any CPU.ActiveCfg = Release|Any CPU
+		{EDF569CA-98DD-4CCC-82F5-C9DADC15C67A}.Release (NuGet)|Any CPU.Build.0 = Release|Any CPU
+		{EDF569CA-98DD-4CCC-82F5-C9DADC15C67A}.Release (NuGet-Signed)|Any CPU.ActiveCfg = Release|Any CPU
+		{EDF569CA-98DD-4CCC-82F5-C9DADC15C67A}.Release (NuGet-Signed)|Any CPU.Build.0 = Release|Any CPU
+		{EDF569CA-98DD-4CCC-82F5-C9DADC15C67A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EDF569CA-98DD-4CCC-82F5-C9DADC15C67A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
