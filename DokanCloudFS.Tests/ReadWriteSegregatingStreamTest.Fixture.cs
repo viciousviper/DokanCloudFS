@@ -25,6 +25,8 @@ SOFTWARE.
 using System;
 using System.IO;
 using Moq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace IgorSoft.DokanCloudFS.Tests
 {
@@ -36,15 +38,25 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             bool CanSeek { get; }
 
+            bool CanTimeout { get; }
+
             bool CanWrite { get; }
 
             long Length { get; }
 
             long Position { get; set; }
 
+            int ReadTimeout { get; set; }
+
+            int WriteTimeout { get; set; }
+
+            Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken);
+
             void Close();
 
             void Flush();
+
+            Task FlushAsync(CancellationToken cancellationToken);
 
             long Seek(long offset, SeekOrigin origin);
 
@@ -67,6 +79,8 @@ namespace IgorSoft.DokanCloudFS.Tests
 
                 public override bool CanWrite => stream.CanWrite;
 
+                public override bool CanTimeout => stream.CanTimeout;
+
                 public override long Length => stream.Length;
 
                 public override long Position
@@ -75,9 +89,26 @@ namespace IgorSoft.DokanCloudFS.Tests
                     set { stream.Position = value; }
                 }
 
+                public override int ReadTimeout
+                {
+                    get { return stream.ReadTimeout; }
+                    set { stream.ReadTimeout = value; }
+                }
+
+                public override int WriteTimeout
+                {
+                    get { return stream.WriteTimeout; }
+                    set { stream.WriteTimeout = value; }
+                }
+
                 public StreamFake(IStream stream)
                 {
                     this.stream = stream;
+                }
+
+                public override Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken)
+                {
+                    return stream.CopyToAsync(destination, bufferSize, cancellationToken);
                 }
 
                 public override void Close()
@@ -89,6 +120,11 @@ namespace IgorSoft.DokanCloudFS.Tests
                 public override void Flush()
                 {
                     stream.Flush();
+                }
+
+                public override Task FlushAsync(CancellationToken cancellationToken)
+                {
+                    return stream.FlushAsync(cancellationToken);
                 }
 
                 public override int Read(byte[] buffer, int offset, int count)
@@ -120,13 +156,13 @@ namespace IgorSoft.DokanCloudFS.Tests
                 return new StreamFake(streamMock.Object);
             }
 
-            public Stream CreateAnyStream()
+            public Stream CreateStream()
             {
                 var streamMock = default(Mock<IStream>);
                 return CreateStream(out streamMock);
             }
 
-            public Stream CreateReadStream(bool canRead = true)
+            public Stream CreateStream_ForCanRead(bool canRead = true)
             {
                 var streamMock = default(Mock<IStream>);
 
@@ -135,6 +171,120 @@ namespace IgorSoft.DokanCloudFS.Tests
                 streamMock
                     .Setup(s => s.CanRead)
                     .Returns(canRead);
+
+                return stream;
+            }
+
+            public Stream CreateStream_ForCanWrite(bool canWrite = true)
+            {
+                var streamMock = default(Mock<IStream>);
+
+                var stream = CreateStream(out streamMock);
+
+                streamMock
+                    .Setup(s => s.CanWrite)
+                    .Returns(canWrite);
+
+                return stream;
+            }
+
+            public Stream CreateStream_ForCanTimeout(bool canTimeout = true)
+            {
+                var streamMock = default(Mock<IStream>);
+
+                var stream = CreateStream(out streamMock);
+
+                streamMock
+                    .Setup(s => s.CanTimeout)
+                    .Returns(canTimeout);
+
+                return stream;
+            }
+
+            public Stream CreateStream_ForGetReadTimeout(int readTimeout)
+            {
+                var streamMock = default(Mock<IStream>);
+
+                var stream = CreateStream(out streamMock);
+
+                streamMock
+                    .SetupGet(s => s.ReadTimeout)
+                    .Returns(readTimeout);
+
+                return stream;
+            }
+
+            public Stream CreateStream_ForSetReadTimeout(int readTimeout)
+            {
+                var streamMock = default(Mock<IStream>);
+
+                var stream = CreateStream(out streamMock);
+
+                streamMock
+                    .SetupSet(s => s.ReadTimeout = readTimeout);
+
+                return stream;
+            }
+
+            public Stream CreateStream_ForGetWriteTimeout(int writeTimeout)
+            {
+                var streamMock = default(Mock<IStream>);
+
+                var stream = CreateStream(out streamMock);
+
+                streamMock
+                    .SetupGet(s => s.WriteTimeout)
+                    .Returns(writeTimeout);
+
+                return stream;
+            }
+
+            public Stream CreateStream_ForSetWriteTimeout(int writeTimeout)
+            {
+                var streamMock = default(Mock<IStream>);
+
+                var stream = CreateStream(out streamMock);
+
+                streamMock
+                    .SetupSet(s => s.WriteTimeout = writeTimeout);
+
+                return stream;
+            }
+
+            public Stream CreateStream_ForCopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken)
+            {
+                var streamMock = default(Mock<IStream>);
+
+                var stream = CreateStream(out streamMock);
+
+                streamMock
+                    .Setup(s => s.CopyToAsync(destination, bufferSize, cancellationToken))
+                    .Returns(Task.CompletedTask);
+
+                return stream;
+            }
+
+            public Stream CreateStream_ForFlush()
+            {
+                var streamMock = default(Mock<IStream>);
+
+                var stream = CreateStream(out streamMock);
+
+                streamMock
+                    .Setup(s => s.Flush());
+
+                return stream;
+            }
+
+            public Stream CreateStream_ForFlushAsync(CancellationToken cancellationToken)
+            {
+                var streamMock = default(Mock<IStream>);
+
+                var stream = CreateStream(out streamMock);
+
+                streamMock
+                    .Setup(s => s.FlushAsync(cancellationToken))
+                    .Returns(Task.CompletedTask);
 
                 return stream;
             }

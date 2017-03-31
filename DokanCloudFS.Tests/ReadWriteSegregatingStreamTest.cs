@@ -25,6 +25,9 @@ SOFTWARE.
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using IgorSoft.DokanCloudFS.IO;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace IgorSoft.DokanCloudFS.Tests
 {
@@ -43,20 +46,20 @@ namespace IgorSoft.DokanCloudFS.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void CreateNew_WhereWriteStreamIsNull_Throws()
         {
-            var sut = new ReadWriteSegregatingStream(null, fixture.CreateAnyStream());
+            var sut = new ReadWriteSegregatingStream(null, fixture.CreateStream());
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void CreateNew_WhereReadStreamIsNull_Throws()
         {
-            var sut = new ReadWriteSegregatingStream(fixture.CreateAnyStream(), null);
+            var sut = new ReadWriteSegregatingStream(fixture.CreateStream(), null);
         }
 
         [TestMethod]
         public void CanRead_IsDelegatedToReadStream_ForCanReadAsTrue()
         {
-            var sut = new ReadWriteSegregatingStream(fixture.CreateAnyStream(), fixture.CreateReadStream());
+            var sut = new ReadWriteSegregatingStream(fixture.CreateStream(), fixture.CreateStream_ForCanRead());
 
             Assert.IsTrue(sut.CanRead);
 
@@ -66,11 +69,173 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod]
         public void CanRead_IsDelegatedToReadStream_ForCanReadAsFalse()
         {
-            var sut = new ReadWriteSegregatingStream(fixture.CreateAnyStream(), fixture.CreateReadStream(false));
+            var sut = new ReadWriteSegregatingStream(fixture.CreateStream(), fixture.CreateStream_ForCanRead(false));
 
             Assert.IsFalse(sut.CanRead);
 
             fixture.Verify();
+        }
+
+        [TestMethod]
+        public void CanTimeout_IsDelegatedToWriteAndReadStream_ForCanTimeoutAsFalseFalse()
+        {
+            var sut = new ReadWriteSegregatingStream(fixture.CreateStream_ForCanTimeout(false), fixture.CreateStream_ForCanTimeout(false));
+
+            Assert.IsFalse(sut.CanTimeout);
+
+            fixture.Verify();
+        }
+
+        [TestMethod]
+        public void CanTimeout_IsDelegatedToWriteAndReadStream_ForCanTimeoutAsFalseTrue()
+        {
+            var sut = new ReadWriteSegregatingStream(fixture.CreateStream_ForCanTimeout(false), fixture.CreateStream_ForCanTimeout());
+
+            Assert.IsFalse(sut.CanTimeout);
+
+            fixture.Verify();
+        }
+
+        [TestMethod]
+        public void CanTimeout_IsDelegatedToWriteAndReadStream_ForCanTimeoutAsTrueFalse()
+        {
+            var sut = new ReadWriteSegregatingStream(fixture.CreateStream_ForCanTimeout(), fixture.CreateStream_ForCanTimeout(false));
+
+            Assert.IsFalse(sut.CanTimeout);
+
+            fixture.Verify();
+        }
+
+        [TestMethod]
+        public void CanTimeout_IsDelegatedToWriteAndReadStream_ForCanTimeoutAsTrueTrue()
+        {
+            var sut = new ReadWriteSegregatingStream(fixture.CreateStream_ForCanTimeout(), fixture.CreateStream_ForCanTimeout());
+
+            Assert.IsTrue(sut.CanTimeout);
+
+            fixture.Verify();
+        }
+
+        [TestMethod]
+        public void CanWrite_IsDelegatedToWriteStream_ForCanWriteAsTrue()
+        {
+            var sut = new ReadWriteSegregatingStream(fixture.CreateStream_ForCanWrite(), fixture.CreateStream());
+
+            Assert.IsTrue(sut.CanWrite);
+
+            fixture.Verify();
+        }
+
+        [TestMethod]
+        public void CanWrite_IsDelegatedToWriteStream_ForCanWriteAsFalse()
+        {
+            var sut = new ReadWriteSegregatingStream(fixture.CreateStream_ForCanWrite(false), fixture.CreateStream());
+
+            Assert.IsFalse(sut.CanWrite);
+
+            fixture.Verify();
+        }
+
+        [TestMethod]
+        public void GetReadTimeout_IsDelegatedToReadStream()
+        {
+            var timeout = 42;
+
+            var sut = new ReadWriteSegregatingStream(fixture.CreateStream(), fixture.CreateStream_ForGetReadTimeout(timeout));
+
+            Assert.AreEqual(timeout, sut.ReadTimeout);
+
+            fixture.Verify();
+        }
+
+        [TestMethod]
+        public void SetReadTimeout_IsDelegatedToReadStream()
+        {
+            var timeout = 42;
+
+            var sut = new ReadWriteSegregatingStream(fixture.CreateStream(), fixture.CreateStream_ForSetReadTimeout(timeout));
+
+            sut.ReadTimeout = timeout;
+
+            fixture.Verify();
+        }
+
+        [TestMethod]
+        public void GetWriteTimeout_IsDelegatedToWriteStream()
+        {
+            var timeout = 42;
+
+            var sut = new ReadWriteSegregatingStream(fixture.CreateStream_ForGetWriteTimeout(timeout), fixture.CreateStream());
+
+            Assert.AreEqual(timeout, sut.WriteTimeout);
+
+            fixture.Verify();
+        }
+
+        [TestMethod]
+        public void SetWriteTimeout_IsDelegatedToWriteStream()
+        {
+            var timeout = 42;
+
+            var sut = new ReadWriteSegregatingStream(fixture.CreateStream_ForSetWriteTimeout(timeout), fixture.CreateStream());
+
+            sut.WriteTimeout = timeout;
+
+            fixture.Verify();
+        }
+
+        [TestMethod]
+        public void CopyToAsync_IsDelegatedToReadStream()
+        {
+            using (var cts = new CancellationTokenSource()) {
+                var destination = Stream.Null;
+                var bufferSize = 4711;
+                var cancellationToken = cts.Token;
+
+                var sut = new ReadWriteSegregatingStream(fixture.CreateStream(), fixture.CreateStream_ForCopyToAsync(destination, bufferSize, cancellationToken));
+
+                var task = sut.CopyToAsync(destination, bufferSize, cancellationToken);
+
+                Assert.IsInstanceOfType(task, typeof(Task));
+            }
+
+            fixture.Verify();
+        }
+
+        [TestMethod]
+        public void Flush_IsDelegatedToWriteStreamAndReadStream()
+        {
+            var sut = new ReadWriteSegregatingStream(fixture.CreateStream_ForFlush(), fixture.CreateStream_ForFlush());
+
+            sut.Flush();
+
+            fixture.Verify();
+        }
+
+        [TestMethod]
+        public void FlushAsync_IsDelegatedToWriteStreamAndReadStream()
+        {
+            using (var cts = new CancellationTokenSource())
+            {
+                var cancellationToken = cts.Token;
+
+                var sut = new ReadWriteSegregatingStream(fixture.CreateStream_ForFlushAsync(cancellationToken), fixture.CreateStream_ForFlushAsync(cancellationToken));
+
+                var task = sut.FlushAsync(cancellationToken);
+
+                Assert.IsInstanceOfType(task, typeof(Task));
+            }
+
+            fixture.Verify();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(NotSupportedException))]
+        public void InitializeLifetimeService_Throws()
+        {
+            var sut = new ReadWriteSegregatingStream(fixture.CreateStream(), fixture.CreateStream());
+
+            sut.InitializeLifetimeService();
         }
     }
 }
