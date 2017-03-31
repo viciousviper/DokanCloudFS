@@ -83,6 +83,7 @@ namespace IgorSoft.DokanCloudFS.Tests
                 public override void Close()
                 {
                     stream.Close();
+                    base.Close();
                 }
 
                 public override void Flush()
