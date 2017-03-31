@@ -195,7 +195,7 @@ You have been warned.
 
 | Date       | Version     | Comments                                                                       |
 | :--------- | :---------- | :----------------------------------------------------------------------------- |
-| 2016-03-31 | 1.0.11-beta | - Updated DokanNet to version 1.1.0.<br/>- Updated CloudFS to version 1.0.10-beta.<br/>- Fixed NuGet references. |
+| 2017-03-31 | 1.0.11-beta | - Updated DokanNet to version 1.1.0.<br/>- Updated CloudFS to version 1.0.10-beta.<br/>- Fixed NuGet references. |
 | 2016-10-05 | 1.0.10.1-beta | - Updated CloudFS to version 1.0.10-beta.<br/>- Fixed NuGet package references. |
 | 2016-10-02 | 1.0.10-beta | - Updated DokanNet to version 1.1.0.<br/>- Updated CloudFS to version 1.0.10-beta.<br/>- Fixed NuGet references. |
 | 2016-08-31 | 1.0.9.1-alpha | - Fixed NuGet package references.                                                      |
