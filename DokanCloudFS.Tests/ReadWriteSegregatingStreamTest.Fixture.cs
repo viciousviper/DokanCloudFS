@@ -64,7 +64,15 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             int Read(byte[] buffer, int offset, int count);
 
+            Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken);
+
+            int ReadByte();
+
             void Write(byte[] buffer, int offset, int count);
+
+            Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken);
+
+            void WriteByte(byte value);
         }
 
         internal class Fixture
@@ -132,6 +140,16 @@ namespace IgorSoft.DokanCloudFS.Tests
                     return stream.Read(buffer, offset, count);
                 }
 
+                public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+                {
+                    return stream.ReadAsync(buffer, offset, count, cancellationToken);
+                }
+
+                public override int ReadByte()
+                {
+                    return stream.ReadByte();
+                }
+
                 public override long Seek(long offset, SeekOrigin origin)
                 {
                     return stream.Seek(offset, origin);
@@ -145,6 +163,16 @@ namespace IgorSoft.DokanCloudFS.Tests
                 public override void Write(byte[] buffer, int offset, int count)
                 {
                     stream.Write(buffer, offset, count);
+                }
+
+                public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+                {
+                    return stream.WriteAsync(buffer, offset, count, cancellationToken);
+                }
+
+                public override void WriteByte(byte value)
+                {
+                    stream.WriteByte(value);
                 }
             }
 
@@ -285,6 +313,110 @@ namespace IgorSoft.DokanCloudFS.Tests
                 streamMock
                     .Setup(s => s.FlushAsync(cancellationToken))
                     .Returns(Task.CompletedTask);
+
+                return stream;
+            }
+
+            public Stream CreateStream_ForRead(byte[] buffer, int offset, int count)
+            {
+                var streamMock = default(Mock<IStream>);
+
+                var stream = CreateStream(out streamMock);
+
+                streamMock
+                    .Setup(s => s.Read(buffer, offset, count))
+                    .Returns(count);
+
+                return stream;
+            }
+
+            public Stream CreateStream_ForReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+            {
+                var streamMock = default(Mock<IStream>);
+
+                var stream = CreateStream(out streamMock);
+
+                streamMock
+                    .Setup(s => s.CanRead)
+                    .Returns(true);
+                streamMock
+                    .Setup(s => s.ReadAsync(buffer, offset, count, cancellationToken))
+                    .Returns(Task.FromResult(count));
+
+                return stream;
+            }
+
+            public Stream CreateStream_ForReadByte(int result)
+            {
+                var streamMock = default(Mock<IStream>);
+
+                var stream = CreateStream(out streamMock);
+
+                streamMock
+                    .Setup(s => s.ReadByte())
+                    .Returns(result);
+
+                return stream;
+            }
+
+            public Stream CreateStream_ForSeek(long offset, SeekOrigin origin, long position)
+            {
+                var streamMock = default(Mock<IStream>);
+
+                var stream = CreateStream(out streamMock);
+
+                streamMock
+                    .Setup(s => s.Seek(offset, origin))
+                    .Returns(position);
+
+                return stream;
+            }
+
+            public Stream CreateStream_ForSetLength(long value)
+            {
+                var streamMock = default(Mock<IStream>);
+
+                var stream = CreateStream(out streamMock);
+
+                streamMock
+                    .Setup(s => s.SetLength(value));
+
+                return stream;
+            }
+
+            public Stream CreateStream_ForWrite(byte[] buffer, int offset, int count)
+            {
+                var streamMock = default(Mock<IStream>);
+
+                var stream = CreateStream(out streamMock);
+
+                streamMock
+                    .Setup(s => s.Write(buffer, offset, count));
+
+                return stream;
+            }
+
+            public Stream CreateStream_ForWriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+            {
+                var streamMock = default(Mock<IStream>);
+
+                var stream = CreateStream(out streamMock);
+
+                streamMock
+                    .Setup(s => s.WriteAsync(buffer, offset, count, cancellationToken))
+                    .Returns(Task.CompletedTask);
+
+                return stream;
+            }
+
+            public Stream CreateStream_ForWriteByte(byte value)
+            {
+                var streamMock = default(Mock<IStream>);
+
+                var stream = CreateStream(out streamMock);
+
+                streamMock
+                    .Setup(s => s.WriteByte(value));
 
                 return stream;
             }

@@ -28,6 +28,7 @@ using IgorSoft.DokanCloudFS.IO;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace IgorSoft.DokanCloudFS.Tests
 {
@@ -54,6 +55,26 @@ namespace IgorSoft.DokanCloudFS.Tests
         public void CreateNew_WhereReadStreamIsNull_Throws()
         {
             var sut = new ReadWriteSegregatingStream(fixture.CreateStream(), null);
+        }
+
+        [TestMethod]
+        public void ReadStreamGetter_ReturnsReadStream()
+        {
+            var stream = default(Stream);
+
+            var sut = new ReadWriteSegregatingStream(fixture.CreateStream(), stream = fixture.CreateStream());
+
+            Assert.AreSame(stream, sut.ReadStream);
+        }
+
+        [TestMethod]
+        public void WriteStreamGetter_ReturnsWriteStream()
+        {
+            var stream = default(Stream);
+
+            var sut = new ReadWriteSegregatingStream(stream = fixture.CreateStream(), fixture.CreateStream());
+
+            Assert.AreSame(stream, sut.WriteStream);
         }
 
         [TestMethod]
@@ -215,8 +236,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod]
         public void FlushAsync_IsDelegatedToWriteStreamAndReadStream()
         {
-            using (var cts = new CancellationTokenSource())
-            {
+            using (var cts = new CancellationTokenSource()) {
                 var cancellationToken = cts.Token;
 
                 var sut = new ReadWriteSegregatingStream(fixture.CreateStream_ForFlushAsync(cancellationToken), fixture.CreateStream_ForFlushAsync(cancellationToken));
@@ -236,6 +256,115 @@ namespace IgorSoft.DokanCloudFS.Tests
             var sut = new ReadWriteSegregatingStream(fixture.CreateStream(), fixture.CreateStream());
 
             sut.InitializeLifetimeService();
+        }
+
+        [TestMethod]
+        public void Read_IsDelegatedToReadStream()
+        {
+            var buffer = new byte[100];
+
+            var sut = new ReadWriteSegregatingStream(fixture.CreateStream(), fixture.CreateStream_ForRead(buffer, 0, buffer.Length));
+
+            Assert.AreEqual(buffer.Length, sut.Read(buffer, 0, buffer.Length));
+
+            fixture.Verify();
+        }
+
+        [TestMethod]
+        public void ReadAsync_IsDelegatedToReadStream()
+        {
+            var buffer = new byte[100];
+
+            using (var cts = new CancellationTokenSource()) {
+                var cancellationToken = cts.Token;
+
+                var sut = new ReadWriteSegregatingStream(fixture.CreateStream(), fixture.CreateStream_ForReadAsync(buffer, 0, buffer.Length, cancellationToken));
+
+                var task = sut.ReadAsync(buffer, 0, buffer.Length, cancellationToken);
+
+                Assert.IsInstanceOfType(task, typeof(Task));
+                Assert.AreEqual(buffer.Length, task.Result);
+            }
+
+            fixture.Verify();
+        }
+
+        [TestMethod]
+        public void ReadByte_IsDelegatedToReadStream()
+        {
+            var value = 42;
+
+            var sut = new ReadWriteSegregatingStream(fixture.CreateStream(), fixture.CreateStream_ForReadByte(value));
+
+            Assert.AreEqual(value, sut.ReadByte());
+
+            fixture.Verify();
+        }
+
+        [TestMethod]
+        public void Write_IsDelegatedToWriteStream()
+        {
+            var buffer = new byte[100];
+
+            var sut = new ReadWriteSegregatingStream(fixture.CreateStream_ForWrite(buffer, 0, buffer.Length), fixture.CreateStream());
+
+            sut.Write(buffer, 0, buffer.Length);
+
+            fixture.Verify();
+        }
+
+        [TestMethod]
+        public void Seek_IsDelegatedToWriteStreamAndReadStream()
+        {
+            var value = 42;
+
+            var sut = new ReadWriteSegregatingStream(fixture.CreateStream_ForSeek(value, SeekOrigin.Begin, value), fixture.CreateStream_ForSeek(value, SeekOrigin.Begin, value));
+
+            Assert.AreEqual(value, sut.Seek(value, SeekOrigin.Begin));
+
+            fixture.Verify();
+        }
+
+        [TestMethod]
+        public void SetLength_IsDelegatedToWriteStreamAndReadStream()
+        {
+            var value = 100;
+
+            var sut = new ReadWriteSegregatingStream(fixture.CreateStream_ForSetLength(value), fixture.CreateStream_ForSetLength(value));
+
+            sut.SetLength(value);
+
+            fixture.Verify();
+        }
+
+        [TestMethod]
+        public void WriteAsync_IsDelegatedToWriteStream()
+        {
+            var buffer = new byte[100];
+
+            using (var cts = new CancellationTokenSource()) {
+                var cancellationToken = cts.Token;
+
+                var sut = new ReadWriteSegregatingStream(fixture.CreateStream_ForWriteAsync(buffer, 0, buffer.Length, cancellationToken), fixture.CreateStream());
+
+                var task = sut.WriteAsync(buffer, 0, buffer.Length, cancellationToken);
+
+                Assert.IsInstanceOfType(task, typeof(Task));
+            }
+
+            fixture.Verify();
+        }
+
+        [TestMethod]
+        public void WriteByte_IsDelegatedToWriteStream()
+        {
+            var value = (byte)42;
+
+            var sut = new ReadWriteSegregatingStream(fixture.CreateStream_ForWriteByte(value), fixture.CreateStream());
+
+            sut.WriteByte(value);
+
+            fixture.Verify();
         }
     }
 }
