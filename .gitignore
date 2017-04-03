@@ -68,11 +68,12 @@ artifacts/
 *.scc
 
 # Override for included library files
+**/LegacyLibrary/*
 **/Library/*
 !**/Library/IgorSoft.AppDomainResolver.*
 !**/Library/IgorSoft.CloudFS.Authentication.*
 !**/Library/IgorSoft.CloudFS.Interface.*
-
+**/SignedLibrary/*
 
 # Chutzpah Test files
 _Chutzpah*
