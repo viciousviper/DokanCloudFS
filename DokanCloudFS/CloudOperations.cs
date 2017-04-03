@@ -428,6 +428,10 @@ namespace IgorSoft.DokanCloudFS
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
         public NtStatus ReadFile(string fileName, byte[] buffer, out int bytesRead, long offset, DokanFileInfo info)
         {
+            if (buffer == null)
+                throw new ArgumentNullException(nameof(buffer));
+            if (offset < 0)
+                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.NonnegativeValueRequired, offset), nameof(offset));
             if (info == null)
                 throw new ArgumentNullException(nameof(info));
 
@@ -443,7 +447,7 @@ namespace IgorSoft.DokanCloudFS
                     }
 
                 context.Stream.Position = offset;
-                bytesRead = context.Stream.Read(buffer, 0, buffer?.Length ?? -1);
+                bytesRead = context.Stream.Read(buffer, 0, buffer.Length);
             }
 
             return AsDebug(nameof(ReadFile), fileName, info, DokanResult.Success, offset.ToString(CultureInfo.InvariantCulture), $"out {bytesRead}".ToString(CultureInfo.InvariantCulture));
@@ -534,6 +538,10 @@ namespace IgorSoft.DokanCloudFS
 
         public NtStatus WriteFile(string fileName, byte[] buffer, out int bytesWritten, long offset, DokanFileInfo info)
         {
+            if (buffer == null)
+                throw new ArgumentNullException(nameof(buffer));
+            if (offset < 0)
+                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.NonnegativeValueRequired, offset), nameof(offset));
             if (info == null)
                 throw new ArgumentNullException(nameof(info));
 
@@ -544,7 +552,7 @@ namespace IgorSoft.DokanCloudFS
                     context.Stream = Stream.Synchronized(new MemoryStream());
 
                 context.Stream.Position = offset;
-                context.Stream.Write(buffer, 0, buffer?.Length ?? -1);
+                context.Stream.Write(buffer, 0, buffer.Length);
                 bytesWritten = (int)(context.Stream.Position - offset);
             }
 

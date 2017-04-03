@@ -105,6 +105,14 @@ namespace IgorSoft.DokanCloudFS {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to {0} was passed to a non-negative argument.
+        /// </summary>
+        internal static string NonnegativeValueRequired {
+            get {
+                return ResourceManager.GetString("NonnegativeValueRequired", resourceCulture);
+            }
+        }
+        /// <summary>
         ///   Looks up a localized string similar to Unknown item type &apos;{0}&apos;
         /// </summary>
         internal static string UnknownItemType {
