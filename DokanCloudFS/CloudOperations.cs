@@ -431,7 +431,7 @@ namespace IgorSoft.DokanCloudFS
             if (buffer == null)
                 throw new ArgumentNullException(nameof(buffer));
             if (offset < 0)
-                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.NonnegativeValueRequired, offset), nameof(offset));
+                throw new ArgumentOutOfRangeException(nameof(offset), string.Format(CultureInfo.CurrentCulture, Resources.NonnegativeValueRequired, offset));
             if (info == null)
                 throw new ArgumentNullException(nameof(info));
 

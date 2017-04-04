@@ -50,9 +50,17 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             int WriteTimeout { get; set; }
 
+            IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback callback, object state);
+
+            IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback callback, object state);
+
             Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken);
 
             void Close();
+
+            int EndRead(IAsyncResult asyncResult);
+
+            int EndWrite(IAsyncResult asyncResult);
 
             void Flush();
 
@@ -114,6 +122,16 @@ namespace IgorSoft.DokanCloudFS.Tests
                     this.stream = stream;
                 }
 
+                public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
+                {
+                    return stream.BeginRead(buffer, offset, count, callback, state);
+                }
+
+                public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
+                {
+                    return stream.BeginWrite(buffer, offset, count, callback, state);
+                }
+
                 public override Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken)
                 {
                     return stream.CopyToAsync(destination, bufferSize, cancellationToken);
@@ -123,6 +141,16 @@ namespace IgorSoft.DokanCloudFS.Tests
                 {
                     stream.Close();
                     base.Close();
+                }
+
+                public override int EndRead(IAsyncResult asyncResult)
+                {
+                    return stream.EndRead(asyncResult);
+                }
+
+                public override void EndWrite(IAsyncResult asyncResult)
+                {
+                    stream.EndWrite(asyncResult);
                 }
 
                 public override void Flush()
@@ -198,7 +226,8 @@ namespace IgorSoft.DokanCloudFS.Tests
 
                 streamMock
                     .Setup(s => s.CanRead)
-                    .Returns(canRead);
+                    .Returns(canRead)
+                    .Verifiable();
 
                 return stream;
             }
@@ -211,7 +240,8 @@ namespace IgorSoft.DokanCloudFS.Tests
 
                 streamMock
                     .Setup(s => s.CanWrite)
-                    .Returns(canWrite);
+                    .Returns(canWrite)
+                    .Verifiable();
 
                 return stream;
             }
@@ -224,7 +254,8 @@ namespace IgorSoft.DokanCloudFS.Tests
 
                 streamMock
                     .Setup(s => s.CanTimeout)
-                    .Returns(canTimeout);
+                    .Returns(canTimeout)
+                    .Verifiable();
 
                 return stream;
             }
@@ -237,7 +268,8 @@ namespace IgorSoft.DokanCloudFS.Tests
 
                 streamMock
                     .SetupGet(s => s.ReadTimeout)
-                    .Returns(readTimeout);
+                    .Returns(readTimeout)
+                    .Verifiable();
 
                 return stream;
             }
@@ -249,7 +281,8 @@ namespace IgorSoft.DokanCloudFS.Tests
                 var stream = CreateStream(out streamMock);
 
                 streamMock
-                    .SetupSet(s => s.ReadTimeout = readTimeout);
+                    .SetupSet(s => s.ReadTimeout = readTimeout)
+                    .Verifiable();
 
                 return stream;
             }
@@ -262,7 +295,8 @@ namespace IgorSoft.DokanCloudFS.Tests
 
                 streamMock
                     .SetupGet(s => s.WriteTimeout)
-                    .Returns(writeTimeout);
+                    .Returns(writeTimeout)
+                    .Verifiable();
 
                 return stream;
             }
@@ -274,7 +308,36 @@ namespace IgorSoft.DokanCloudFS.Tests
                 var stream = CreateStream(out streamMock);
 
                 streamMock
-                    .SetupSet(s => s.WriteTimeout = writeTimeout);
+                    .SetupSet(s => s.WriteTimeout = writeTimeout)
+                    .Verifiable();
+
+                return stream;
+            }
+
+            public Stream CreateStream_ForBeginRead(byte[] buffer, AsyncCallback callback, object state)
+            {
+                var streamMock = default(Mock<IStream>);
+
+                var stream = CreateStream(out streamMock);
+
+                streamMock
+                    .Setup(s => s.BeginRead(buffer, 0, buffer.Length, callback, state))
+                    .Returns(Task.FromResult(buffer.Length))
+                    .Verifiable();
+
+                return stream;
+            }
+
+            public Stream CreateStream_ForBeginWrite(byte[] buffer, AsyncCallback callback, object state)
+            {
+                var streamMock = default(Mock<IStream>);
+
+                var stream = CreateStream(out streamMock);
+
+                streamMock
+                    .Setup(s => s.BeginWrite(buffer, 0, buffer.Length, callback, state))
+                    .Returns(Task.FromResult(buffer.Length))
+                    .Verifiable();
 
                 return stream;
             }
@@ -287,7 +350,36 @@ namespace IgorSoft.DokanCloudFS.Tests
 
                 streamMock
                     .Setup(s => s.CopyToAsync(destination, bufferSize, cancellationToken))
-                    .Returns(Task.CompletedTask);
+                    .Returns(Task.CompletedTask)
+                    .Verifiable();
+
+                return stream;
+            }
+
+            public Stream CreateStream_ForEndRead(Task<int> asyncResult)
+            {
+                var streamMock = default(Mock<IStream>);
+
+                var stream = CreateStream(out streamMock);
+
+                streamMock
+                    .Setup(s => s.EndRead(asyncResult))
+                    .Returns(asyncResult.Result)
+                    .Verifiable();
+
+                return stream;
+            }
+
+            public Stream CreateStream_ForEndWrite(Task<int> asyncResult)
+            {
+                var streamMock = default(Mock<IStream>);
+
+                var stream = CreateStream(out streamMock);
+
+                streamMock
+                    .Setup(s => s.EndWrite(asyncResult))
+                    .Returns(asyncResult.Result)
+                    .Verifiable();
 
                 return stream;
             }
@@ -299,7 +391,8 @@ namespace IgorSoft.DokanCloudFS.Tests
                 var stream = CreateStream(out streamMock);
 
                 streamMock
-                    .Setup(s => s.Flush());
+                    .Setup(s => s.Flush())
+                    .Verifiable();
 
                 return stream;
             }
@@ -312,7 +405,8 @@ namespace IgorSoft.DokanCloudFS.Tests
 
                 streamMock
                     .Setup(s => s.FlushAsync(cancellationToken))
-                    .Returns(Task.CompletedTask);
+                    .Returns(Task.CompletedTask)
+                    .Verifiable();
 
                 return stream;
             }
@@ -325,7 +419,8 @@ namespace IgorSoft.DokanCloudFS.Tests
 
                 streamMock
                     .Setup(s => s.Read(buffer, offset, count))
-                    .Returns(count);
+                    .Returns(count)
+                    .Verifiable();
 
                 return stream;
             }
@@ -337,11 +432,9 @@ namespace IgorSoft.DokanCloudFS.Tests
                 var stream = CreateStream(out streamMock);
 
                 streamMock
-                    .Setup(s => s.CanRead)
-                    .Returns(true);
-                streamMock
                     .Setup(s => s.ReadAsync(buffer, offset, count, cancellationToken))
-                    .Returns(Task.FromResult(count));
+                    .Returns(Task.FromResult(count))
+                    .Verifiable();
 
                 return stream;
             }
@@ -354,7 +447,8 @@ namespace IgorSoft.DokanCloudFS.Tests
 
                 streamMock
                     .Setup(s => s.ReadByte())
-                    .Returns(result);
+                    .Returns(result)
+                    .Verifiable();
 
                 return stream;
             }
@@ -367,7 +461,8 @@ namespace IgorSoft.DokanCloudFS.Tests
 
                 streamMock
                     .Setup(s => s.Seek(offset, origin))
-                    .Returns(position);
+                    .Returns(position)
+                    .Verifiable();
 
                 return stream;
             }
@@ -379,7 +474,8 @@ namespace IgorSoft.DokanCloudFS.Tests
                 var stream = CreateStream(out streamMock);
 
                 streamMock
-                    .Setup(s => s.SetLength(value));
+                    .Setup(s => s.SetLength(value))
+                    .Verifiable();
 
                 return stream;
             }
@@ -391,7 +487,8 @@ namespace IgorSoft.DokanCloudFS.Tests
                 var stream = CreateStream(out streamMock);
 
                 streamMock
-                    .Setup(s => s.Write(buffer, offset, count));
+                    .Setup(s => s.Write(buffer, offset, count))
+                    .Verifiable();
 
                 return stream;
             }
@@ -404,7 +501,8 @@ namespace IgorSoft.DokanCloudFS.Tests
 
                 streamMock
                     .Setup(s => s.WriteAsync(buffer, offset, count, cancellationToken))
-                    .Returns(Task.CompletedTask);
+                    .Returns(Task.CompletedTask)
+                    .Verifiable();
 
                 return stream;
             }
@@ -416,7 +514,8 @@ namespace IgorSoft.DokanCloudFS.Tests
                 var stream = CreateStream(out streamMock);
 
                 streamMock
-                    .Setup(s => s.WriteByte(value));
+                    .Setup(s => s.WriteByte(value))
+                    .Verifiable();
 
                 return stream;
             }

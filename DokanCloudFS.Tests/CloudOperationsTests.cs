@@ -198,6 +198,25 @@ namespace IgorSoft.DokanCloudFS.Tests
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         [ExpectedException(typeof(ArgumentNullException))]
+        public void CloudOperations_ReadFile_WhereBufferIsNull_Throws()
+        {
+            var info = CreateDokanFileInfo();
+            int bytesRead;
+            sut.ReadFile("File.ext", null, out bytesRead, 0, info);
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void CloudOperations_ReadFile_WhereOffsetIsNegative_Throws()
+        {
+            var buffer = new byte[1];
+            var info = CreateDokanFileInfo();
+            int bytesRead;
+            sut.ReadFile("File.ext", buffer, out bytesRead, -1, info);
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        [ExpectedException(typeof(ArgumentNullException))]
         public void CloudOperations_ReadFile_WhereInfoIsNull_Throws()
         {
             var buffer = new byte[1];
@@ -240,6 +259,15 @@ namespace IgorSoft.DokanCloudFS.Tests
             var result = sut.Unmounted(CreateDokanFileInfo());
 
             Assert.AreEqual(DokanResult.Success, result);
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void CloudOperations_WriteFile_WhereBufferIsNull_Throws()
+        {
+            var info = CreateDokanFileInfo();
+            int bytesWritten;
+            sut.WriteFile("File.ext", null, out bytesWritten, 0, info);
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]

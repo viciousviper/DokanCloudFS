@@ -32,6 +32,48 @@ namespace IgorSoft.DokanCloudFS.Tests
     public sealed partial class BlockMapTests
     {
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void Create_WhereCapacityIsZero_Throws()
+        {
+            var sut = new BlockMap(0);
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void GetAvailableBytes_WhereOffsetIsNegative_Throws()
+        {
+            var sut = Fixture.CreateMap();
+
+            sut.GetAvailableBytes(-1, 1);
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void GetAvailableBytes_WhereOffsetIsGreaterThanCapacity_Throws()
+        {
+            var sut = Fixture.CreateMap();
+
+            sut.GetAvailableBytes(sut.Capacity + 1, 1);
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void GetAvailableBytes_WhereCountIsNegative_Throws()
+        {
+            var sut = Fixture.CreateMap();
+
+            sut.GetAvailableBytes(0, -1);
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void GetAvailableBytes_WhereCountZero_ReturnsZero()
+        {
+            var sut = Fixture.CreateMap();
+
+            Assert.AreEqual(0, sut.GetAvailableBytes(10, 0));
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void Assign_WhereBoundariesAreValid_AssignsBlockCorrectly()
         {
             var sut = Fixture.CreateMap();

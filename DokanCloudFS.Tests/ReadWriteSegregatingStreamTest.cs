@@ -28,7 +28,6 @@ using IgorSoft.DokanCloudFS.IO;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Linq;
 
 namespace IgorSoft.DokanCloudFS.Tests
 {
@@ -43,21 +42,21 @@ namespace IgorSoft.DokanCloudFS.Tests
             fixture = new Fixture();
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         [ExpectedException(typeof(ArgumentNullException))]
         public void CreateNew_WhereWriteStreamIsNull_Throws()
         {
             var sut = new ReadWriteSegregatingStream(null, fixture.CreateStream());
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         [ExpectedException(typeof(ArgumentNullException))]
         public void CreateNew_WhereReadStreamIsNull_Throws()
         {
             var sut = new ReadWriteSegregatingStream(fixture.CreateStream(), null);
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void ReadStreamGetter_ReturnsReadStream()
         {
             var stream = default(Stream);
@@ -67,7 +66,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             Assert.AreSame(stream, sut.ReadStream);
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void WriteStreamGetter_ReturnsWriteStream()
         {
             var stream = default(Stream);
@@ -77,7 +76,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             Assert.AreSame(stream, sut.WriteStream);
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void CanRead_IsDelegatedToReadStream_ForCanReadAsTrue()
         {
             var sut = new ReadWriteSegregatingStream(fixture.CreateStream(), fixture.CreateStream_ForCanRead());
@@ -87,7 +86,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             fixture.Verify();
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void CanRead_IsDelegatedToReadStream_ForCanReadAsFalse()
         {
             var sut = new ReadWriteSegregatingStream(fixture.CreateStream(), fixture.CreateStream_ForCanRead(false));
@@ -97,27 +96,27 @@ namespace IgorSoft.DokanCloudFS.Tests
             fixture.Verify();
         }
 
-        [TestMethod]
-        public void CanTimeout_IsDelegatedToWriteAndReadStream_ForCanTimeoutAsFalseFalse()
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void CanTimeout_IsDelegatedToWriteStream_ForCanTimeoutAsFalseFalse()
         {
-            var sut = new ReadWriteSegregatingStream(fixture.CreateStream_ForCanTimeout(false), fixture.CreateStream_ForCanTimeout(false));
+            var sut = new ReadWriteSegregatingStream(fixture.CreateStream_ForCanTimeout(false), fixture.CreateStream());
 
             Assert.IsFalse(sut.CanTimeout);
 
             fixture.Verify();
         }
 
-        [TestMethod]
-        public void CanTimeout_IsDelegatedToWriteAndReadStream_ForCanTimeoutAsFalseTrue()
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void CanTimeout_IsDelegatedToWriteStream_ForCanTimeoutAsFalseTrue()
         {
-            var sut = new ReadWriteSegregatingStream(fixture.CreateStream_ForCanTimeout(false), fixture.CreateStream_ForCanTimeout());
+            var sut = new ReadWriteSegregatingStream(fixture.CreateStream_ForCanTimeout(false), fixture.CreateStream());
 
             Assert.IsFalse(sut.CanTimeout);
 
             fixture.Verify();
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void CanTimeout_IsDelegatedToWriteAndReadStream_ForCanTimeoutAsTrueFalse()
         {
             var sut = new ReadWriteSegregatingStream(fixture.CreateStream_ForCanTimeout(), fixture.CreateStream_ForCanTimeout(false));
@@ -127,7 +126,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             fixture.Verify();
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void CanTimeout_IsDelegatedToWriteAndReadStream_ForCanTimeoutAsTrueTrue()
         {
             var sut = new ReadWriteSegregatingStream(fixture.CreateStream_ForCanTimeout(), fixture.CreateStream_ForCanTimeout());
@@ -137,7 +136,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             fixture.Verify();
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void CanWrite_IsDelegatedToWriteStream_ForCanWriteAsTrue()
         {
             var sut = new ReadWriteSegregatingStream(fixture.CreateStream_ForCanWrite(), fixture.CreateStream());
@@ -147,7 +146,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             fixture.Verify();
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void CanWrite_IsDelegatedToWriteStream_ForCanWriteAsFalse()
         {
             var sut = new ReadWriteSegregatingStream(fixture.CreateStream_ForCanWrite(false), fixture.CreateStream());
@@ -157,7 +156,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             fixture.Verify();
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void GetReadTimeout_IsDelegatedToReadStream()
         {
             var timeout = 42;
@@ -169,7 +168,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             fixture.Verify();
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void SetReadTimeout_IsDelegatedToReadStream()
         {
             var timeout = 42;
@@ -181,7 +180,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             fixture.Verify();
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void GetWriteTimeout_IsDelegatedToWriteStream()
         {
             var timeout = 42;
@@ -193,7 +192,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             fixture.Verify();
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void SetWriteTimeout_IsDelegatedToWriteStream()
         {
             var timeout = 42;
@@ -205,7 +204,41 @@ namespace IgorSoft.DokanCloudFS.Tests
             fixture.Verify();
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void BeginRead_IsDelegatedToReadStream()
+        {
+            var buffer = new byte[100];
+            AsyncCallback callback = ar => { };
+            var state = new object();
+
+            var sut = new ReadWriteSegregatingStream(fixture.CreateStream(), fixture.CreateStream_ForBeginRead(buffer, callback, state));
+
+            var asyncResult = sut.BeginRead(buffer, 0, buffer.Length, callback, state);
+
+            Assert.IsInstanceOfType(asyncResult, typeof(Task<int>));
+            Assert.AreEqual(buffer.Length, ((Task<int>)asyncResult).Result);
+
+            fixture.Verify();
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void BeginWrite_IsDelegatedToWriteStream()
+        {
+            var buffer = new byte[100];
+            AsyncCallback callback = ar => { };
+            var state = new object();
+
+            var sut = new ReadWriteSegregatingStream(fixture.CreateStream_ForBeginWrite(buffer, callback, state), fixture.CreateStream());
+
+            var asyncResult = sut.BeginWrite(buffer, 0, buffer.Length, callback, state);
+
+            Assert.IsInstanceOfType(asyncResult, typeof(Task<int>));
+            Assert.AreEqual(buffer.Length, ((Task<int>)asyncResult).Result);
+
+            fixture.Verify();
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void CopyToAsync_IsDelegatedToReadStream()
         {
             using (var cts = new CancellationTokenSource()) {
@@ -223,7 +256,33 @@ namespace IgorSoft.DokanCloudFS.Tests
             fixture.Verify();
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void EndRead_IsDelegatedToReadStream()
+        {
+            var bufferSize = 4711;
+            var asyncResult = Task.FromResult(bufferSize);
+
+            var sut = new ReadWriteSegregatingStream(fixture.CreateStream(), fixture.CreateStream_ForEndRead(asyncResult));
+
+            Assert.AreEqual(bufferSize, sut.EndRead(asyncResult));
+
+            fixture.Verify();
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void EndWrite_IsDelegatedToWriteStream()
+        {
+            var bufferSize = 4711;
+            var asyncResult = Task.FromResult(bufferSize);
+
+            var sut = new ReadWriteSegregatingStream(fixture.CreateStream_ForEndWrite(asyncResult), fixture.CreateStream());
+
+            sut.EndWrite(asyncResult);
+
+            fixture.Verify();
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void Flush_IsDelegatedToWriteStreamAndReadStream()
         {
             var sut = new ReadWriteSegregatingStream(fixture.CreateStream_ForFlush(), fixture.CreateStream_ForFlush());
@@ -233,7 +292,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             fixture.Verify();
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void FlushAsync_IsDelegatedToWriteStreamAndReadStream()
         {
             using (var cts = new CancellationTokenSource()) {
@@ -249,7 +308,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             fixture.Verify();
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         [ExpectedException(typeof(NotSupportedException))]
         public void InitializeLifetimeService_Throws()
         {
@@ -258,7 +317,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             sut.InitializeLifetimeService();
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void Read_IsDelegatedToReadStream()
         {
             var buffer = new byte[100];
@@ -270,7 +329,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             fixture.Verify();
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void ReadAsync_IsDelegatedToReadStream()
         {
             var buffer = new byte[100];
@@ -289,7 +348,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             fixture.Verify();
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void ReadByte_IsDelegatedToReadStream()
         {
             var value = 42;
@@ -301,7 +360,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             fixture.Verify();
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void Write_IsDelegatedToWriteStream()
         {
             var buffer = new byte[100];
@@ -313,19 +372,31 @@ namespace IgorSoft.DokanCloudFS.Tests
             fixture.Verify();
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void Seek_IsDelegatedToWriteStreamAndReadStream()
         {
-            var value = 42;
+            var position = 42;
 
-            var sut = new ReadWriteSegregatingStream(fixture.CreateStream_ForSeek(value, SeekOrigin.Begin, value), fixture.CreateStream_ForSeek(value, SeekOrigin.Begin, value));
+            var sut = new ReadWriteSegregatingStream(fixture.CreateStream_ForSeek(position, SeekOrigin.Begin, position), fixture.CreateStream_ForSeek(position, SeekOrigin.Begin, position));
 
-            Assert.AreEqual(value, sut.Seek(value, SeekOrigin.Begin));
+            Assert.AreEqual(position, sut.Seek(position, SeekOrigin.Begin));
 
             fixture.Verify();
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void Seek_WherePositionsDiffer_Throws()
+        {
+            var position = 42;
+            var differingPosition = 17;
+
+            var sut = new ReadWriteSegregatingStream(fixture.CreateStream_ForSeek(position, SeekOrigin.Begin, position), fixture.CreateStream_ForSeek(position, SeekOrigin.Begin, differingPosition));
+
+            sut.Seek(position, SeekOrigin.Begin);
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void SetLength_IsDelegatedToWriteStreamAndReadStream()
         {
             var value = 100;
@@ -337,7 +408,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             fixture.Verify();
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void WriteAsync_IsDelegatedToWriteStream()
         {
             var buffer = new byte[100];
@@ -355,7 +426,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             fixture.Verify();
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void WriteByte_IsDelegatedToWriteStream()
         {
             var value = (byte)42;

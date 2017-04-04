@@ -105,7 +105,7 @@ namespace IgorSoft.DokanCloudFS {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to {0} was passed to a non-negative argument.
+        ///   Looks up a localized string similar to {0} must be non-negative.
         /// </summary>
         internal static string NonnegativeValueRequired {
             get {

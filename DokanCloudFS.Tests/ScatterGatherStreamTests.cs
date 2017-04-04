@@ -70,6 +70,14 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void GatherStream_CanWrite_ReturnsFalse()
+        {
+            var sut = fixture.CreateGatherStream(1);
+
+            Assert.IsFalse(sut.CanWrite);
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void GatherStream_SeekFromBegin_ReturnsCorrectResult()
         {
             const int size = 100;
@@ -89,6 +97,16 @@ namespace IgorSoft.DokanCloudFS.Tests
             var result = sut.Seek(-size / 4, SeekOrigin.End);
 
             Assert.AreEqual(size * 3 / 4, result);
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        [ExpectedException(typeof(NotSupportedException))]
+        public void GatherStream_SetCapacity_Throws()
+        {
+            const int size = 100;
+            var sut = fixture.CreateGatherStream(size);
+
+            sut.Capacity = size * 3 / 4;
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -129,6 +147,14 @@ namespace IgorSoft.DokanCloudFS.Tests
         public void ScatterStream_Create_WhereBlockMapIsNull_Throws()
         {
             fixture.CreateScatterStream(Array.Empty<byte>(), null);
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        public void ScatterStream_CanRead_ReturnsFalse()
+        {
+            var sut = fixture.CreateScatterStream(1);
+
+            Assert.IsFalse(sut.CanRead);
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -191,6 +217,36 @@ namespace IgorSoft.DokanCloudFS.Tests
             var gatherStream = default(Stream);
 
             ScatterGatherStreamFactory.CreateScatterGatherStreams(100, TimeSpan.FromMilliseconds(-2), out scatterStream, out gatherStream);
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void ScatterGatherStreamFactory_CreateScatterGatherStreams_WhereCapacityIsNegative_Throws()
+        {
+            var scatterStream = default(Stream);
+            var gatherStreams = new Stream[5];
+
+            ScatterGatherStreamFactory.CreateScatterGatherStreams(-1, out scatterStream, gatherStreams);
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void ScatterGatherStreamFactory_CreateScatterGatherStreams_WhereTimeoutIsNegative_Throws()
+        {
+            var scatterStream = default(Stream);
+            var gatherStreams = new Stream[5];
+
+            ScatterGatherStreamFactory.CreateScatterGatherStreams(100, TimeSpan.FromMilliseconds(-2), out scatterStream, gatherStreams);
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void ScatterGatherStreamFactory_CreateScatterGatherStreams_WhereGatherStreamsIsNumm_Throws()
+        {
+            var scatterStream = default(Stream);
+            var gatherStreams = default(Stream[]);
+
+            ScatterGatherStreamFactory.CreateScatterGatherStreams(100, out scatterStream, gatherStreams);
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
