@@ -210,7 +210,10 @@ namespace IgorSoft.DokanCloudFS
                         info.IsDirectory = item != null;
                     }
 
-                    return AsTrace(nameof(CreateFile), fileName, info, access, share, mode, options, attributes, item != null ? DokanResult.Success : DokanResult.FileNotFound);
+                    if (item != null)
+                        return AsTrace(nameof(CreateFile), fileName, info, access, share, mode, options, attributes, DokanResult.Success);
+                    else
+                        return AsError(nameof(CreateFile), fileName, info, access, share, mode, options, attributes, DokanResult.FileNotFound);
                 case FileMode.OpenOrCreate:
                     fileItem = item as CloudFileNode ?? parent.NewFileItem(drive, itemName);
 
