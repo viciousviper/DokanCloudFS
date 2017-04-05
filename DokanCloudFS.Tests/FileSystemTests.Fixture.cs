@@ -550,7 +550,7 @@ namespace IgorSoft.DokanCloudFS.Tests
                             return new FileInfoContract(source.Id.Value, movePath, source.Created, source.Updated, fileSource.Size, fileSource.Hash) { Directory = target };
                         throw new InvalidOperationException($"Unsupported type '{source.GetType().Name}'".ToString(CultureInfo.CurrentCulture));
                     })
-                    .Callback(() => { if (callback != null) callback(); })
+                    .Callback(() => { callback?.Invoke(); })
                     .Verifiable();
             }
 

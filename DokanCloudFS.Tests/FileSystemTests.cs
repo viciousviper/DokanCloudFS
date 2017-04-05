@@ -192,6 +192,29 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        [ExpectedException(typeof(DirectoryNotFoundException))]
+        public void Directory_Delete_WhereDirectoryIsUndefined_Throws()
+        {
+            var directoryName = $"{Fixture.MOUNT_POINT}\\NonExistingDirectory";
+
+            fixture.SetupGetRootDirectoryItems();
+
+            Directory.Delete(directoryName);
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        [ExpectedException(typeof(DirectoryNotFoundException))]
+        public void Directory_Move_WhereDirectoryIsUndefined_Throws()
+        {
+            var directoryName = $"{Fixture.MOUNT_POINT}\\NonExistingDirectory";
+            var targetName = $"{Fixture.MOUNT_POINT}\\{fixture.RootDirectoryItems.OfType<DirectoryInfoContract>().Last().Name}";
+
+            fixture.SetupGetRootDirectoryItems();
+
+            Directory.Move(directoryName, targetName);
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void DirectoryInfo_GetDirectories_Succeeds()
         {
             fixture.SetupGetRootDirectoryItems();
@@ -337,7 +360,6 @@ namespace IgorSoft.DokanCloudFS.Tests
             sut.Delete();
         }
 
-
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         public void DirectoryInfo_GetAttributes_ReturnsExpectedValue()
         {
@@ -405,6 +427,31 @@ namespace IgorSoft.DokanCloudFS.Tests
             Assert.AreEqual(1, renamedDirectories.Count(), "Directory not renamed");
 
             fixture.Verify();
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        //[ExpectedException(typeof(FileNotFoundException))]
+        public void File_Delete_WhereFileIsUndefined_Throws()
+        {
+            var fileName = $"{Fixture.MOUNT_POINT}\\NonExistingFile.ext";
+
+            fixture.SetupGetRootDirectoryItems();
+
+            File.Delete(fileName);
+
+            Assert.Inconclusive();
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        [ExpectedException(typeof(FileNotFoundException))]
+        public void File_Move_WhereFileIsUndefined_Throws()
+        {
+            var fileName = $"{Fixture.MOUNT_POINT}\\NonExistingFile.ext";
+            var targetName = $"{Fixture.MOUNT_POINT}\\{fixture.RootDirectoryItems.OfType<DirectoryInfoContract>().Last().Name}";
+
+            fixture.SetupGetRootDirectoryItems();
+
+            File.Move(fileName, targetName);
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -848,8 +895,6 @@ namespace IgorSoft.DokanCloudFS.Tests
 
                 fileStream.Lock(0, 65536);
             }
-
-            fixture.Verify();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -871,7 +916,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
-        public void FileStream_Unlock_WhereFileIsNotLocked_Throws()
+        public void FileStream_Unlock_WhereFileIsNotLocked_DoesNotThrow()
         {
             var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
 
@@ -881,6 +926,8 @@ namespace IgorSoft.DokanCloudFS.Tests
             var sut = new FileInfo(root.FullName + sutContract.Name);
             using (var fileStream = sut.OpenRead()) {
                 fileStream.Unlock(0, 65536);
+
+                fileStream.Unlock(0, 65536);
             }
 
             fixture.Verify();
@@ -888,7 +935,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         [ExpectedException(typeof(IOException))]
-        public void FileStream_ExceptionDuringRead_ReturnsEmptyBuffer()
+        public void FileStream_ExceptionDuringRead_Throws()
         {
             var sutContract = fixture.RootDirectoryItems.OfType<FileInfoContract>().First();
 
@@ -901,12 +948,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             using (var fileStream = sut.OpenRead()) {
                 buffer = new byte[fileStream.Length];
                 var bytesRead = fileStream.Read(buffer, 0, buffer.Length);
-
-                Assert.AreEqual(0, bytesRead, "Unexpected bytes read");
-                Assert.IsTrue(buffer.All(b => b == default(byte)), "Returned buffer is not empty");
             }
-
-            fixture.Verify();
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
