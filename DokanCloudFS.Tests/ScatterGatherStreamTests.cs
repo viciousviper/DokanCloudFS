@@ -203,50 +203,43 @@ namespace IgorSoft.DokanCloudFS.Tests
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void ScatterGatherStreamFactory_CreateScatterGatherStream_WhereCapacityIsNegative_Throws()
         {
-            var scatterStream = default(Stream);
-            var gatherStream = default(Stream);
 
-            ScatterGatherStreamFactory.CreateScatterGatherStreams(-1, out scatterStream, out gatherStream);
+            ScatterGatherStreamFactory.CreateScatterGatherStreams(-1, out Stream scatterStream, out Stream gatherStream);
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void ScatterGatherStreamFactory_CreateScatterGatherStream_WhereTimeoutIsNegative_Throws()
         {
-            var scatterStream = default(Stream);
-            var gatherStream = default(Stream);
 
-            ScatterGatherStreamFactory.CreateScatterGatherStreams(100, TimeSpan.FromMilliseconds(-2), out scatterStream, out gatherStream);
+            ScatterGatherStreamFactory.CreateScatterGatherStreams(100, TimeSpan.FromMilliseconds(-2), out Stream scatterStream, out Stream gatherStream);
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void ScatterGatherStreamFactory_CreateScatterGatherStreams_WhereCapacityIsNegative_Throws()
         {
-            var scatterStream = default(Stream);
             var gatherStreams = new Stream[5];
 
-            ScatterGatherStreamFactory.CreateScatterGatherStreams(-1, out scatterStream, gatherStreams);
+            ScatterGatherStreamFactory.CreateScatterGatherStreams(-1, out Stream scatterStream, gatherStreams);
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void ScatterGatherStreamFactory_CreateScatterGatherStreams_WhereTimeoutIsNegative_Throws()
         {
-            var scatterStream = default(Stream);
             var gatherStreams = new Stream[5];
 
-            ScatterGatherStreamFactory.CreateScatterGatherStreams(100, TimeSpan.FromMilliseconds(-2), out scatterStream, gatherStreams);
+            ScatterGatherStreamFactory.CreateScatterGatherStreams(100, TimeSpan.FromMilliseconds(-2), out Stream scatterStream, gatherStreams);
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
         [ExpectedException(typeof(ArgumentNullException))]
         public void ScatterGatherStreamFactory_CreateScatterGatherStreams_WhereGatherStreamsIsNumm_Throws()
         {
-            var scatterStream = default(Stream);
             var gatherStreams = default(Stream[]);
 
-            ScatterGatherStreamFactory.CreateScatterGatherStreams(100, out scatterStream, gatherStreams);
+            ScatterGatherStreamFactory.CreateScatterGatherStreams(100, out Stream scatterStream, gatherStreams);
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -278,9 +271,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         {
             var size = 1000;
 
-            var scatterStream = default(Stream);
-            var gatherStream = default(Stream);
-            ScatterGatherStreamFactory.CreateScatterGatherStreams(size, out scatterStream, out gatherStream);
+            ScatterGatherStreamFactory.CreateScatterGatherStreams(size, out Stream scatterStream, out Stream gatherStream);
 
             var changedSize = size / 4;
             ((ScatterStream)scatterStream).Capacity = changedSize;
@@ -293,9 +284,8 @@ namespace IgorSoft.DokanCloudFS.Tests
         {
             var size = 1000;
 
-            var scatterStream = default(Stream);
             var gatherStreams = new Stream[5];
-            ScatterGatherStreamFactory.CreateScatterGatherStreams(size, out scatterStream, gatherStreams);
+            ScatterGatherStreamFactory.CreateScatterGatherStreams(size, out Stream scatterStream, gatherStreams);
 
             var changedSize = size / 4;
             ((ScatterStream)scatterStream).Capacity = changedSize;
