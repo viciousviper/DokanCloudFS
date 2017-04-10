@@ -25,7 +25,7 @@ SOFTWARE.
 using System;
 using System.Globalization;
 using System.Threading;
-using IgorSoft.DokanCloudFS.Parameters;
+using IgorSoft.DokanCloudFS.Configuration;
 using IgorSoft.CloudFS.Interface;
 using IgorSoft.CloudFS.Interface.IO;
 
@@ -97,10 +97,17 @@ namespace IgorSoft.DokanCloudFS
 
         protected abstract DriveInfoContract GetDrive();
 
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing) {
+                semaphore.Dispose();
+                semaphore = null;
+            }
+        }
+
         public void Dispose()
         {
-            semaphore.Dispose();
-            semaphore = null;
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
     }

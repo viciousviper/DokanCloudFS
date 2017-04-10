@@ -32,8 +32,8 @@ using Moq;
 using IgorSoft.CloudFS.Interface;
 using IgorSoft.CloudFS.Interface.Composition;
 using IgorSoft.CloudFS.Interface.IO;
+using IgorSoft.DokanCloudFS.Configuration;
 using IgorSoft.DokanCloudFS.IO;
-using IgorSoft.DokanCloudFS.Parameters;
 
 namespace IgorSoft.DokanCloudFS.Tests
 {

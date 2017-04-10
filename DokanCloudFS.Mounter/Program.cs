@@ -36,8 +36,8 @@ using Microsoft.Extensions.CommandLineUtils;
 using NLog;
 using IgorSoft.CloudFS.Authentication;
 using IgorSoft.CloudFS.Interface;
+using IgorSoft.DokanCloudFS.Configuration;
 using IgorSoft.DokanCloudFS.Mounter.Config;
-using IgorSoft.DokanCloudFS.Parameters;
 
 namespace IgorSoft.DokanCloudFS.Mounter
 {

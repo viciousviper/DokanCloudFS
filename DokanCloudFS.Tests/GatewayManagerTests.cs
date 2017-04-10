@@ -62,8 +62,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             var syncGateways = Enumerable.Empty<ExportFactory<ICloudGateway, CloudGatewayMetadata>>();
 
             var sut = new GatewayManager(asyncGateways, syncGateways);
-            IAsyncCloudGateway asyncGateway = null;
-            var result = sut.TryGetAsyncCloudGatewayForSchema("testAsync", out asyncGateway);
+            var result = sut.TryGetAsyncCloudGatewayForSchema("testAsync", out IAsyncCloudGateway asyncGateway);
 
             Assert.IsFalse(result, "Unconfigured AsyncCloudGateway returned");
         }
@@ -75,8 +74,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             var syncGateways = Enumerable.Empty<ExportFactory<ICloudGateway, CloudGatewayMetadata>>();
 
             var sut = new GatewayManager(asyncGateways, syncGateways);
-            ICloudGateway syncGateway = null;
-            var result = sut.TryGetCloudGatewayForSchema("testSync", out syncGateway);
+            var result = sut.TryGetCloudGatewayForSchema("testSync", out ICloudGateway syncGateway);
 
             Assert.IsFalse(result, "Unconfigured CloudGateway returned");
         }
@@ -88,8 +86,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             var syncGateways = Enumerable.Empty<ExportFactory<ICloudGateway, CloudGatewayMetadata>>();
 
             var sut = new GatewayManager(asyncGateways, syncGateways);
-            IAsyncCloudGateway asyncGateway = null;
-            var result = sut.TryGetAsyncCloudGatewayForSchema("undefinedAsync", out asyncGateway);
+            var result = sut.TryGetAsyncCloudGatewayForSchema("undefinedAsync", out IAsyncCloudGateway asyncGateway);
 
             Assert.IsFalse(result, "Unconfigured AsyncCloudGateway returned");
         }
@@ -101,8 +98,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             var syncGateways = new[] { new ExportFactory<ICloudGateway, CloudGatewayMetadata>(() => Fixture.GetSyncCreator(), Fixture.GetSyncGatewayMetadata()) };
 
             var sut = new GatewayManager(asyncGateways, syncGateways);
-            ICloudGateway syncGateway = null;
-            var result = sut.TryGetCloudGatewayForSchema("undefinedSync", out syncGateway);
+            var result = sut.TryGetCloudGatewayForSchema("undefinedSync", out ICloudGateway syncGateway);
 
             Assert.IsFalse(result, "Unconfigured CloudGateway returned");
         }
@@ -114,8 +110,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             var syncGateways = Enumerable.Empty<ExportFactory<ICloudGateway, CloudGatewayMetadata>>();
 
             var sut = new GatewayManager(asyncGateways, syncGateways);
-            IAsyncCloudGateway asyncGateway = null;
-            var result = sut.TryGetAsyncCloudGatewayForSchema("testAsync", out asyncGateway);
+            var result = sut.TryGetAsyncCloudGatewayForSchema("testAsync", out IAsyncCloudGateway asyncGateway);
 
             Assert.IsTrue(result, "Configured AsyncCloudGateway not returned");
         }
@@ -127,8 +122,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             var syncGateways = new[] { new ExportFactory<ICloudGateway, CloudGatewayMetadata>(() => Fixture.GetSyncCreator(), Fixture.GetSyncGatewayMetadata()) };
 
             var sut = new GatewayManager(asyncGateways, syncGateways);
-            ICloudGateway syncGateway = null;
-            var result = sut.TryGetCloudGatewayForSchema("testSync", out syncGateway);
+            var result = sut.TryGetCloudGatewayForSchema("testSync", out ICloudGateway syncGateway);
 
             Assert.IsTrue(result, "Configured CloudGateway not returned");
         }

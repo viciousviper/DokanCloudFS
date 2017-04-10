@@ -25,7 +25,7 @@ SOFTWARE.
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
-using IgorSoft.DokanCloudFS.Parameters;
+using IgorSoft.DokanCloudFS.Configuration;
 
 namespace IgorSoft.DokanCloudFS.Tests
 {

@@ -1,5 +1,5 @@
 # DokanCloudFS
-**DokanCloudFS** is a virtual filesystem for various publicly accessible cloud storage services on the Microsoft Windows platform.
+**DokanCloudFS** is a virtual file system for various publicly accessible cloud storage services on the Microsoft Windows platform.
 
 [![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/viciousviper/CloudFS/blob/master/LICENSE.md)
 [![Release](https://img.shields.io/github/tag/viciousviper/CloudFS.svg)](https://github.com/viciousviper/CloudFS/releases)
@@ -7,19 +7,19 @@
 | Branch  | Build status | Code coverage | Code analysis |
 | :------ | :----------: | :-----------: | :-----------: |
 | master  | [![Build status](https://ci.appveyor.com/api/projects/status/fynac58uetvtt43t/branch/master?svg=true)](https://ci.appveyor.com/project/viciousviper/dokancloudfs) | [![codecov.io](https://codecov.io/github/viciousviper/DokanCloudFS/coverage.svg?branch=master)](https://codecov.io/github/viciousviper/DokanCloudFS?branch=master)  | [![Code analysis](https://scan.coverity.com/projects/7853/badge.svg)](https://scan.coverity.com/projects/viciousviper-dokancloudfs) |
-| develop | [![Build status](https://ci.appveyor.com/api/projects/status/fynac58uetvtt43t/branch/develop?svg=true)](https://ci.appveyor.com/project/viciousviper/dokancloudfs) | [![codecov.io](https://codecov.io/github/viciousviper/DokanCloudFS/coverage.svg?branch=develop)](https://codecov.io/github/viciousviper/DokanCloudFS?branch=develop) | |
+| develop | [![Build status](https://ci.appveyor.com/api/projects/status/fynac58uetvtt43t/branch/develop?svg=true)](https://ci.appveyor.com/project/viciousviper/dokancloudfs) | [![codecov.io](https://codecov.io/github/viciousviper/DokanCloudFS/coverage.svg?branch=develop)](https://codecov.io/github/viciousviper/DokanCloudFS?branch=develop) | [![Quality Gate](https://sonarqube.com/api/badges/gate?key=DokanCloudFS)](https://sonarqube.com/dashboard/index/DokanCloudFS) |
 
 ## Objective
 
-**DokanCloudFS** implements a virtual filesystem that allows direct mounting of various publicly accessible cloud storage services on the Microsoft Windows platform.
+**DokanCloudFS** implements a virtual file system that allows direct mounting of various publicly accessible cloud storage services on the Microsoft Windows platform.
 
 Mounted cloud storage drives appear as ordinary removable drives in Windows Explorer (albeit very slow ones) and can be used just about like any local drive or file share.
 
 ![Multiple mounted drives](Images/MultipleMountedDrives.PNG)
 
-All content written through DokanCloudFS is transparently AES-encrypted with a user-specified key before handing it off to the cloud storage backend.
+All content written through DokanCloudFS is transparently AES-encrypted with a user-specified key before handing it off to the cloud storage back-end.
 
-Some limitations apply concerning transfer speed, maximum file size, permissions, and alternate streams depending on parameters of the cloud storage service used as a backend.
+Some limitations apply concerning transfer speed, maximum file size, permissions, and alternate streams depending on parameters of the cloud storage service used as a back-end.
 
 ## Features
 
@@ -27,7 +27,7 @@ Some limitations apply concerning transfer speed, maximum file size, permissions
   - number of mounted volumes only limited by available drive letters
   - mounting of multiple accounts of the same cloud storage service in parallel
   - automatic re-authentication to cloud storage services after first login (optional AES encryption of persisted account credentials and authentication tokens)
-- Full support for interactive file manipulation in Winows Explorer including but not limited to
+- Full support for interactive file manipulation in Windows Explorer including but not limited to
   - copying and moving of multiple files and folders between DokanCloudFS drives and other drives
   - opening of files in default application via Mouse double click
   - right-click-menu on drive, files, and folders with access to menu commands and drive/file properties
@@ -38,14 +38,14 @@ Some limitations apply concerning transfer speed, maximum file size, permissions
 
 ## Supported Cloud storage services
 
-DokanCloudFS requires a gateway assembly for any cloud storage service to be used as a backend.
+DokanCloudFS requires a gateway assembly for any cloud storage service to be used as a back-end.
 
 The expected gateway interface types and a set of prefabricated gateways are provided in a separate GitHub repository for the [CloudFS](https://github.com/viciousviper/CloudFS) project.<br />The associated NuGet packages [CloudFS](https://www.nuget.org/packages/CloudFS/) and [CloudFS-Signed](https://www.nuget.org/packages/CloudFS-Signed/) include preconfigured API keys for the included cloud storage services and are ready to use. Unless marked otherwise, CloudFS NuGet packages should be used in a version matching the DokanCloudFS version.
 
 ## System Requirements
 
 - Platform
-  - .NET 4.6
+  - .NET 4.6.2
 - Drivers
   - [Dokany](https://github.com/dokan-dev/dokany/releases) driver version 1.0.3 or greater installed
 - Operating system
@@ -108,7 +108,7 @@ The expected gateway interface types and a set of prefabricated gateways are pro
   ```
     - The **mount** command will mount the drives configured in *IgorSoft.DokanCloudFS.Mounter.exe.config*, optionally filtered by the specified user names.
       - If you use the **-p|--passPhrase** option for the first time, previously unencrypted persisted settings **of the drives mounted at this time** - and all newly acquired authentication credentials - will be encrypted with the specified pass phrase. Persisted settings of drives not mounted at this time will remain as they are.
-    - The **reset** command will purge all persisted settings and require you to explicitely login on the next start of *IgorSoft.DokanCloudFS.Mounter.exe*.
+    - The **reset** command will purge all persisted settings and require you to explicitly login on the next start of *IgorSoft.DokanCloudFS.Mounter.exe*.
 
 ### Sample configuration
 
@@ -148,7 +148,7 @@ Configuration options:
     - **parameters**: Custom parameters as required by the specific cloud storage service gateway. Multiple parameters are separated by a pipe-character `|`.
       - *file* gateway - requires a *root*-parameter specifying the target directory (e.g. `parameters="root=X:\Encrypted"`)
       - *gcs* gateway - requires a *bucket*-parameter specifying the Google Cloud Storage bucket to be mounted (e.g. `parameters="bucket=xczabc-12345-test-bucket"`)
-      - *hubic* gateway - requires a *container*-parameter specifiying the desired target container (e.g. `parameters="container=default")`
+      - *hubic* gateway - requires a *container*-parameter specifying the desired target container (e.g. `parameters="container=default")`
       - *webdav* gateway - requires a *baseAddress*-parameter specifying the desired WebDAV hoster's access URL (e.g. `parameters="baseAddress=https://webdav.magentacloud.de"`)
       - other gateways - no custom parameters supported so far
     - **timeout:** The timeout value for file operations on this drive measured in seconds.<br />A value of *300* should suffice for all but the slowest connections.
@@ -157,7 +157,7 @@ Configuration options:
 
 ## Privacy advice
 
-Certain privacy-sensitive information will be stored on your local filesystem by DokanCloudFS, specifically:
+Certain privacy-sensitive information will be stored on your local file system by DokanCloudFS, specifically:
 
   - The file *%UserProfile%\AppData\Local\IgorSoft\IgorSoft.DokanCloudFS.&lt;RandomizedName&gt;\1.0.0.0\user.config* contains data required for automatic re-authentication with the configured cloud storage services such as
     - account names you entered in the browser or login window when authenticating to the various cloud storage services,
@@ -170,9 +170,9 @@ DokanCloudFS **does not** store your authentication password for any cloud stora
 ## Limitations
 
   - DokanCloudFS only supports mounting of a cloud storage volume's root directory.
-  - The maximum supported file size varies between different cloud storage services. Moreover, the precise limits are not always disclosed.<br />Exceeding the size limit in a file write operation will result in either a timout or a service error.
+  - The maximum supported file size varies between different cloud storage services. Moreover, the precise limits are not always disclosed.<br />Exceeding the size limit in a file write operation will result in either a timeout or a service error.
   - The files in a DokanCloudFS drive do not allow true random access, instead they are read or written sequentially as a whole. Furthermore, there is no support for file attributes (*read-only*, *hidden*, *archived*) or permissions.<br/>Depending on the target application, editing a file directly in the DokanCloudFS drive *may* work to a varying extent, otherwise the file must be copied to a conventional drive for processing and subsequently re-uploaded.<br/>*Example*: Microsoft Word can open and save .docx files from a DokancloudFS drive, but cannot update a file in place.
-  - DokanCloudFS keeps an internal cache of directory metadata for increased performance. Changes made to the cloud storage volume outside of DokanCloudFS will not be automatically synchronized with this cache, therefore any form of concurrent write access may lead to unexpected results or errors.
+  - DokanCloudFS keeps an internal cache of directory meta-data for increased performance. Changes made to the cloud storage volume outside of DokanCloudFS will not be automatically synchronized with this cache, therefore any form of concurrent write access may lead to unexpected results or errors.
   - The only encrypted file format supported by DokanCloudFS is the [AESCrypt](https://www.aescrypt.com/) file format.
   - DokanCloudFS distinguishes content encryption keys on a per-drive scale only. It is not possible to assign content encryption keys to specific subdirectories or to individual files.<br />Although you could, in theory, mount several copies of the same cloud service volume in parallel, these copies will not synchronize their cached directory structures in any way (see above).
 
@@ -181,7 +181,7 @@ DokanCloudFS **does not** store your authentication password for any cloud stora
   - Several gateways
     - Writing of large (>> 10 Mb) files to cloud storage is unstable on the following platforms: *Box*, *pCloud*
   - *Mediafire* gateway
-    - The Mediafire token management scheme depends on error-free operation when using long-term authentication tokens. Expect to re-authenticate via the login popup after network errors or if the DokanCloudFS process is aborted.
+    - The Mediafire token management scheme depends on error-free operation when using long-term authentication tokens. Expect to re-authenticate via the login pop-up after network errors or if the DokanCloudFS process is aborted.
 
 ## Remarks
 

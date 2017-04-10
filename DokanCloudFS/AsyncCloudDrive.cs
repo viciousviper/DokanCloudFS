@@ -29,8 +29,8 @@ using System.IO;
 using IgorSoft.CloudFS.Interface;
 using IgorSoft.CloudFS.Interface.Composition;
 using IgorSoft.CloudFS.Interface.IO;
+using IgorSoft.DokanCloudFS.Configuration;
 using IgorSoft.DokanCloudFS.IO;
-using IgorSoft.DokanCloudFS.Parameters;
 
 namespace IgorSoft.DokanCloudFS
 {
@@ -41,13 +41,21 @@ namespace IgorSoft.DokanCloudFS
 
         private readonly IDictionary<string, string> parameters;
 
+        public IPersistGatewaySettings PersistSettings => gateway as IPersistGatewaySettings;
+
+        public AsyncCloudDrive(RootName rootName, GatewayConfiguration<IAsyncCloudGateway> configuration) : base(rootName, configuration.Parameters)
+        {
+            gateway = configuration.Gateway;
+            parameters = configuration.Parameters.Parameters;
+        }
+
+        [Obsolete]
+        [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public AsyncCloudDrive(RootName rootName, IAsyncCloudGateway gateway, CloudDriveParameters parameters) : base(rootName, parameters)
         {
             this.gateway = gateway;
             this.parameters = parameters.Parameters;
         }
-
-        public IPersistGatewaySettings PersistSettings => gateway as IPersistGatewaySettings;
 
         protected override DriveInfoContract GetDrive()
         {

@@ -58,7 +58,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             Prop.ForAll(Fixture.BlockMaps(), bm => Prop.ForAll(Fixture.FreeBlocks(bm), b => {
                 bm.AssignBytes(b.Offset, b.Count);
                 return bm.GetAvailableBytes(b.Offset, b.Count) >= b.Count;
-            })).Check(new Configuration() { Runner = Config.QuickThrowOnFailure.Runner, MaxNbOfTest = 10000 });
+            })).Check(new FsCheck.Configuration() { Runner = Config.QuickThrowOnFailure.Runner, MaxNbOfTest = 10000 });
         }
     }
 }

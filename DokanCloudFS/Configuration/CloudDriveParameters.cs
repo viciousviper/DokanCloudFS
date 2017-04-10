@@ -25,14 +25,29 @@ SOFTWARE.
 using System;
 using System.Collections.Generic;
 
-namespace IgorSoft.DokanCloudFS.Parameters
+namespace IgorSoft.DokanCloudFS.Configuration
 {
+    /// <summary>
+    /// CloudDrive configuration parameters.
+    /// </summary>
     public class CloudDriveParameters
     {
+        /// <summary>
+        /// Gets or sets the API key.
+        /// </summary>
+        /// <value>The API key.</value>
         public string ApiKey { get; set; }
 
+        /// <summary>
+        /// Gets or sets the encryption key.
+        /// </summary>
+        /// <value>The encryption key.</value>
         public string EncryptionKey { get; set; }
 
+        /// <summary>
+        /// Gets or sets the parameters.
+        /// </summary>
+        /// <value>The parameters.</value>
         public IDictionary<string, string> Parameters { get; set; }
     }
 }

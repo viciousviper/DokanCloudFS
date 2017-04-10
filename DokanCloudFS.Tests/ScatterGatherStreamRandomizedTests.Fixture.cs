@@ -41,17 +41,15 @@ namespace IgorSoft.DokanCloudFS.Tests
             private static readonly TimeSpan initialReadDelay = TimeSpan.Zero;
             private static readonly TimeSpan readDelay = TimeSpan.FromMilliseconds(2);
 
-            public static Configuration QuickConfig => new Configuration() { Runner = Config.QuickThrowOnFailure.Runner, StartSize = 3 };
+            public static FsCheck.Configuration QuickConfig => new FsCheck.Configuration() { Runner = Config.QuickThrowOnFailure.Runner, StartSize = 3 };
 
-            public static Configuration VerboseConfig => new Configuration() { Runner = Config.VerboseThrowOnFailure.Runner, StartSize = 3 };
+            public static FsCheck.Configuration VerboseConfig => new FsCheck.Configuration() { Runner = Config.VerboseThrowOnFailure.Runner, StartSize = 3 };
 
             public static byte[] CopyBufferConcurrentlyByPermutation(byte[] sourceBuffer, BlockMap.Block[] writePermutation, BlockMap.Block[] readPermutation)
             {
                 var targetBuffer = new byte[sourceBuffer.Length];
 
-                var scatterStream = default(Stream);
-                var gatherStream = default(Stream);
-                ScatterGatherStreamFactory.CreateScatterGatherStreams(sourceBuffer.Length, out scatterStream, out gatherStream);
+                ScatterGatherStreamFactory.CreateScatterGatherStreams(sourceBuffer.Length, out Stream scatterStream, out Stream gatherStream);
 
                 var writeTask = WriteAsync(scatterStream, writePermutation, sourceBuffer);
                 var readTask = ReadAsync(gatherStream, readPermutation, targetBuffer);
@@ -65,9 +63,8 @@ namespace IgorSoft.DokanCloudFS.Tests
             {
                 var targetBuffers = Enumerable.Range(0, readPermutations.Length).Select(i => new byte[sourceBuffer.Length]).ToArray();
 
-                var scatterStream = default(Stream);
                 var gatherStreams = new Stream[readPermutations.Length];
-                ScatterGatherStreamFactory.CreateScatterGatherStreams(sourceBuffer.Length, out scatterStream, gatherStreams);
+                ScatterGatherStreamFactory.CreateScatterGatherStreams(sourceBuffer.Length, out Stream scatterStream, gatherStreams);
 
                 var writeTask = WriteAsync(scatterStream, writePermutation, sourceBuffer);
                 var readTasks = Enumerable.Range(0, readPermutations.Length).Select(i => ReadAsync(gatherStreams[i], readPermutations[i], targetBuffers[i]));

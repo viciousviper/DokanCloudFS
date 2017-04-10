@@ -28,7 +28,7 @@ using System.Composition;
 using System.Globalization;
 using IgorSoft.CloudFS.Interface;
 using IgorSoft.CloudFS.Interface.Composition;
-using IgorSoft.DokanCloudFS.Parameters;
+using IgorSoft.DokanCloudFS.Configuration;
 
 namespace IgorSoft.DokanCloudFS
 {
@@ -44,13 +44,11 @@ namespace IgorSoft.DokanCloudFS
 
             var rootName = new RootName(schema, userName, root);
 
-            var asyncGateway = default(IAsyncCloudGateway);
-            if (GatewayManager.TryGetAsyncCloudGatewayForSchema(rootName.Schema, out asyncGateway))
-                return new AsyncCloudDrive(rootName, asyncGateway, parameters);
+            if (GatewayManager.TryGetAsyncCloudGatewayForSchema(rootName.Schema, out IAsyncCloudGateway asyncGateway))
+                return new AsyncCloudDrive(rootName, new GatewayConfiguration<IAsyncCloudGateway>(asyncGateway, parameters));
 
-            var gateway = default(ICloudGateway);
-            if (GatewayManager.TryGetCloudGatewayForSchema(rootName.Schema, out gateway))
-                return new CloudDrive(rootName, gateway, parameters);
+            if (GatewayManager.TryGetCloudGatewayForSchema(rootName.Schema, out ICloudGateway gateway))
+                return new CloudDrive(rootName, new GatewayConfiguration<ICloudGateway>(gateway, parameters));
 
             throw new KeyNotFoundException(string.Format(CultureInfo.CurrentCulture, Resources.NoGatewayForSchema, rootName.Schema));
         }

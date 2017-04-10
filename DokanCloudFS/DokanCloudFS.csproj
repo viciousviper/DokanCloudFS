@@ -94,6 +94,7 @@
       <DependentUpon>CloudOperations.cs</DependentUpon>
     </Compile>
     <Compile Include="Extensions\DokanFileInfoExtensions.cs" />
+    <Compile Include="Configuration\GatewayConfiguration.cs" />
     <Compile Include="IO\BlockMap.cs" />
     <Compile Include="CloudDirectoryNode.cs" />
     <Compile Include="CloudOperations.cs" />
@@ -109,7 +110,7 @@
     <Compile Include="IGatewayManager.cs" />
     <Compile Include="IO\ReadWriteSegregatingStream.cs" />
     <Compile Include="IO\TraceStream.cs" />
-    <Compile Include="Parameters\CloudDriveParameters.cs" />
+    <Compile Include="Configuration\CloudDriveParameters.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources.Designer.cs">
       <AutoGen>True</AutoGen>

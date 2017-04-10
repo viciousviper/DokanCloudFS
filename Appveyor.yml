@@ -4,8 +4,11 @@ branches:
   only:
   - master
   - develop
+  - codeanalysis
 
 skip_tags: true
+
+image: Visual Studio 2017
 
 configuration:
 - Debug
@@ -20,14 +23,23 @@ environment:
     secure: YVsR79t7aNYqU3qKMz+7JJuUABwSBo/X/FlCNmlnVQ0=
   COVERITY_EMAIL:
     secure: 6zUyb+IRQkAbWNWP0T0sHw==
+  SONARQUBE_TOKEN:
+    secure: B8SjYjO+rTDRb265vIqaCU5D9/DdbwpqD2EyzZJl3lzAqIzI/xvsva6ivN1ZHMu1
 
 install:
 - ps: >-
     Add-Type -AssemblyName System.IO.Compression.FileSystem
-      (New-Object System.Net.WebClient).DownloadFile(
-        'https://github.com/dokan-dev/dokany/releases/download/v1.0.3/DokanSetup.exe',
-        'C:\projects\dokancloudfs\DokanSetup.exe'
-      )
+    (New-Object System.Net.WebClient).DownloadFile(
+      'https://github.com/dokan-dev/dokany/releases/download/v1.0.3/DokanSetup.exe',
+      'C:\projects\dokancloudfs\DokanSetup.exe'
+    )
+
+    #Install-Package -Force MSBuild.SonarQube.Runner.Tool
+    (New-Object System.Net.WebClient).DownloadFile(
+      'https://repox.sonarsource.com/sonarsource-public-builds/org/sonarsource/scanner/msbuild/sonar-scanner-msbuild/2.3.0.526/sonar-scanner-msbuild-2.3.0.526.zip',
+      'C:\projects\dokancloudfs\sonar-scanner-msbuild-2.3.0.526.zip'
+    )
+    Expand-Archive C:\projects\dokancloudfs\sonar-scanner-msbuild-2.3.0.526.zip -DestinationPath C:\projects\dokancloudfs\SonarQube
 
 cache: packages -> **\packages.config
 
@@ -37,8 +49,14 @@ build_script:
 
     cov-build --dir cov-int msbuild DokanCloudFS.sln /p:UseSharedCompilation=false /verbosity:minimal /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
 
+    rem set SONARQUBE_PATH="C:\Program Files\PackageManagement\NuGet\Packages\MSBuild.SonarQube.Runner.Tool.1.0.0\tools"
+    set SONARQUBE_PATH=C:\projects\dokancloudfs\SonarQube
+    %SONARQUBE_PATH%\MSBuild.SonarQube.Runner.exe begin /o:"viciousviper-github" /k:"DokanCloudFS" /n:"DokanCloudFS" /v:"%APPVEYOR_BUILD_VERSION%" /d:"sonar.host.url=https://sonarqube.com" /d:"sonar.login=%SONARQUBE_TOKEN%"
+    msbuild DokanCloudFS.sln /t:Rebuild /p:UseSharedCompilation=false /verbosity:minimal /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll
+    %SONARQUBE_PATH%\MSBuild.SonarQube.Runner.exe end /d:"sonar.login=%SONARQUBE_TOKEN%"
+
 before_test:
-- cmd: "C:\\projects\\dokancloudfs\\DokanSetup.exe /quiet\ncopy \"C:\\Program Files\\Dokan\\Dokan Library-1.0.0\\dokan1.dll\" \"C:\\Windows\\System32\" \ncopy \"C:\\Program Files\\Dokan\\Dokan Library-1.0.0\\x86\\dokan1.dll\" \"C:\\Windows\\SysWOW64\""
+- cmd: "C:\\projects\\dokancloudfs\\DokanSetup.exe /quiet\ncopy \"C:\\Program Files\\Dokan\\Dokan Library-1.0.3\\dokan1.dll\" \"C:\\Windows\\System32\" \ncopy \"C:\\Program Files\\Dokan\\Dokan Library-1.0.3\\x86\\dokan1.dll\" \"C:\\Windows\\SysWOW64\""
 
 test:
   categories:
@@ -52,7 +70,7 @@ after_test:
     SET PATH=C:\\Python34;C:\\Python34\\Scripts;%PATH%
     pip install codecov
     codecov -f .\DokanCloudFS_coverage.xml -X gcov
-    IF %APPVEYOR_REPO_BRANCH% NEQ master
+    IF %APPVEYOR_REPO_BRANCH% NEQ master EXIT
     IF %CONFIGURATION% NEQ Debug EXIT
     7z a -r coverity.zip cov-int
     curl --form token=%COVERITY_TOKEN% --form email=%COVERITY_EMAIL% --form file=@coverity.zip --form version="1.0.11-beta" https://scan.coverity.com/builds?project=%APPVEYOR_REPO_NAME%

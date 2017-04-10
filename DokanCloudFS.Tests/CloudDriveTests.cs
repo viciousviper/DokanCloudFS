@@ -176,7 +176,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             fixture.SetupGetContent(sutContract, fileContent, encryptionKey);
 
-            var buffer = default(byte[]);
+            byte[] buffer;
             using (var sut = fixture.Create(apiKey, encryptionKey))
             using (var stream = sut.GetContent(sutContract)) {
                 buffer = new byte[stream.Length];
@@ -197,7 +197,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             fixture.SetupGetContent(sutContract, fileContent);
 
-            var buffer = default(byte[]);
+            byte[] buffer;
             using (var sut = fixture.Create(apiKey, encryptionKey))
             using (var stream = sut.GetContent(sutContract)) {
                 buffer = new byte[stream.Length];
@@ -218,7 +218,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             fixture.SetupGetContent(sutContract, fileContent, encryptionKey, false);
 
-            var buffer = default(byte[]);
+            byte[] buffer;
             using (var sut = fixture.Create(apiKey, encryptionKey))
             using (var stream = sut.GetContent(sutContract)) {
                 buffer = new byte[stream.Length];

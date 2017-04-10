@@ -47,8 +47,7 @@ namespace IgorSoft.DokanCloudFS
 
         public bool TryGetAsyncCloudGatewayForSchema(string cloudService, out IAsyncCloudGateway asyncGateway)
         {
-            var result = default(ExportFactory<IAsyncCloudGateway, CloudGatewayMetadata>);
-            if (asyncGateways.TryGetValue(cloudService, out result)) {
+            if (asyncGateways.TryGetValue(cloudService, out ExportFactory<IAsyncCloudGateway, CloudGatewayMetadata> result)) {
                 using (var export = result.CreateExport()) {
                     asyncGateway = export.Value;
                     return true;
@@ -61,8 +60,7 @@ namespace IgorSoft.DokanCloudFS
 
         public bool TryGetCloudGatewayForSchema(string cloudService, out ICloudGateway gateway)
         {
-            var result = default(ExportFactory<ICloudGateway, CloudGatewayMetadata>);
-            if (gateways.TryGetValue(cloudService, out result)) {
+            if (gateways.TryGetValue(cloudService, out ExportFactory<ICloudGateway, CloudGatewayMetadata> result)) {
                 using (var export = result.CreateExport()) {
                     gateway = export.Value;
                     return true;

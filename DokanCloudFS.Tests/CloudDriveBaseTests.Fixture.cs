@@ -25,7 +25,7 @@ SOFTWARE.
 using System;
 using IgorSoft.CloudFS.Interface;
 using IgorSoft.CloudFS.Interface.IO;
-using IgorSoft.DokanCloudFS.Parameters;
+using IgorSoft.DokanCloudFS.Configuration;
 
 namespace IgorSoft.DokanCloudFS.Tests
 {
