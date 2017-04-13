@@ -22,7 +22,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Library", "Library", "{7D6A
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0BB1F64B-56CD-4856-A0C4-D35092681ED7}"
 	ProjectSection(SolutionItems) = preProject
-		_appveyor.yml = _appveyor.yml
+		appveyor.yml = appveyor.yml
 		CommonAssemblyInfo.cs = CommonAssemblyInfo.cs
 		DokanCloudFS.runsettings = DokanCloudFS.runsettings
 		LICENSE.md = LICENSE.md
