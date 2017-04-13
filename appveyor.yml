@@ -53,9 +53,9 @@ test_script:
 - cmd: >-
     DokanSetup.exe /quiet
 
-	copy "C:\Program Files\Dokan\Dokan Library-1.0.3\dokan1.dll" "C:\Windows\System32"
+    copy "C:\Program Files\Dokan\Dokan Library-1.0.3\dokan1.dll" "C:\Windows\System32"
 
-	copy "C:\Program Files\Dokan\Dokan Library-1.0.3\x86\dokan1.dll" "C:\Windows\SysWOW64"
+    copy "C:\Program Files\Dokan\Dokan Library-1.0.3\x86\dokan1.dll" "C:\Windows\SysWOW64"
 
     set PATH=".\packages\OpenCover.4.6.519\tools";%PATH%
 
