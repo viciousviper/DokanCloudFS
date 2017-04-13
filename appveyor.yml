@@ -28,8 +28,8 @@ install:
 
     #Install-Package -Force MSBuild.SonarQube.Runner.Tool
     (New-Object System.Net.WebClient).DownloadFile(
-      "https://repox.sonarsource.com/sonarsource-public-builds/org/sonarsource/scanner/msbuild/sonar-scanner-msbuild/2.3.0.553/sonar-scanner-msbuild-2.3.0.553.zip",
-      "$PWD\sonar-scanner-msbuild.zip"
+      'https://repox.sonarsource.com/sonarsource-public-builds/org/sonarsource/scanner/msbuild/sonar-scanner-msbuild/2.3.0.553/sonar-scanner-msbuild-2.3.0.553.zip',
+      '$PWD\sonar-scanner-msbuild.zip'
     )
 
     Expand-Archive $PWD\sonar-scanner-msbuild.zip -DestinationPath $PWD\SonarQube
@@ -65,8 +65,8 @@ test_script:
 
 - ps: >-
     (New-Object System.Net.WebClient).UploadFile(
-      "https://ci.appveyor.com/api/testresults/mstest/$env:APPVEYOR_JOB_ID",
-      "$PWD\DokanCloudFS_testresults.trx"
+      'https://ci.appveyor.com/api/testresults/mstest/$env:APPVEYOR_JOB_ID',
+      '$PWD\DokanCloudFS_testresults.trx''
     )
 
 - cmd: >-
