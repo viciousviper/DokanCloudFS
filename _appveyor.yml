@@ -1,0 +1,93 @@
+version: 1.0.11-beta {build}
+image: Visual Studio 2017
+configuration:
+- Debug
+- Release
+platform: Any CPU
+branches:
+  only:
+  - master
+  - develop
+  - codeanalysis
+skip_tags: true
+environment:
+  CODECOV_TOKEN:
+    secure: 1253r8dPEiTvtAxdeEPP24riRPa4/7G2ivnvbB/xXi2CTu+YindCPHASfuA2PF4t
+  COVERITY_TOKEN:
+    secure: YVsR79t7aNYqU3qKMz+7JJuUABwSBo/X/FlCNmlnVQ0=
+  COVERITY_EMAIL:
+    secure: 6zUyb+IRQkAbWNWP0T0sHw==
+  SONARQUBE_TOKEN:
+    secure: B8SjYjO+rTDRb265vIqaCU5D9/DdbwpqD2EyzZJl3lzAqIzI/xvsva6ivN1ZHMu1
+install:
+- ps: >-
+    (New-Object System.Net.WebClient).DownloadFile(
+      'https://github.com/dokan-dev/dokany/releases/download/v1.0.3/DokanSetup.exe',
+      '$PWD\DokanSetup.exe'
+    )
+
+    #Install-Package -Force MSBuild.SonarQube.Runner.Tool
+    (New-Object System.Net.WebClient).DownloadFile(
+      "https://repox.sonarsource.com/sonarsource-public-builds/org/sonarsource/scanner/msbuild/sonar-scanner-msbuild/2.3.0.553/sonar-scanner-msbuild-2.3.0.553.zip",
+      "$PWD\sonar-scanner-msbuild.zip"
+    )
+
+    Expand-Archive $PWD\sonar-scanner-msbuild.zip -DestinationPath $PWD\SonarQube
+
+cache: packages -> **\packages.config
+build_script:
+- cmd: >-
+    nuget restore
+
+    cov-build --dir cov-int msbuild DokanCloudFS.sln /p:UseSharedCompilation=false /verbosity:minimal /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+
+    rem set PATH="C:\Program Files\PackageManagement\NuGet\Packages\MSBuild.SonarQube.Runner.Tool.1.0.0\tools"
+
+    set PATH=.\SonarQube;%PATH%
+
+    MSBuild.SonarQube.Runner.exe begin /k:"DokanCloudFS" /o:"viciousviper-github" /n:"DokanCloudFS" /v:"%APPVEYOR_BUILD_VERSION%" /d:"sonar.language=cs" /d:"sonar.cs.vstest.reportsPaths=DokanCloudFS_testresults.trx" /d:"sonar.cs.opencover.reportsPaths=DokanCloudFS_coverage.xml" /d:"sonar.host.url=https://sonarqube.com" /d:"sonar.login=%SONARQUBE_TOKEN%"
+
+    MSBuild DokanCloudFS.sln /t:Rebuild /p:UseSharedCompilation=false /verbosity:minimal /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+
+test_script:
+- cmd: >-
+    DokanSetup.exe /quiet
+
+	copy "C:\Program Files\Dokan\Dokan Library-1.0.3\dokan1.dll" "C:\Windows\System32"
+
+	copy "C:\Program Files\Dokan\Dokan Library-1.0.3\x86\dokan1.dll" "C:\Windows\SysWOW64"
+
+    set PATH=".\packages\OpenCover.4.6.519\tools";%PATH%
+
+    OpenCover.Console.exe -register:user -target:"C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\MSTest.exe" -targetargs:"/noisolation /category:!Online&!Manual /resultsfile:DokanCloudFS_testresults.trx /testcontainer:.\DokanCloudFS.Tests\bin\%CONFIGURATION%\IgorSoft.DokanCloudFS.Tests.dll" -filter:"+[IgorSoft.DokanCloudFS*]*" -excludebyattribute:*.ExcludeFromCodeCoverage* -hideskipped:All -output:.\DokanCloudFS_coverage.xml
+
+    MSBuild.SonarQube.Runner.exe end /d:"sonar.login=%SONARQUBE_TOKEN%
+
+- ps: >-
+    (New-Object System.Net.WebClient).UploadFile(
+      "https://ci.appveyor.com/api/testresults/mstest/$env:APPVEYOR_JOB_ID",
+      "$PWD\DokanCloudFS_testresults.trx"
+    )
+
+- cmd: >-
+    set PATH="C:\Python34;C:\Python34\Scripts";%PATH%
+
+    pip install codecov
+
+    codecov -f .\DokanCloudFS_coverage.xml -X gcov
+
+    IF %APPVEYOR_REPO_BRANCH% NEQ master EXIT
+
+    IF %CONFIGURATION% NEQ Debug EXIT
+
+    7z a -r coverity.zip cov-int
+
+    curl -F token=%COVERITY_TOKEN% -F email=%COVERITY_EMAIL% -F file=@coverity.zip -F version="1.0.11-beta" https://scan.coverity.com/builds?project=%APPVEYOR_REPO_NAME%
+
+artifacts:
+- path: cov-int/build-log.txt
+  name: Coverity Build Log
+- path: DokanCloudFS_testresults.trx
+  name: TestResults
+- path: DokanCloudFS_coverage.xml
+  name: Coverage

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26403.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DokanCloudFS", "DokanCloudFS\DokanCloudFS.csproj", "{87F4BEE8-FE6A-4ACF-9234-FDAEB28C786B}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -22,7 +22,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Library", "Library", "{7D6A
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0BB1F64B-56CD-4856-A0C4-D35092681ED7}"
 	ProjectSection(SolutionItems) = preProject
-		Appveyor.yml = Appveyor.yml
+		_appveyor.yml = _appveyor.yml
 		CommonAssemblyInfo.cs = CommonAssemblyInfo.cs
 		DokanCloudFS.runsettings = DokanCloudFS.runsettings
 		LICENSE.md = LICENSE.md
