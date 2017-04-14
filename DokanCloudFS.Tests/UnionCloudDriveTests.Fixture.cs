@@ -124,6 +124,39 @@ namespace IgorSoft.DokanCloudFS.Tests
                 ).ToArray();
 #pragma warning restore S2201 // Return values should not be ignored when function calls don't have any side effects
             }
+
+            public void SetupGetDriveThrows<TException>(CloudDriveParameters[] asyncParameters, CloudDriveParameters[] parameters)
+                where TException : Exception, new()
+            {
+#pragma warning disable S2201 // Return values should not be ignored when function calls don't have any side effects
+                asyncGateways.Zip(parameters, (gw, ps) =>
+                    gw
+                        .Setup(g => g.GetDriveAsync(rootName, ps.ApiKey, ps.Parameters))
+                        .Throws(new AggregateException(Activator.CreateInstance<TException>()))
+                ).ToArray();
+                gateways.Zip(parameters, (gw, ps) =>
+                    gw
+                        .Setup(g => g.GetDrive(rootName, ps.ApiKey, ps.Parameters))
+                        .Throws(new AggregateException(Activator.CreateInstance<TException>()))
+                ).ToArray();
+#pragma warning restore S2201 // Return values should not be ignored when function calls don't have any side effects
+            }
+
+            public void SetupGetRoot(CloudDriveParameters[] asyncParameters, CloudDriveParameters[] parameters)
+            {
+#pragma warning disable S2201 // Return values should not be ignored when function calls don't have any side effects
+                asyncGateways.Zip(parameters, (gw, ps) =>
+                    gw
+                        .Setup(g => g.GetRootAsync(rootName, ps.ApiKey, ps.Parameters))
+                        .Returns(Task.FromResult(rootDirectories[gw]))
+                ).ToArray();
+                gateways.Zip(parameters, (gw, ps) =>
+                    gw
+                        .Setup(g => g.GetRoot(rootName, ps.ApiKey, ps.Parameters))
+                        .Returns(rootDirectories[gw])
+                ).ToArray();
+#pragma warning restore S2201 // Return values should not be ignored when function calls don't have any side effects
+            }
         }
     }
 }

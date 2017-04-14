@@ -24,12 +24,14 @@ SOFTWARE.
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace IgorSoft.DokanCloudFS.Configuration
 {
     /// <summary>
     /// CloudDrive configuration parameters.
     /// </summary>
+    [System.Diagnostics.DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class CloudDriveParameters
     {
         /// <summary>
@@ -49,5 +51,9 @@ namespace IgorSoft.DokanCloudFS.Configuration
         /// </summary>
         /// <value>The parameters.</value>
         public IDictionary<string, string> Parameters { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Debugger Display")]
+        [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+        private string DebuggerDisplay => $"{nameof(CloudDriveParameters)} ApiKey='{ApiKey}' EncryptionKey='{EncryptionKey}' Parameters=[{Parameters?.Count ?? 0}]".ToString(CultureInfo.CurrentCulture);
     }
 }

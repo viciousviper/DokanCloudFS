@@ -69,13 +69,24 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod]
         public void AsyncCloudDrive_TryAuthenticate_Succeeds()
         {
-            fixture.SetupGetDriveAsync(parameters);
             fixture.SetupTryAuthenticate(parameters);
 
             using (var sut = fixture.Create(parameters)) {
                 var result = sut.TryAuthenticate();
 
                 Assert.IsTrue(result, "Unexpected result");
+            }
+        }
+
+        [TestMethod]
+        public void AsyncCloudDrive_TryAuthenticate_WhereGatewayAuthenticationFails_Fails()
+        {
+            fixture.SetupTryAuthenticate(parameters, false);
+
+            using (var sut = fixture.Create(parameters)) {
+                var result = sut.TryAuthenticate();
+
+                Assert.IsFalse(result, "Unexpected result");
             }
         }
 

@@ -23,6 +23,8 @@ SOFTWARE.
 */
 
 using System;
+using System.Globalization;
+using System.IO;
 using IgorSoft.DokanCloudFS.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -55,9 +57,16 @@ namespace IgorSoft.DokanCloudFS.Tests
         }
 
         [TestMethod]
+        public void UnionCloudDrive_Create_Succeeds()
+        {
+            using (var result = fixture.Create(asyncParameters, parameters)) {
+                Assert.IsNotNull(result, "Missing result");
+            }
+        }
+
+        [TestMethod]
         public void UnionCloudDrive_TryAuthenticate_Succeeds()
         {
-            fixture.SetupGetDrive(asyncParameters, parameters);
             fixture.SetupTryAuthenticate(asyncParameters, parameters);
 
             using (var sut = fixture.Create(asyncParameters, parameters)) {
@@ -70,13 +79,73 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod]
         public void UnionCloudDrive_TryAuthenticate_WhereGatewayAuthenticationFails_Fails()
         {
-            fixture.SetupGetDrive(asyncParameters, parameters);
             fixture.SetupTryAuthenticate(asyncParameters, parameters, false);
 
             using (var sut = fixture.Create(asyncParameters, parameters)) {
                 var result = sut.TryAuthenticate();
 
                 Assert.IsFalse(result, "Unexpected result");
+            }
+        }
+
+        [TestMethod]
+        public void UnionCloudDrive_GetFree_Succeeds()
+        {
+            fixture.SetupGetDrive(asyncParameters, parameters);
+
+            using (var sut = fixture.Create(asyncParameters, parameters)) {
+                var result = sut.Free;
+
+                Assert.AreEqual((asyncParameters.Length + parameters.Length) * Fixture.FREE_SPACE, result, "Unexpected Free value");
+            }
+        }
+
+        [TestMethod]
+        public void UnionCloudDrive_GetUsed_Succeeds()
+        {
+            fixture.SetupGetDrive(asyncParameters, parameters);
+
+            using (var sut = fixture.Create(asyncParameters, parameters)) {
+                var result = sut.Used;
+
+                Assert.AreEqual((asyncParameters.Length + parameters.Length) * Fixture.USED_SPACE, result, "Unexpected Used value");
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ApplicationException))]
+        public void UnionCloudDrive_GetFree_WhereGetDriveFails_Throws()
+        {
+            fixture.SetupGetDriveThrows<ApplicationException>(asyncParameters, parameters);
+
+            using (var sut = fixture.Create(asyncParameters, parameters)) {
+                var result = sut.Free;
+            }
+        }
+
+        [TestMethod]
+        public void UnionCloudDrive_GetRoot_Succeeds()
+        {
+            fixture.SetupGetDrive(asyncParameters, parameters);
+            fixture.SetupGetRoot(asyncParameters, parameters);
+
+            using (var sut = fixture.Create(asyncParameters, parameters)) {
+                var result = sut.GetRoot();
+
+                Assert.AreEqual($"{Fixture.SCHEMA}@{Fixture.USER_NAME}|{Fixture.MOUNT_POINT}{Path.VolumeSeparatorChar}{Path.DirectorySeparatorChar}".ToString(CultureInfo.CurrentCulture), result.FullName, "Unexpected root name");
+            }
+        }
+
+        [TestMethod]
+        public void UnionCloudDrive_GetDisplayRoot_Succeeds()
+        {
+            fixture.SetupGetDrive(asyncParameters, parameters);
+            fixture.SetupGetRoot(asyncParameters, parameters);
+
+            using (var sut = fixture.Create(asyncParameters, parameters)) {
+                var result = sut.DisplayRoot;
+
+                Assert.AreEqual($"{Fixture.SCHEMA}@{Fixture.USER_NAME}|{Fixture.MOUNT_POINT}".ToString(CultureInfo.CurrentCulture), result, "Unexpected DisplayRoot value");
             }
         }
     }

@@ -68,7 +68,6 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod]
         public void CloudDrive_TryAuthenticate_Succeeds()
         {
-            fixture.SetupGetDrive(parameters);
             fixture.SetupTryAuthenticate(parameters);
 
             using (var sut = fixture.Create(parameters)) {
@@ -81,7 +80,6 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod]
         public void CloudDrive_TryAuthenticate_WhereGatewayAuthenticationFails_Fails()
         {
-            fixture.SetupGetDrive(parameters);
             fixture.SetupTryAuthenticate(parameters, false);
 
             using (var sut = fixture.Create(parameters)) {

@@ -48,10 +48,18 @@ namespace IgorSoft.DokanCloudFS
 
         public IPersistGatewaySettings[] PersistSettings => ApplyToGateways(g => Task.FromResult(g as IPersistGatewaySettings), g => g as IPersistGatewaySettings);
 
-        public UnionCloudDrive(RootName rootName, GatewayConfiguration<IAsyncCloudGateway>[] asyncGateways, GatewayConfiguration<ICloudGateway>[] gateways) : base(rootName, null)
+        public UnionCloudDrive(RootName rootName, GatewayConfiguration<IAsyncCloudGateway>[] asyncGateways, GatewayConfiguration<ICloudGateway>[] gateways) : base(rootName, GetUnionParameters(asyncGateways, gateways))
         {
             this.asyncGateways = asyncGateways ?? Enumerable.Empty<GatewayConfiguration<IAsyncCloudGateway>>().ToArray();
             this.gateways = gateways ?? Enumerable.Empty<GatewayConfiguration<ICloudGateway>>().ToArray();
+        }
+
+        private static CloudDriveParameters GetUnionParameters(IEnumerable<GatewayConfiguration<IAsyncCloudGateway>> asyncGateways, IEnumerable<GatewayConfiguration<ICloudGateway>> gateways)
+        {
+            return (asyncGateways?.All(g => !string.IsNullOrEmpty(g.Parameters.EncryptionKey)) ?? false) &&
+                (gateways?.All(g => !string.IsNullOrEmpty(g.Parameters.EncryptionKey)) ?? false)
+                ? new CloudDriveParameters() { EncryptionKey = "." }
+                : null;
         }
 
         private TResult[] ApplyToConfigurations<TResult>(Func<GatewayConfiguration<IAsyncCloudGateway>, Task<TResult>> asyncConfigFunc, Func<GatewayConfiguration<ICloudGateway>, TResult> configFunc)
@@ -76,8 +84,7 @@ namespace IgorSoft.DokanCloudFS
 
         protected override DriveInfoContract GetDrive()
         {
-            if (drive == null)
-            {
+            if (drive == null) {
                 ApplyToConfigurations(c => {
                     if (!asyncDrives.ContainsKey(c.Gateway))
                         asyncDrives.Add(c.Gateway, c.Gateway.GetDriveAsync(rootName, c.Parameters.ApiKey, c.Parameters.Parameters).Result);
@@ -90,7 +97,7 @@ namespace IgorSoft.DokanCloudFS
 
                 var free = asyncDrives.Sum(d => d.Value.FreeSpace) + drives.Sum(d => d.Value.FreeSpace);
                 var used = asyncDrives.Sum(d => d.Value.UsedSpace) + drives.Sum(d => d.Value.UsedSpace);
-                drive = new DriveInfoContract(rootName.Value, free, used);
+                drive = new DriveInfoContract(rootName.Value, free, used) { Name = DisplayRoot + Path.VolumeSeparatorChar } ;
             }
             return drive;
         }
@@ -106,12 +113,13 @@ namespace IgorSoft.DokanCloudFS
         public RootDirectoryInfoContract GetRoot()
         {
             return ExecuteInSemaphore(() => {
+                GetDrive();
                 var roots = ApplyToConfigurations(
                     c => c.Gateway.GetRootAsync(rootName, c.Parameters.ApiKey, c.Parameters.Parameters),
                     c => c.Gateway.GetRoot(rootName, c.Parameters.ApiKey, c.Parameters.Parameters)
                 );
 
-                return new RootDirectoryInfoContract(rootName.Value, roots.Min(r => r.Created), roots.Max(r => r.Updated));
+                return new RootDirectoryInfoContract(rootName.Value, roots.Min(r => r.Created), roots.Max(r => r.Updated)) { Drive = drive };
             }, nameof(GetRoot));
         }
 
