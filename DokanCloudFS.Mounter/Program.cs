@@ -50,9 +50,9 @@ namespace IgorSoft.DokanCloudFS.Mounter
         public sealed class ExportProvider
         {
             /// <summary>
-            /// Gets the passphrase used in the encryption of privacy sensitive gateway settings.
+            /// Gets the pass phrase used in the encryption of privacy sensitive gateway settings.
             /// </summary>
-            /// <value>The settings encryption passphrase.</value>
+            /// <value>The settings encryption pass phrase.</value>
             [Export(CloudFS.Interface.Composition.ExportContracts.SettingsPassPhrase)]
             public string SettingsPassPhrase => settingsPassPhrase;
 
@@ -146,7 +146,7 @@ namespace IgorSoft.DokanCloudFS.Mounter
 
                             var operations = new CloudOperations(drive, logger);
 
-                            // HACK: handle non-unique parameter set of DokanOperations.Mount() by explicitely specifying AllocationUnitSize and SectorSize
+                            // HACK: handle non-unique parameter set of DokanOperations.Mount() by explicitly specifying AllocationUnitSize and SectorSize
                             tasks.Add(Task.Run(() => operations.Mount(driveElement.Root, DokanOptions.RemovableDrive | DokanOptions.MountManager | DokanOptions.CurrentSession, mountSection.Threads, 1100, TimeSpan.FromSeconds(driveElement.Timeout != 0 ? driveElement.Timeout : 20), null, 512, 512), tokenSource.Token));
 
                             var driveInfo = new DriveInfo(driveElement.Root);

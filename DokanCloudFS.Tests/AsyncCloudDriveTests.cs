@@ -30,21 +30,20 @@ using System.Linq;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using IgorSoft.CloudFS.Interface.IO;
+using IgorSoft.DokanCloudFS.Configuration;
 
 namespace IgorSoft.DokanCloudFS.Tests
 {
     [TestClass]
     public sealed partial class AsyncCloudDriveTests
     {
-        private Fixture fixture;
-
         private const string apiKey = "<MyApiKey>";
 
         private const string encryptionKey = "<MyEncryptionKey>";
 
-#pragma warning disable 649
-        private readonly IDictionary<string, string> parameters;
-#pragma warning restore 649
+        private Fixture fixture;
+
+        private CloudDriveParameters parameters;
 
         [ClassInitialize]
         public static void ClassInitialize(TestContext testContext)
@@ -56,12 +55,13 @@ namespace IgorSoft.DokanCloudFS.Tests
         public void Initialize()
         {
             fixture = Fixture.Initialize();
+            parameters = fixture.CreateParameters(apiKey, encryptionKey);
         }
 
         [TestMethod]
         public void AsyncCloudDrive_Create_Succeeds()
         {
-            using (var result = fixture.Create(apiKey, encryptionKey)) {
+            using (var result = fixture.Create(parameters)) {
                 Assert.IsNotNull(result, "Missing result");
             }
         }
@@ -69,10 +69,10 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod]
         public void AsyncCloudDrive_TryAuthenticate_Succeeds()
         {
-            fixture.SetupGetDriveAsync(apiKey, parameters);
-            fixture.SetupTryAuthenticate(apiKey, parameters);
+            fixture.SetupGetDriveAsync(parameters);
+            fixture.SetupTryAuthenticate(parameters);
 
-            using (var sut = fixture.Create(apiKey, encryptionKey)) {
+            using (var sut = fixture.Create(parameters)) {
                 var result = sut.TryAuthenticate();
 
                 Assert.IsTrue(result, "Unexpected result");
@@ -82,9 +82,9 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod]
         public void AsyncCloudDrive_GetFree_Succeeds()
         {
-            fixture.SetupGetDriveAsync(apiKey, parameters);
+            fixture.SetupGetDriveAsync(parameters);
 
-            using (var sut = fixture.Create(apiKey, encryptionKey)) {
+            using (var sut = fixture.Create(parameters)) {
                 var result = sut.Free;
 
                 Assert.AreEqual(Fixture.FREE_SPACE, result, "Unexpected Free value");
@@ -94,9 +94,9 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod]
         public void AsyncCloudDrive_GetUsed_Succeeds()
         {
-            fixture.SetupGetDriveAsync(apiKey, parameters);
+            fixture.SetupGetDriveAsync(parameters);
 
-            using (var sut = fixture.Create(apiKey, encryptionKey)) {
+            using (var sut = fixture.Create(parameters)) {
                 var result = sut.Used;
 
                 Assert.AreEqual(Fixture.USED_SPACE, result, "Unexpected Used value");
@@ -107,9 +107,9 @@ namespace IgorSoft.DokanCloudFS.Tests
         [ExpectedException(typeof(ApplicationException))]
         public void AsyncCloudDrive_GetFree_WhereGetDriveFails_Throws()
         {
-            fixture.SetupGetDriveAsyncThrows<ApplicationException>(apiKey, parameters);
+            fixture.SetupGetDriveAsyncThrows<ApplicationException>(parameters);
 
-            using (var sut = fixture.Create(apiKey, encryptionKey)) {
+            using (var sut = fixture.Create(parameters)) {
                 var result = sut.Free;
             }
         }
@@ -117,10 +117,10 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod]
         public void AsyncCloudDrive_GetRoot_Succeeds()
         {
-            fixture.SetupGetDriveAsync(apiKey, parameters);
-            fixture.SetupGetRootAsync(apiKey, parameters);
+            fixture.SetupGetDriveAsync(parameters);
+            fixture.SetupGetRootAsync(parameters);
 
-            using (var sut = fixture.Create(apiKey, encryptionKey)) {
+            using (var sut = fixture.Create(parameters)) {
                 var result = sut.GetRoot();
 
                 Assert.AreEqual($"{Fixture.SCHEMA}@{Fixture.USER_NAME}|{Fixture.MOUNT_POINT}{Path.VolumeSeparatorChar}{Path.DirectorySeparatorChar}".ToString(CultureInfo.CurrentCulture), result.FullName, "Unexpected root name");
@@ -130,10 +130,10 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod]
         public void AsyncCloudDrive_GetDisplayRoot_Succeeds()
         {
-            fixture.SetupGetDriveAsync(apiKey, parameters);
-            fixture.SetupGetRootAsync(apiKey, parameters);
+            fixture.SetupGetDriveAsync(parameters);
+            fixture.SetupGetRootAsync(parameters);
 
-            using (var sut = fixture.Create(apiKey, encryptionKey)) {
+            using (var sut = fixture.Create(parameters)) {
                 var result = sut.DisplayRoot;
 
                 Assert.AreEqual($"{Fixture.SCHEMA}@{Fixture.USER_NAME}|{Fixture.MOUNT_POINT}".ToString(CultureInfo.CurrentCulture), result, "Unexpected DisplayRoot value");
@@ -143,11 +143,12 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod]
         public void AsyncCloudDrive_GetChildItem_WhereEncryptionKeyIsEmpty_Succeeds()
         {
-            fixture.SetupGetDriveAsync(apiKey, parameters);
-            fixture.SetupGetRootAsync(apiKey, parameters);
+            fixture.SetupGetDriveAsync(parameters);
+            fixture.SetupGetRootAsync(parameters);
             fixture.SetupGetRootDirectoryItemsAsync();
 
-            using (var sut = fixture.Create(apiKey, string.Empty)) {
+            parameters.EncryptionKey = null;
+            using (var sut = fixture.Create(parameters)) {
                 var result = sut.GetChildItem(sut.GetRoot()).ToList();
 
                 CollectionAssert.AreEqual(fixture.RootDirectoryItems, result, "Mismatched result");
@@ -157,11 +158,11 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod]
         public void AsyncCloudDrive_GetChildItem_WhereEncryptionKeyIsSet_Succeeds()
         {
-            fixture.SetupGetDriveAsync(apiKey, parameters);
-            fixture.SetupGetRootAsync(apiKey, parameters);
+            fixture.SetupGetDriveAsync(parameters);
+            fixture.SetupGetRootAsync(parameters);
             fixture.SetupGetRootDirectoryItemsAsync(encryptionKey);
 
-            using (var sut = fixture.Create(apiKey, encryptionKey)) {
+            using (var sut = fixture.Create(parameters)) {
                 var result = sut.GetChildItem(sut.GetRoot()).ToList();
 
                 CollectionAssert.AreEqual(fixture.RootDirectoryItems, result, "Mismatched result");
@@ -177,7 +178,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             fixture.SetupGetContentAsync(sutContract, fileContent, encryptionKey);
 
             byte[] buffer;
-            using (var sut = fixture.Create(apiKey, encryptionKey))
+            using (var sut = fixture.Create(parameters))
             using (var stream = sut.GetContent(sutContract)) {
                 buffer = new byte[stream.Length];
                 stream.Read(buffer, 0, buffer.Length);
@@ -198,7 +199,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             fixture.SetupGetContentAsync(sutContract, fileContent);
 
             byte[] buffer;
-            using (var sut = fixture.Create(apiKey, encryptionKey))
+            using (var sut = fixture.Create(parameters))
             using (var stream = sut.GetContent(sutContract)) {
                 buffer = new byte[stream.Length];
                 stream.Read(buffer, 0, buffer.Length);
@@ -219,7 +220,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             fixture.SetupGetContentAsync(sutContract, fileContent, encryptionKey, false);
 
             byte[] buffer;
-            using (var sut = fixture.Create(apiKey, encryptionKey))
+            using (var sut = fixture.Create(parameters))
             using (var stream = sut.GetContent(sutContract)) {
                 buffer = new byte[stream.Length];
                 stream.Read(buffer, 0, buffer.Length);
@@ -239,7 +240,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             fixture.SetupMoveDirectoryOrFileAsync(sutContract, directory);
 
-            using (var sut = fixture.Create(apiKey, encryptionKey)) {
+            using (var sut = fixture.Create(parameters)) {
                 sut.MoveItem(sutContract, sutContract.Name, directory);
             }
 
@@ -254,7 +255,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             fixture.SetupMoveDirectoryOrFileAsync(sutContract, directory);
 
-            using (var sut = fixture.Create(apiKey, encryptionKey)) {
+            using (var sut = fixture.Create(parameters)) {
                 sut.MoveItem(sutContract, sutContract.Name, directory);
             }
 
@@ -269,7 +270,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             fixture.SetupNewDirectoryItemAsync(directory, newName);
 
-            using (var sut = fixture.Create(apiKey, encryptionKey)) {
+            using (var sut = fixture.Create(parameters)) {
                 sut.NewDirectoryItem(directory, newName);
             }
 
@@ -285,7 +286,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             fixture.SetupNewFileItemAsync(directory, newName, fileContent, encryptionKey);
 
-            using (var sut = fixture.Create(apiKey, encryptionKey))
+            using (var sut = fixture.Create(parameters))
             using (var stream = new MemoryStream(fileContent)) {
                 sut.NewFileItem(directory, newName, stream);
             }
@@ -300,7 +301,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             var directory = fixture.TargetDirectory;
 
             FileInfoContract contract;
-            using (var sut = fixture.Create(apiKey, encryptionKey)) {
+            using (var sut = fixture.Create(parameters)) {
                 contract = sut.NewFileItem(directory, newName, Stream.Null);
             }
 
@@ -316,7 +317,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             fixture.SetupRemoveDirectoryOrFileAsync(sutContract, true);
 
-            using (var sut = fixture.Create(apiKey, encryptionKey)) {
+            using (var sut = fixture.Create(parameters)) {
                 sut.RemoveItem(sutContract, true);
             }
 
@@ -330,7 +331,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             fixture.SetupRemoveDirectoryOrFileAsync(sutContract, false);
 
-            using (var sut = fixture.Create(apiKey, encryptionKey)) {
+            using (var sut = fixture.Create(parameters)) {
                 sut.RemoveItem(sutContract, false);
             }
 
@@ -345,7 +346,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             fixture.SetupSetContentAsync(sutContract, fileContent, encryptionKey);
 
-            using (var sut = fixture.Create(apiKey, encryptionKey))
+            using (var sut = fixture.Create(parameters))
             using (var stream = new MemoryStream(fileContent)) {
                 sut.SetContent(sutContract, stream);
             }

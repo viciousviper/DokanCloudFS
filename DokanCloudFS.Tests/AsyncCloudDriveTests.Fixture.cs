@@ -23,7 +23,6 @@ SOFTWARE.
 */
 
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -35,6 +34,7 @@ using IgorSoft.CloudFS.Interface.Composition;
 using IgorSoft.CloudFS.Interface.IO;
 using IgorSoft.DokanCloudFS.Configuration;
 using IgorSoft.DokanCloudFS.IO;
+using System.Collections.Generic;
 
 namespace IgorSoft.DokanCloudFS.Tests
 {
@@ -52,9 +52,11 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             public const long USED_SPACE = 36 * 1 << 20;
 
+            private static readonly DateTimeOffset defaultTime = "2015-01-01 00:00:00".ToDateTime();
+
             private readonly Mock<IAsyncCloudGateway> gateway;
 
-            private readonly RootDirectoryInfoContract root;
+            private readonly RootDirectoryInfoContract rootDirectory;
 
             private readonly RootName rootName = new RootName(SCHEMA, USER_NAME, MOUNT_POINT);
 
@@ -75,43 +77,48 @@ namespace IgorSoft.DokanCloudFS.Tests
             private Fixture()
             {
                 gateway = new Mock<IAsyncCloudGateway>(MockBehavior.Strict);
-                root = new RootDirectoryInfoContract(Path.DirectorySeparatorChar.ToString(), "2015-01-01 00:00:00".ToDateTime(), "2015-01-01 00:00:00".ToDateTime()) {
+                rootDirectory = new RootDirectoryInfoContract(Path.DirectorySeparatorChar.ToString(), "2015-01-01 00:00:00".ToDateTime(), "2015-01-01 00:00:00".ToDateTime()) {
                     Drive = new DriveInfoContract(MOUNT_POINT, FREE_SPACE, USED_SPACE)
                 };
             }
 
-            public AsyncCloudDrive Create(string apiKey, string encryptionKey)
+            public CloudDriveParameters CreateParameters(string apiKey, string encryptionKey)
             {
-                return new AsyncCloudDrive(new RootName(SCHEMA, USER_NAME, MOUNT_POINT), gateway.Object, new CloudDriveParameters() { ApiKey = apiKey, EncryptionKey = encryptionKey });
+                return new CloudDriveParameters() { ApiKey = apiKey, EncryptionKey = encryptionKey };
             }
 
-            public void SetupTryAuthenticate(string apiKey, IDictionary<string, string> parameters)
+            public AsyncCloudDrive Create(CloudDriveParameters parameters)
             {
-                gateway
-                    .Setup(g => g.TryAuthenticateAsync(rootName, apiKey, parameters))
-                    .Returns(Task.FromResult(true));
+                return new AsyncCloudDrive(new RootName(SCHEMA, USER_NAME, MOUNT_POINT), new GatewayConfiguration<IAsyncCloudGateway>(gateway.Object, parameters));
             }
 
-            public void SetupGetDriveAsync(string apiKey, IDictionary<string, string> parameters)
+            public void SetupTryAuthenticate(CloudDriveParameters parameters, bool result = true)
             {
                 gateway
-                    .Setup(g => g.GetDriveAsync(rootName, apiKey, parameters))
-                    .Returns(Task.FromResult(root.Drive));
+                    .Setup(g => g.TryAuthenticateAsync(rootName, parameters.ApiKey, parameters.Parameters))
+                    .Returns(Task.FromResult(result));
             }
 
-            public void SetupGetDriveAsyncThrows<TException>(string apiKey, IDictionary<string, string> parameters)
+            public void SetupGetDriveAsync(CloudDriveParameters parameters)
+            {
+                gateway
+                    .Setup(g => g.GetDriveAsync(rootName, parameters.ApiKey, parameters.Parameters))
+                    .Returns(Task.FromResult(rootDirectory.Drive));
+            }
+
+            public void SetupGetDriveAsyncThrows<TException>(CloudDriveParameters parameters)
                 where TException : Exception, new()
             {
                 gateway
-                    .Setup(g => g.GetDriveAsync(rootName, apiKey, parameters))
+                    .Setup(g => g.GetDriveAsync(rootName, parameters.ApiKey, parameters.Parameters))
                     .Throws(new AggregateException(Activator.CreateInstance<TException>()));
             }
 
-            public void SetupGetRootAsync(string apiKey, IDictionary<string, string> parameters)
+            public void SetupGetRootAsync(CloudDriveParameters parameters)
             {
                 gateway
-                    .Setup(g => g.GetRootAsync(rootName, apiKey, parameters))
-                    .Returns(Task.FromResult(root));
+                    .Setup(g => g.GetRootAsync(rootName, parameters.ApiKey, parameters.Parameters))
+                    .Returns(Task.FromResult(rootDirectory));
             }
 
             public void SetupGetRootDirectoryItemsAsync(string encryptionKey = null)
@@ -175,11 +182,9 @@ namespace IgorSoft.DokanCloudFS.Tests
                 gateway
                     .Setup(g => g.MoveItemAsync(rootName, directoryOrFile.Id, name, target.Id, It.IsAny<Func<FileSystemInfoLocator>>()))
                     .Returns((RootName _rootName, FileSystemId source, string movePath, DirectoryId destination, Func<FileSystemInfoLocator> progress) => {
-                        var directorySource = source as DirectoryId;
-                        if (directorySource != null)
+                        if (source is DirectoryId)
                             return Task.FromResult((FileSystemInfoContract)new DirectoryInfoContract(source.Value, movePath, directoryOrFile.Created, directoryOrFile.Updated) { Parent = target });
-                        var fileSource = source as FileId;
-                        if (fileSource != null)
+                        if (source is FileId)
                             return Task.FromResult((FileSystemInfoContract)new FileInfoContract(source.Value, movePath, directoryOrFile.Created, directoryOrFile.Updated, ((FileInfoContract)directoryOrFile).Size, ((FileInfoContract)directoryOrFile).Hash) { Directory = target });
                         throw new InvalidOperationException($"Unsupported type '{source.GetType().Name}'".ToString(CultureInfo.CurrentCulture));
                     });

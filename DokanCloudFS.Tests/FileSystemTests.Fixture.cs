@@ -170,8 +170,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             internal static int NumberOfChunks(long bufferSize, long fileSize)
             {
-                var remainder = default(long);
-                var quotient = Math.DivRem(fileSize, bufferSize, out remainder);
+                var quotient = Math.DivRem(fileSize, bufferSize, out long remainder);
                 return (int)quotient + (remainder > 0 ? 1 : 0);
             }
 
@@ -288,7 +287,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             }
         }
 
-        internal class Fixture : IDisposable
+        internal sealed class Fixture : IDisposable
         {
             public const string MOUNT_POINT = "Z:";
 
@@ -357,8 +356,9 @@ namespace IgorSoft.DokanCloudFS.Tests
                 Reset(null);
                 SetupGetRoot();
 
-                // HACK: handle non-unique parameter set of DokanOperations.Mount() by explicitely specifying AllocationUnitSize and SectorSize
-                (mounterThread = new Thread(new ThreadStart(() => operations.Mount(MOUNT_POINT, DokanOptions.DebugMode | DokanOptions.RemovableDrive | DokanOptions.MountManager | DokanOptions.CurrentSession | DokanOptions.UserModeLock, 5, 1100, TimeSpan.FromMinutes(5), null, 512, 512)))).Start();
+                // HACK: handle non-unique parameter set of DokanOperations.Mount() by explicitly specifying AllocationUnitSize and SectorSize
+                mounterThread = new Thread(new ThreadStart(() => operations.Mount(MOUNT_POINT, DokanOptions.DebugMode | DokanOptions.RemovableDrive | DokanOptions.MountManager | DokanOptions.CurrentSession | DokanOptions.UserModeLock, 5, 1100, TimeSpan.FromMinutes(5), null, 512, 512)));
+                mounterThread.Start();
                 var mountedDrive = GetDriveInfo();
                 while (!mountedDrive.IsReady)
                     Thread.Sleep(50);
@@ -563,8 +563,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             public static int NumberOfChunks(long bufferSize, long fileSize)
             {
-                var remainder = default(long);
-                var quotient = Math.DivRem(fileSize, bufferSize, out remainder);
+                var quotient = Math.DivRem(fileSize, bufferSize, out long remainder);
                 return (int)quotient + (remainder > 0 ? 1 : 0);
             }
 

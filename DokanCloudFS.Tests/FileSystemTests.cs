@@ -680,7 +680,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             var root = fixture.GetDriveInfo().RootDirectory;
             var sut = new FileInfo(root.FullName + sutContract.Name);
 
-            var buffer = default(byte[]);
+            byte[] buffer;
             using (var fileStream = sut.OpenRead()) {
                 buffer = new byte[fileStream.Length];
                 fileStream.Read(buffer, 0, buffer.Length);
@@ -944,7 +944,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             var root = fixture.GetDriveInfo().RootDirectory;
             var sut = new FileInfo(root.FullName + sutContract.Name);
-            var buffer = default(byte[]);
+            byte[] buffer;
             using (var fileStream = sut.OpenRead()) {
                 buffer = new byte[fileStream.Length];
                 var bytesRead = fileStream.Read(buffer, 0, buffer.Length);

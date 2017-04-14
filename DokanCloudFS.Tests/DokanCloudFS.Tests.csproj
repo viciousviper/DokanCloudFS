@@ -190,6 +190,10 @@
     <Compile Include="StreamExtensions.cs" />
     <Compile Include="StringExtensions.cs" />
     <Compile Include="TestCategories.cs" />
+    <Compile Include="UnionCloudDriveTests.cs" />
+    <Compile Include="UnionCloudDriveTests.Fixture.cs">
+      <DependentUpon>UnionCloudDriveTests.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DokanCloudFS\DokanCloudFS.csproj">

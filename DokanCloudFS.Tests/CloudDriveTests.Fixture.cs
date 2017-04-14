@@ -23,7 +23,6 @@ SOFTWARE.
 */
 
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -51,9 +50,11 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             public const long USED_SPACE = 36 * 1 << 20;
 
+            private static readonly DateTimeOffset defaultTime = "2015-01-01 00:00:00".ToDateTime();
+
             private readonly Mock<ICloudGateway> gateway;
 
-            private readonly RootDirectoryInfoContract root;
+            private readonly RootDirectoryInfoContract rootDirectory;
 
             private readonly RootName rootName = new RootName(SCHEMA, USER_NAME, MOUNT_POINT);
 
@@ -74,43 +75,48 @@ namespace IgorSoft.DokanCloudFS.Tests
             private Fixture()
             {
                 gateway = new Mock<ICloudGateway>(MockBehavior.Strict);
-                root = new RootDirectoryInfoContract(Path.DirectorySeparatorChar.ToString(), "2015-01-01 00:00:00".ToDateTime(), "2015-01-01 00:00:00".ToDateTime()) {
+                rootDirectory = new RootDirectoryInfoContract(Path.DirectorySeparatorChar.ToString(), defaultTime, defaultTime) {
                     Drive = new DriveInfoContract(MOUNT_POINT, FREE_SPACE, USED_SPACE)
                 };
             }
 
-            public CloudDrive Create(string apiKey, string encryptionKey)
+            public CloudDriveParameters CreateParameters(string apiKey, string encryptionKey)
             {
-                return new CloudDrive(new RootName(SCHEMA, USER_NAME, MOUNT_POINT), gateway.Object, new CloudDriveParameters() { ApiKey = apiKey, EncryptionKey = encryptionKey });
+                return new CloudDriveParameters() { ApiKey = apiKey, EncryptionKey = encryptionKey };
             }
 
-            public void SetupTryAuthenticate(string apiKey, IDictionary<string, string> parameters)
+            public CloudDrive Create(CloudDriveParameters parameters)
             {
-                gateway
-                    .Setup(g => g.TryAuthenticate(rootName, apiKey, parameters))
-                    .Returns(true);
+                return new CloudDrive(new RootName(SCHEMA, USER_NAME, MOUNT_POINT), new GatewayConfiguration<ICloudGateway>(gateway.Object, parameters));
             }
 
-            public void SetupGetDrive(string apiKey, IDictionary<string, string> parameters)
+            public void SetupTryAuthenticate(CloudDriveParameters parameters, bool result = true)
             {
                 gateway
-                    .Setup(g => g.GetDrive(rootName, apiKey, parameters))
-                    .Returns(root.Drive);
+                    .Setup(g => g.TryAuthenticate(rootName, parameters.ApiKey, parameters.Parameters))
+                    .Returns(result);
             }
 
-            public void SetupGetDriveThrows<TException>(string apiKey, IDictionary<string, string> parameters)
+            public void SetupGetDrive(CloudDriveParameters parameters)
+            {
+                gateway
+                    .Setup(g => g.GetDrive(rootName, parameters.ApiKey, parameters.Parameters))
+                    .Returns(rootDirectory.Drive);
+            }
+
+            public void SetupGetDriveThrows<TException>(CloudDriveParameters parameters)
                 where TException : Exception, new()
             {
                 gateway
-                    .Setup(g => g.GetDrive(rootName, apiKey, parameters))
+                    .Setup(g => g.GetDrive(rootName, parameters.ApiKey, parameters.Parameters))
                     .Throws(new AggregateException(Activator.CreateInstance<TException>()));
             }
 
-            public void SetupGetRoot(string apiKey, IDictionary<string, string> parameters)
+            public void SetupGetRoot(CloudDriveParameters parameters)
             {
                 gateway
-                    .Setup(g => g.GetRoot(rootName, apiKey, parameters))
-                    .Returns(root);
+                    .Setup(g => g.GetRoot(rootName, parameters.ApiKey, parameters.Parameters))
+                    .Returns(rootDirectory);
             }
 
             public void SetupGetRootDirectoryItems(string encryptionKey = null)
@@ -173,11 +179,9 @@ namespace IgorSoft.DokanCloudFS.Tests
                 gateway
                     .Setup(g => g.MoveItem(rootName, directoryOrFile.Id, name, target.Id))
                     .Returns((RootName _rootName, FileSystemId source, string movePath, DirectoryId destination) => {
-                        var directorySource = source as DirectoryId;
-                        if (directorySource != null)
+                        if (source is DirectoryId)
                             return new DirectoryInfoContract(source.Value, movePath, directoryOrFile.Created, directoryOrFile.Updated) { Parent = target };
-                        var fileSource = source as FileId;
-                        if (fileSource != null)
+                        if (source is FileId)
                             return new FileInfoContract(source.Value, movePath, directoryOrFile.Created, directoryOrFile.Updated, ((FileInfoContract)directoryOrFile).Size, ((FileInfoContract)directoryOrFile).Hash) { Directory = target };
                         throw new InvalidOperationException($"Unsupported type '{source.GetType().Name}'".ToString(CultureInfo.CurrentCulture));
                     });

@@ -121,6 +121,7 @@
     <Compile Include="IO\GatherStream.cs" />
     <Compile Include="IO\ScatterGatherStreamFactory.cs" />
     <Compile Include="IO\StreamExtensions.cs" />
+    <Compile Include="UnionCloudDrive.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config">

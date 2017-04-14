@@ -387,8 +387,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             var source = fixture.InitializeBuffer(1000);
 
             try {
-                var scatterStream = default(Stream);
-                fixture.ReadBufferConcurrently(source, 100, TimeSpan.Zero, TimeSpan.FromMilliseconds(100), out scatterStream);
+                fixture.ReadBufferConcurrently(source, 100, TimeSpan.Zero, TimeSpan.FromMilliseconds(100), out Stream scatterStream);
 
                 Assert.Fail("Expected Exception is missing");
             } catch (AggregateException ex) {
@@ -404,9 +403,8 @@ namespace IgorSoft.DokanCloudFS.Tests
             var source = fixture.InitializeBuffer(1000);
 
             try {
-                var gatherStream = default(Stream);
                 var target = new byte[source.Length / 2];
-                fixture.WriteBufferConcurrently(source, target, 100, TimeSpan.Zero, TimeSpan.FromMilliseconds(100), out gatherStream);
+                fixture.WriteBufferConcurrently(source, target, 100, TimeSpan.Zero, TimeSpan.FromMilliseconds(100), out Stream gatherStream);
 
                 Assert.Fail("Expected Exception is missing");
             } catch (AggregateException ex) {
