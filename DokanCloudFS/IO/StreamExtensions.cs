@@ -24,13 +24,12 @@ SOFTWARE.
 
 using System;
 using System.IO;
-using System.Security.Cryptography;
 
 namespace IgorSoft.DokanCloudFS.IO
 {
     internal static class StreamExtensions
     {
-        private const int MAX_BULKDOWNLOAD_SIZE = 1 << 29;
+        private const int COPY_CHUNK_SIZE = 1 << 12;
 
         public static Stream EncryptOrPass(this Stream stream, string encryptionKey)
         {
@@ -54,15 +53,14 @@ namespace IgorSoft.DokanCloudFS.IO
 
         public static Stream ToSeekableStream(this Stream stream)
         {
-            if (!stream.CanSeek) {
-                var bufferStream = new MemoryStream();
-                stream.CopyTo(bufferStream, MAX_BULKDOWNLOAD_SIZE);
-                bufferStream.Seek(0, SeekOrigin.Begin);
-                stream.Dispose();
-                stream = bufferStream;
-            }
+            if (stream.CanSeek)
+                return stream;
 
-            return stream;
+            var bufferStream = new MemoryStream();
+            stream.CopyTo(bufferStream);
+            bufferStream.Seek(0, SeekOrigin.Begin);
+            stream.Dispose();
+            return bufferStream;
         }
 
         private static Stream Process(Stream stream, string encryptionKey, SharpAESCrypt.OperationMode mode)
