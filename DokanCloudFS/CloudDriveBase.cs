@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
 using IgorSoft.DokanCloudFS.Configuration;
@@ -39,6 +40,8 @@ namespace IgorSoft.DokanCloudFS
 
         protected readonly string encryptionKey;
 
+        protected readonly IDictionary<string, string> parameters;
+
         protected DriveInfoContract drive;
 
         private SemaphoreSlim semaphore = new SemaphoreSlim(1);
@@ -49,6 +52,19 @@ namespace IgorSoft.DokanCloudFS
 
         public long? Used => ExecuteInSemaphore(() => GetDrive().UsedSpace, $"get_{nameof(Used)}".ToString(CultureInfo.InvariantCulture));
 
+        protected CloudDriveBase(CloudDriveConfiguration configuration)
+        {
+            rootName = configuration.RootName;
+            apiKey = configuration.ApiKey;
+            encryptionKey = configuration.EncryptionKey;
+            parameters = configuration.Parameters;
+
+            DisplayRoot = rootName.Value;
+            if (string.IsNullOrEmpty(encryptionKey))
+                DisplayRoot = DisplayRoot.Insert(0, "*");
+        }
+
+        [Obsolete]
         protected CloudDriveBase(RootName rootName, CloudDriveParameters parameters)
         {
             this.rootName = rootName;

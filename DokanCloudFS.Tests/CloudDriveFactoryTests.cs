@@ -26,6 +26,7 @@ using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using IgorSoft.DokanCloudFS.Configuration;
+using IgorSoft.CloudFS.Interface;
 
 namespace IgorSoft.DokanCloudFS.Tests
 {
@@ -52,7 +53,7 @@ namespace IgorSoft.DokanCloudFS.Tests
         {
             var sut = new CloudDriveFactory();
 
-            sut.CreateCloudDrive(schema, user, root, null);
+            sut.CreateCloudDrive(new CloudDriveConfiguration(new RootName(schema, user, root)));
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -63,7 +64,7 @@ namespace IgorSoft.DokanCloudFS.Tests
             fixture.SetupTryGetCloudGatewayForSchema(schema, false);
             var sut = new CloudDriveFactory() { GatewayManager = fixture.GetGatewayManager() };
 
-            sut.CreateCloudDrive(schema, user, root, new CloudDriveParameters());
+            sut.CreateCloudDrive(new CloudDriveConfiguration(new RootName(schema, user, root)));
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
@@ -73,7 +74,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             var sut = new CloudDriveFactory() { GatewayManager = fixture.GetGatewayManager() };
 
-            using (var result = sut.CreateCloudDrive(schema, user, root, new CloudDriveParameters())) {
+            using (var result = sut.CreateCloudDrive(new CloudDriveConfiguration(new RootName(schema, user, root)))) {
                 Assert.IsInstanceOfType(result, typeof(AsyncCloudDrive), "Unexpected result type");
             }
         }
@@ -87,7 +88,7 @@ namespace IgorSoft.DokanCloudFS.Tests
 
             var sut = new CloudDriveFactory() { GatewayManager = fixture.GetGatewayManager() };
 
-            using (var result = sut.CreateCloudDrive(schema, user, root, new CloudDriveParameters())) {
+            using (var result = sut.CreateCloudDrive(new CloudDriveConfiguration(new RootName(schema, user, root)))) {
                 Assert.IsInstanceOfType(result, typeof(CloudDrive), "Unexpected result type");
             }
         }

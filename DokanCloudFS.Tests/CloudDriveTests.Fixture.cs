@@ -80,42 +80,42 @@ namespace IgorSoft.DokanCloudFS.Tests
                 };
             }
 
-            public CloudDriveParameters CreateParameters(string apiKey, string encryptionKey)
+            public CloudDriveConfiguration CreateConfiguration(string apiKey, string encryptionKey)
             {
-                return new CloudDriveParameters() { ApiKey = apiKey, EncryptionKey = encryptionKey };
+                return new CloudDriveConfiguration(new RootName(SCHEMA, USER_NAME, MOUNT_POINT), apiKey, encryptionKey);
             }
 
-            public CloudDrive Create(CloudDriveParameters parameters)
+            public CloudDrive Create(CloudDriveConfiguration configuration)
             {
-                return new CloudDrive(new RootName(SCHEMA, USER_NAME, MOUNT_POINT), new GatewayConfiguration<ICloudGateway>(gateway.Object, parameters));
+                return new CloudDrive(gateway.Object, configuration);
             }
 
-            public void SetupTryAuthenticate(CloudDriveParameters parameters, bool result = true)
+            public void SetupTryAuthenticate(CloudDriveConfiguration configuration, bool result = true)
             {
                 gateway
-                    .Setup(g => g.TryAuthenticate(rootName, parameters.ApiKey, parameters.Parameters))
+                    .Setup(g => g.TryAuthenticate(rootName, configuration.ApiKey, configuration.Parameters))
                     .Returns(result);
             }
 
-            public void SetupGetDrive(CloudDriveParameters parameters)
+            public void SetupGetDrive(CloudDriveConfiguration configuration)
             {
                 gateway
-                    .Setup(g => g.GetDrive(rootName, parameters.ApiKey, parameters.Parameters))
+                    .Setup(g => g.GetDrive(rootName, configuration.ApiKey, configuration.Parameters))
                     .Returns(rootDirectory.Drive);
             }
 
-            public void SetupGetDriveThrows<TException>(CloudDriveParameters parameters)
+            public void SetupGetDriveThrows<TException>(CloudDriveConfiguration configuration)
                 where TException : Exception, new()
             {
                 gateway
-                    .Setup(g => g.GetDrive(rootName, parameters.ApiKey, parameters.Parameters))
+                    .Setup(g => g.GetDrive(rootName, configuration.ApiKey, configuration.Parameters))
                     .Throws(new AggregateException(Activator.CreateInstance<TException>()));
             }
 
-            public void SetupGetRoot(CloudDriveParameters parameters)
+            public void SetupGetRoot(CloudDriveConfiguration configuration)
             {
                 gateway
-                    .Setup(g => g.GetRoot(rootName, parameters.ApiKey, parameters.Parameters))
+                    .Setup(g => g.GetRoot(rootName, configuration.ApiKey, configuration.Parameters))
                     .Returns(rootDirectory);
             }
 

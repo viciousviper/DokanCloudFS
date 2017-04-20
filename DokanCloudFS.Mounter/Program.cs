@@ -136,7 +136,7 @@ namespace IgorSoft.DokanCloudFS.Mounter
                     using (var tokenSource = new CancellationTokenSource()) {
                         var tasks = new List<Task>();
                         foreach (var driveElement in mountSection.Drives.Where(d => !userNames.Any() || userNames.Contains(d.UserName))) {
-                            var drive = factory.CreateCloudDrive(driveElement.Schema, driveElement.UserName, driveElement.Root, new CloudDriveParameters() { ApiKey = driveElement.ApiKey, EncryptionKey = driveElement.EncryptionKey, Parameters = driveElement.GetParameters() });
+                            var drive = factory.CreateCloudDrive(new CloudDriveConfiguration(new RootName(driveElement.Schema, driveElement.UserName, driveElement.Root), driveElement.ApiKey, driveElement.EncryptionKey, driveElement.GetParameters()));
                             if (!drive.TryAuthenticate()) {
                                 var displayRoot = drive.DisplayRoot;
                                 drive.Dispose();
@@ -188,10 +188,9 @@ namespace IgorSoft.DokanCloudFS.Mounter
 
             var factory = InitializeCloudDriveFactory(mountSection.LibPath);
 
-            try
-            {
+            try {
                 foreach (var driveElement in mountSection.Drives.Where(d => !userNames.Any() || userNames.Contains(d.UserName))) {
-                    using (var drive = factory.CreateCloudDrive(driveElement.Schema, driveElement.UserName, driveElement.Root, new CloudDriveParameters())) {
+                    using (var drive = factory.CreateCloudDrive(new CloudDriveConfiguration(new RootName(driveElement.Schema, driveElement.UserName, driveElement.Root)))) {
                         drive.PersistSettings?.PurgeSettings(new RootName(driveElement.Schema, driveElement.UserName, driveElement.Root));
                     }
                 }

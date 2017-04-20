@@ -29,8 +29,6 @@ namespace IgorSoft.DokanCloudFS.IO
 {
     internal static class StreamExtensions
     {
-        private const int COPY_CHUNK_SIZE = 1 << 12;
-
         public static Stream EncryptOrPass(this Stream stream, string encryptionKey)
         {
             return !string.IsNullOrEmpty(encryptionKey)

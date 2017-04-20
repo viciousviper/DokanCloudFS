@@ -25,6 +25,8 @@ SOFTWARE.
 using System;
 using System.Globalization;
 using System.IO;
+using System.Linq;
+using IgorSoft.CloudFS.Interface.Composition;
 using IgorSoft.DokanCloudFS.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -33,9 +35,11 @@ namespace IgorSoft.DokanCloudFS.Tests
     [TestClass]
     public partial class UnionCloudDriveTests
     {
-        private const string apiKeyPattern = "<MyApiKey>[{0}]";
+        private const string rootNamePattern = "my{0}schema{1}@My{0}User{1}";
 
-        private const string encryptionKeyPattern = "<MyEncryptionKey>[{0}]";
+        private const string apiKeyPattern = "<My{0}ApiKey>[{1}]";
+
+        private const string encryptionKeyPattern = "<My{0}EncryptionKey>[{1}]";
 
         private const int NUM_ASYNC_GATEWAYS = 5;
 
@@ -43,23 +47,23 @@ namespace IgorSoft.DokanCloudFS.Tests
 
         private Fixture fixture;
 
-        private CloudDriveParameters[] asyncParameters;
+        private CloudDriveConfiguration[] asyncConfigs;
 
-        private CloudDriveParameters[] parameters;
+        private CloudDriveConfiguration[] configs;
 
         [TestInitialize]
         public void Initialize()
         {
             fixture = Fixture.Initialize(NUM_ASYNC_GATEWAYS, NUM_GATEWAYS);
 
-            asyncParameters = fixture.CreateParameters(NUM_ASYNC_GATEWAYS, apiKeyPattern, encryptionKeyPattern);
-            parameters = fixture.CreateParameters(NUM_ASYNC_GATEWAYS, apiKeyPattern, encryptionKeyPattern);
+            asyncConfigs = fixture.CreateConfigurations(NUM_ASYNC_GATEWAYS, "async", rootNamePattern, apiKeyPattern, encryptionKeyPattern);
+            configs = fixture.CreateConfigurations(NUM_ASYNC_GATEWAYS, string.Empty, rootNamePattern, apiKeyPattern, encryptionKeyPattern);
         }
 
         [TestMethod]
         public void UnionCloudDrive_Create_Succeeds()
         {
-            using (var result = fixture.Create(asyncParameters, parameters)) {
+            using (var result = fixture.Create(asyncConfigs, configs)) {
                 Assert.IsNotNull(result, "Missing result");
             }
         }
@@ -67,9 +71,9 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod]
         public void UnionCloudDrive_TryAuthenticate_Succeeds()
         {
-            fixture.SetupTryAuthenticate(asyncParameters, parameters);
+            fixture.SetupTryAuthenticate(asyncConfigs, configs);
 
-            using (var sut = fixture.Create(asyncParameters, parameters)) {
+            using (var sut = fixture.Create(asyncConfigs, configs)) {
                 var result = sut.TryAuthenticate();
 
                 Assert.IsTrue(result, "Unexpected result");
@@ -79,9 +83,9 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod]
         public void UnionCloudDrive_TryAuthenticate_WhereGatewayAuthenticationFails_Fails()
         {
-            fixture.SetupTryAuthenticate(asyncParameters, parameters, false);
+            fixture.SetupTryAuthenticate(asyncConfigs, configs, false);
 
-            using (var sut = fixture.Create(asyncParameters, parameters)) {
+            using (var sut = fixture.Create(asyncConfigs, configs)) {
                 var result = sut.TryAuthenticate();
 
                 Assert.IsFalse(result, "Unexpected result");
@@ -91,24 +95,24 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod]
         public void UnionCloudDrive_GetFree_Succeeds()
         {
-            fixture.SetupGetDrive(asyncParameters, parameters);
+            fixture.SetupGetDrive(asyncConfigs, configs);
 
-            using (var sut = fixture.Create(asyncParameters, parameters)) {
+            using (var sut = fixture.Create(asyncConfigs, configs)) {
                 var result = sut.Free;
 
-                Assert.AreEqual((asyncParameters.Length + parameters.Length) * Fixture.FREE_SPACE, result, "Unexpected Free value");
+                Assert.AreEqual(Enumerable.Range(0, asyncConfigs.Length).Sum(i => Fixture.ASYNC_DRIVE_FREE_SPACE << i) + Enumerable.Range(0, configs.Length).Sum(i => Fixture.DRIVE_FREE_SPACE << i), result, "Unexpected Free value");
             }
         }
 
         [TestMethod]
         public void UnionCloudDrive_GetUsed_Succeeds()
         {
-            fixture.SetupGetDrive(asyncParameters, parameters);
+            fixture.SetupGetDrive(asyncConfigs, configs);
 
-            using (var sut = fixture.Create(asyncParameters, parameters)) {
+            using (var sut = fixture.Create(asyncConfigs, configs)) {
                 var result = sut.Used;
 
-                Assert.AreEqual((asyncParameters.Length + parameters.Length) * Fixture.USED_SPACE, result, "Unexpected Used value");
+                Assert.AreEqual(Enumerable.Range(0, asyncConfigs.Length).Sum(i => Fixture.ASYNC_DRIVE_USED_SPACE << i) + Enumerable.Range(0, configs.Length).Sum(i => Fixture.DRIVE_USED_SPACE << i), result, "Unexpected Used value");
             }
         }
 
@@ -116,9 +120,9 @@ namespace IgorSoft.DokanCloudFS.Tests
         [ExpectedException(typeof(ApplicationException))]
         public void UnionCloudDrive_GetFree_WhereGetDriveFails_Throws()
         {
-            fixture.SetupGetDriveThrows<ApplicationException>(asyncParameters, parameters);
+            fixture.SetupGetDriveThrows<ApplicationException>(asyncConfigs, configs);
 
-            using (var sut = fixture.Create(asyncParameters, parameters)) {
+            using (var sut = fixture.Create(asyncConfigs, configs)) {
                 var result = sut.Free;
             }
         }
@@ -126,10 +130,10 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod]
         public void UnionCloudDrive_GetRoot_Succeeds()
         {
-            fixture.SetupGetDrive(asyncParameters, parameters);
-            fixture.SetupGetRoot(asyncParameters, parameters);
+            fixture.SetupGetDrive(asyncConfigs, configs);
+            fixture.SetupGetRoot(asyncConfigs, configs);
 
-            using (var sut = fixture.Create(asyncParameters, parameters)) {
+            using (var sut = fixture.Create(asyncConfigs, configs)) {
                 var result = sut.GetRoot();
 
                 Assert.AreEqual($"{Fixture.SCHEMA}@{Fixture.USER_NAME}|{Fixture.MOUNT_POINT}{Path.VolumeSeparatorChar}{Path.DirectorySeparatorChar}".ToString(CultureInfo.CurrentCulture), result.FullName, "Unexpected root name");
@@ -139,13 +143,46 @@ namespace IgorSoft.DokanCloudFS.Tests
         [TestMethod]
         public void UnionCloudDrive_GetDisplayRoot_Succeeds()
         {
-            fixture.SetupGetDrive(asyncParameters, parameters);
-            fixture.SetupGetRoot(asyncParameters, parameters);
+            fixture.SetupGetDrive(asyncConfigs, configs);
+            fixture.SetupGetRoot(asyncConfigs, configs);
 
-            using (var sut = fixture.Create(asyncParameters, parameters)) {
+            using (var sut = fixture.Create(asyncConfigs, configs)) {
                 var result = sut.DisplayRoot;
 
                 Assert.AreEqual($"{Fixture.SCHEMA}@{Fixture.USER_NAME}|{Fixture.MOUNT_POINT}".ToString(CultureInfo.CurrentCulture), result, "Unexpected DisplayRoot value");
+            }
+        }
+
+        [TestMethod]
+        public void CloudDrive_GetChildItem_WhereEncryptionKeyIsEmpty_Succeeds()
+        {
+            foreach (var p in asyncConfigs.Concat(configs))
+                p.EncryptionKey = null;
+
+            fixture.SetupGetDrive(asyncConfigs, configs);
+            fixture.SetupGetRoot(asyncConfigs, configs);
+            fixture.SetupGetRootDirectoryItems(asyncConfigs, configs);
+
+            using (var sut = fixture.Create(asyncConfigs, configs)) {
+                var result = sut.GetChildItem(sut.GetRoot()).ToList();
+
+                var resultNames = result.Select(f => f.Name).ToArray();
+                //CollectionAssert.AreEqual(fixture.RootDirectoryItems.Values.SelectMany(f => f).ToArray(), result, "Mismatched result");
+                CollectionAssert.AreEqual(resultNames.Distinct().ToArray(), resultNames, "Unexpected duplicates");
+            }
+        }
+
+        [TestMethod]
+        public void CloudDrive_GetChildItem_WhereEncryptionKeyIsSet_Succeeds()
+        {
+            fixture.SetupGetDrive(asyncConfigs, configs);
+            fixture.SetupGetRoot(asyncConfigs, configs);
+            fixture.SetupGetRootDirectoryItems(asyncConfigs, configs);
+
+            using (var sut = fixture.Create(asyncConfigs, configs)) {
+                var result = sut.GetChildItem(sut.GetRoot()).ToList();
+
+                CollectionAssert.AreEqual(fixture.RootDirectoryItems.Values.SelectMany(f => f).ToArray(), result, "Mismatched result");
             }
         }
     }

@@ -82,42 +82,42 @@ namespace IgorSoft.DokanCloudFS.Tests
                 };
             }
 
-            public CloudDriveParameters CreateParameters(string apiKey, string encryptionKey)
+            public CloudDriveConfiguration CreateConfiguration(string apiKey, string encryptionKey)
             {
-                return new CloudDriveParameters() { ApiKey = apiKey, EncryptionKey = encryptionKey };
+                return new CloudDriveConfiguration(new RootName(SCHEMA, USER_NAME, MOUNT_POINT), apiKey, encryptionKey);
             }
 
-            public AsyncCloudDrive Create(CloudDriveParameters parameters)
+            public AsyncCloudDrive Create(CloudDriveConfiguration configuration)
             {
-                return new AsyncCloudDrive(new RootName(SCHEMA, USER_NAME, MOUNT_POINT), new GatewayConfiguration<IAsyncCloudGateway>(gateway.Object, parameters));
+                return new AsyncCloudDrive(gateway.Object, configuration);
             }
 
-            public void SetupTryAuthenticate(CloudDriveParameters parameters, bool result = true)
+            public void SetupTryAuthenticate(CloudDriveConfiguration configuration, bool result = true)
             {
                 gateway
-                    .Setup(g => g.TryAuthenticateAsync(rootName, parameters.ApiKey, parameters.Parameters))
+                    .Setup(g => g.TryAuthenticateAsync(rootName, configuration.ApiKey, configuration.Parameters))
                     .Returns(Task.FromResult(result));
             }
 
-            public void SetupGetDriveAsync(CloudDriveParameters parameters)
+            public void SetupGetDriveAsync(CloudDriveConfiguration configuration)
             {
                 gateway
-                    .Setup(g => g.GetDriveAsync(rootName, parameters.ApiKey, parameters.Parameters))
+                    .Setup(g => g.GetDriveAsync(rootName, configuration.ApiKey, configuration.Parameters))
                     .Returns(Task.FromResult(rootDirectory.Drive));
             }
 
-            public void SetupGetDriveAsyncThrows<TException>(CloudDriveParameters parameters)
+            public void SetupGetDriveAsyncThrows<TException>(CloudDriveConfiguration configuration)
                 where TException : Exception, new()
             {
                 gateway
-                    .Setup(g => g.GetDriveAsync(rootName, parameters.ApiKey, parameters.Parameters))
+                    .Setup(g => g.GetDriveAsync(rootName, configuration.ApiKey, configuration.Parameters))
                     .Throws(new AggregateException(Activator.CreateInstance<TException>()));
             }
 
-            public void SetupGetRootAsync(CloudDriveParameters parameters)
+            public void SetupGetRootAsync(CloudDriveConfiguration configuration)
             {
                 gateway
-                    .Setup(g => g.GetRootAsync(rootName, parameters.ApiKey, parameters.Parameters))
+                    .Setup(g => g.GetRootAsync(rootName, configuration.ApiKey, configuration.Parameters))
                     .Returns(Task.FromResult(rootDirectory));
             }
 

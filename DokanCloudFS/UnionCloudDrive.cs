@@ -38,60 +38,54 @@ namespace IgorSoft.DokanCloudFS
     [System.Diagnostics.DebuggerDisplay("{DebuggerDisplay,nq}")]
     internal sealed class UnionCloudDrive : CloudDriveBase
     {
-        private GatewayConfiguration<IAsyncCloudGateway>[] asyncGateways;
+        private IDictionary<CloudDriveConfiguration, IAsyncCloudGateway> asyncConfigs;
 
-        private GatewayConfiguration<ICloudGateway>[] gateways;
+        private IDictionary<CloudDriveConfiguration, ICloudGateway> configs;
 
-        private IDictionary<IAsyncCloudGateway, DriveInfoContract> asyncDrives = new Dictionary<IAsyncCloudGateway, DriveInfoContract>();
+        private IDictionary<CloudDriveConfiguration, DriveInfoContract> asyncDrives = new Dictionary<CloudDriveConfiguration, DriveInfoContract>();
 
-        private IDictionary<ICloudGateway, DriveInfoContract> drives = new Dictionary<ICloudGateway, DriveInfoContract>();
+        private IDictionary<CloudDriveConfiguration, DriveInfoContract> drives = new Dictionary<CloudDriveConfiguration, DriveInfoContract>();
 
-        public IPersistGatewaySettings[] PersistSettings => ApplyToGateways(g => Task.FromResult(g as IPersistGatewaySettings), g => g as IPersistGatewaySettings);
+        public (IPersistGatewaySettings, CloudDriveConfiguration)[] PersistSettings => ApplyToConfigurations((c, g) => Task.FromResult(g as IPersistGatewaySettings), (c, g) => g as IPersistGatewaySettings);
 
-        public UnionCloudDrive(RootName rootName, GatewayConfiguration<IAsyncCloudGateway>[] asyncGateways, GatewayConfiguration<ICloudGateway>[] gateways) : base(rootName, GetUnionParameters(asyncGateways, gateways))
+        public UnionCloudDrive(RootName rootName, IDictionary<CloudDriveConfiguration, IAsyncCloudGateway> asyncConfigs, IDictionary<CloudDriveConfiguration, ICloudGateway> configs) : base(GetUnionConfiguration(rootName, asyncConfigs, configs))
         {
-            this.asyncGateways = asyncGateways ?? Enumerable.Empty<GatewayConfiguration<IAsyncCloudGateway>>().ToArray();
-            this.gateways = gateways ?? Enumerable.Empty<GatewayConfiguration<ICloudGateway>>().ToArray();
+            this.asyncConfigs = asyncConfigs ?? new Dictionary<CloudDriveConfiguration, IAsyncCloudGateway>();
+            this.configs = configs ?? new Dictionary<CloudDriveConfiguration, ICloudGateway>();
         }
 
-        private static CloudDriveParameters GetUnionParameters(IEnumerable<GatewayConfiguration<IAsyncCloudGateway>> asyncGateways, IEnumerable<GatewayConfiguration<ICloudGateway>> gateways)
+        private static CloudDriveConfiguration GetUnionConfiguration(RootName rootName, IDictionary<CloudDriveConfiguration, IAsyncCloudGateway> asyncConfigs, IDictionary<CloudDriveConfiguration, ICloudGateway> configs)
         {
-            return (asyncGateways?.All(g => !string.IsNullOrEmpty(g.Parameters.EncryptionKey)) ?? false) &&
-                (gateways?.All(g => !string.IsNullOrEmpty(g.Parameters.EncryptionKey)) ?? false)
-                ? new CloudDriveParameters() { EncryptionKey = "." }
-                : null;
+            if (rootName == null)
+                throw new ArgumentNullException(nameof(rootName));
+
+            var encryptionKey = (asyncConfigs?.Keys.All(c => !string.IsNullOrEmpty(c.EncryptionKey)) ?? false) &&
+                                (configs?.Keys.All(c => !string.IsNullOrEmpty(c.EncryptionKey)) ?? false)
+                ? "."
+                : default(string);
+            return new CloudDriveConfiguration(rootName, encryptionKey: encryptionKey);
         }
 
-        private TResult[] ApplyToConfigurations<TResult>(Func<GatewayConfiguration<IAsyncCloudGateway>, Task<TResult>> asyncConfigFunc, Func<GatewayConfiguration<ICloudGateway>, TResult> configFunc)
+        private (TResult Result, CloudDriveConfiguration Configuration)[] ApplyToConfigurations<TResult>(Func<CloudDriveConfiguration, IAsyncCloudGateway, Task<TResult>> asyncConfigFunc, Func<CloudDriveConfiguration, ICloudGateway, TResult> configFunc)
         {
-            var asyncResults = asyncGateways.Select(asyncConfigFunc).ToArray();
-            var results = gateways.Select(configFunc).ToArray();
+            var asyncResults = asyncConfigs.Select(p => asyncConfigFunc(p.Key, p.Value)).ToArray();
+            var results = configs.Select(p => configFunc(p.Key, p.Value)).ToArray();
 
             Task.WaitAll(asyncResults);
 
-            return asyncResults.Select(r => r.Result).Concat(results).ToArray();
-        }
-
-        private TResult[] ApplyToGateways<TResult>(Func<IAsyncCloudGateway, Task<TResult>> asyncGatewayFunc, Func<ICloudGateway, TResult> gatewayFunc)
-        {
-            var asyncResults = asyncGateways.Select(c => asyncGatewayFunc(c.Gateway)).ToArray();
-            var results = gateways.Select(c => gatewayFunc(c.Gateway)).ToArray();
-
-            Task.WaitAll(asyncResults);
-
-            return asyncResults.Select(r => r.Result).Concat(results).ToArray();
+            return asyncResults.Zip(asyncConfigs, (t, c) => (t.Result, c.Key)).Concat(results.Zip(configs, (r, c) => (r, c.Key))).ToArray();
         }
 
         protected override DriveInfoContract GetDrive()
         {
             if (drive == null) {
-                ApplyToConfigurations(c => {
-                    if (!asyncDrives.ContainsKey(c.Gateway))
-                        asyncDrives.Add(c.Gateway, c.Gateway.GetDriveAsync(rootName, c.Parameters.ApiKey, c.Parameters.Parameters).Result);
+                ApplyToConfigurations((c, g) => {
+                    if (!asyncDrives.ContainsKey(c))
+                        asyncDrives.Add(c, g.GetDriveAsync(rootName, c.ApiKey, c.Parameters).Result);
                     return Task.FromResult(true);
-                }, c => {
-                    if (!drives.ContainsKey(c.Gateway))
-                        drives.Add(c.Gateway, c.Gateway.GetDrive(rootName, c.Parameters.ApiKey, c.Parameters.Parameters));
+                }, (c, g) => {
+                    if (!drives.ContainsKey(c))
+                        drives.Add(c, g.GetDrive(rootName, c.ApiKey, c.Parameters));
                     return true;
                 });
 
@@ -105,9 +99,9 @@ namespace IgorSoft.DokanCloudFS
         public bool TryAuthenticate()
         {
             return ApplyToConfigurations(
-                c => c.Gateway.TryAuthenticateAsync(rootName, c.Parameters.ApiKey, c.Parameters.Parameters),
-                c => c.Gateway.TryAuthenticate(rootName, c.Parameters.ApiKey, c.Parameters.Parameters)
-            ).All(b => b);
+                (c, g) => g.TryAuthenticateAsync(rootName, c.ApiKey, c.Parameters),
+                (c, g) => g.TryAuthenticate(rootName, c.ApiKey, c.Parameters)
+            ).All(t => t.Result);
         }
 
         public RootDirectoryInfoContract GetRoot()
@@ -115,17 +109,33 @@ namespace IgorSoft.DokanCloudFS
             return ExecuteInSemaphore(() => {
                 GetDrive();
                 var roots = ApplyToConfigurations(
-                    c => c.Gateway.GetRootAsync(rootName, c.Parameters.ApiKey, c.Parameters.Parameters),
-                    c => c.Gateway.GetRoot(rootName, c.Parameters.ApiKey, c.Parameters.Parameters)
+                    (c, g) => g.GetRootAsync(rootName, c.ApiKey, c.Parameters),
+                    (c, g) => g.GetRoot(rootName, c.ApiKey, c.Parameters)
                 );
 
-                return new RootDirectoryInfoContract(rootName.Value, roots.Min(r => r.Created), roots.Max(r => r.Updated)) { Drive = drive };
+                return new RootDirectoryInfoContract(@"\", roots.Min(r => r.Result.Created), roots.Max(r => r.Result.Updated)) { Drive = drive };
             }, nameof(GetRoot));
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Language", "CSE0003:Use expression-bodied members")]
         public IEnumerable<FileSystemInfoContract> GetChildItem(DirectoryInfoContract parent)
         {
-            throw new NotImplementedException();
+            return ExecuteInSemaphore(() => {
+                var allChildItems = ApplyToConfigurations(
+                    (c, g) => g.GetChildItemAsync(rootName, parent.Id),
+                    (c, g) => g.GetChildItem(rootName, parent.Id)
+                ).SelectMany(r => r.Result.Select(f => (f, r.Configuration))).ToArray();
+
+                var directories = allChildItems.Where(i => i.Item1 is DirectoryInfoContract).GroupBy(i => i.Item1.Name).ToArray();
+                var files = allChildItems.Where(i => i.Item1 is FileInfoContract).GroupBy(i => i.Item1.Name).ToArray();
+
+                return directories.Select(g => g.First().Item1)
+                    .Concat(files.SelectMany(g => {
+                        return g.Count() == 1
+                            ? g.Select(f => f.Item1)
+                            : g.Select(f => new FileInfoContract(f.Item1.Id.Value, $"{f.Item1.Name} [{f.Item2.RootName}]", f.Item1.Created, f.Item1.Updated, ((FileInfoContract)f.Item1).Size, ((FileInfoContract)f.Item1).Hash));
+                    }));
+            }, nameof(GetChildItem));
         }
 
         public Stream GetContent(FileInfoContract source)

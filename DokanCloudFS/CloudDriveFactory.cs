@@ -37,20 +37,18 @@ namespace IgorSoft.DokanCloudFS
         [Import]
         internal IGatewayManager GatewayManager { get; set; }
 
-        internal ICloudDrive CreateCloudDrive(string schema, string userName, string root, CloudDriveParameters parameters)
+        internal ICloudDrive CreateCloudDrive(CloudDriveConfiguration configuration)
         {
             if (GatewayManager == null)
                 throw new InvalidOperationException($"{nameof(GatewayManager)} not initialized".ToString(CultureInfo.CurrentCulture));
 
-            var rootName = new RootName(schema, userName, root);
+            if (GatewayManager.TryGetAsyncCloudGatewayForSchema(configuration.RootName.Schema, out IAsyncCloudGateway asyncGateway))
+                return new AsyncCloudDrive(asyncGateway, configuration);
 
-            if (GatewayManager.TryGetAsyncCloudGatewayForSchema(rootName.Schema, out IAsyncCloudGateway asyncGateway))
-                return new AsyncCloudDrive(rootName, new GatewayConfiguration<IAsyncCloudGateway>(asyncGateway, parameters));
+            if (GatewayManager.TryGetCloudGatewayForSchema(configuration.RootName.Schema, out ICloudGateway gateway))
+                return new CloudDrive(gateway, configuration);
 
-            if (GatewayManager.TryGetCloudGatewayForSchema(rootName.Schema, out ICloudGateway gateway))
-                return new CloudDrive(rootName, new GatewayConfiguration<ICloudGateway>(gateway, parameters));
-
-            throw new KeyNotFoundException(string.Format(CultureInfo.CurrentCulture, Resources.NoGatewayForSchema, rootName.Schema));
+            throw new KeyNotFoundException(string.Format(CultureInfo.CurrentCulture, Resources.NoGatewayForSchema, configuration.RootName.Schema));
         }
     }
 }

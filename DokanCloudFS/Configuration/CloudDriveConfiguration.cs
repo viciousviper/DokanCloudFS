@@ -1,7 +1,7 @@
 ﻿/*
 The MIT License(MIT)
 
-Copyright(c) 2015 IgorSoft
+Copyright(c) 2017 IgorSoft
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -25,36 +25,59 @@ SOFTWARE.
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
+using IgorSoft.CloudFS.Interface;
 
 namespace IgorSoft.DokanCloudFS.Configuration
 {
     /// <summary>
-    /// CloudDrive configuration parameters.
+    /// A CloudDrive's configuration options.
     /// </summary>
     [System.Diagnostics.DebuggerDisplay("{DebuggerDisplay,nq}")]
-    [Obsolete]
-    public class CloudDriveParameters
+    internal class CloudDriveConfiguration
     {
         /// <summary>
-        /// Gets or sets the API key.
+        /// Gets the root name.
+        /// </summary>
+        /// <value>The root name.</value>
+        public RootName RootName { get; }
+
+        /// <summary>
+        /// Gets the API key.
         /// </summary>
         /// <value>The API key.</value>
-        public string ApiKey { get; set; }
+        public string ApiKey { get; }
 
         /// <summary>
-        /// Gets or sets the encryption key.
+        /// Gets the encryption key.
         /// </summary>
         /// <value>The encryption key.</value>
-        public string EncryptionKey { get; set; }
+        public string EncryptionKey { get; internal set; }
 
         /// <summary>
-        /// Gets or sets the parameters.
+        /// Gets the parameters.
         /// </summary>
         /// <value>The parameters.</value>
-        public IDictionary<string, string> Parameters { get; set; }
+        public IDictionary<string, string> Parameters { get; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CloudDriveConfiguration{TGateway}" /> class.
+        /// </summary>
+        /// <param name="rootName">The root name.</param>
+        /// <param name="apiKey">The API key.</param>
+        /// <param name="encryptionKey">The encryption key.</param>
+        /// <param name="parameters">The parameters.</param>
+        /// <exception cref="System.ArgumentNullException">rootName</exception>
+        public CloudDriveConfiguration(RootName rootName, string apiKey = null, string encryptionKey = null, IDictionary<string, string> parameters = null)
+        {
+            RootName = rootName ?? throw new ArgumentNullException(nameof(rootName));
+            ApiKey = apiKey;
+            EncryptionKey = encryptionKey;
+            Parameters = parameters;
+        }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Debugger Display")]
         [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        private string DebuggerDisplay => $"{nameof(CloudDriveParameters)} ApiKey='{ApiKey}' EncryptionKey='{EncryptionKey}' Parameters=[{Parameters?.Count ?? 0}]".ToString(CultureInfo.CurrentCulture);
+        private string DebuggerDisplay => $"{nameof(CloudDriveConfiguration)} {nameof(RootName)}={RootName} {nameof(ApiKey)}='{ApiKey}' {nameof(EncryptionKey)}='{EncryptionKey}' {nameof(Parameters)}=[{string.Join(",", Parameters?.Select(p => $"{p.Key}={p.Value}") ?? Enumerable.Empty<string>())}]".ToString(CultureInfo.CurrentCulture);
     }
 }

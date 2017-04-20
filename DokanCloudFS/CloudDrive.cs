@@ -37,24 +37,19 @@ namespace IgorSoft.DokanCloudFS
     [System.Diagnostics.DebuggerDisplay("{DebuggerDisplay,nq}")]
     internal class CloudDrive : CloudDriveBase, ICloudDrive
     {
-        private readonly ICloudGateway gateway;
-
-        private readonly IDictionary<string, string> parameters;
+        private ICloudGateway gateway;
 
         public IPersistGatewaySettings PersistSettings => gateway as IPersistGatewaySettings;
 
-        public CloudDrive(RootName rootName, GatewayConfiguration<ICloudGateway> configuration) : base(rootName, configuration.Parameters)
+        public CloudDrive(ICloudGateway gateway, CloudDriveConfiguration configuration) : base(configuration)
         {
-            gateway = configuration.Gateway;
-            parameters = configuration.Parameters.Parameters;
+            this.gateway = gateway ?? throw new ArgumentNullException(nameof(configuration));
         }
 
         [Obsolete]
         [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public CloudDrive(RootName rootName, ICloudGateway gateway, CloudDriveParameters parameters) : base(rootName, parameters)
         {
-            this.gateway = gateway;
-            this.parameters = parameters.Parameters;
         }
 
         protected override DriveInfoContract GetDrive()
