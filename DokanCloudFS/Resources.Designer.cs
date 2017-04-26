@@ -60,7 +60,7 @@ namespace IgorSoft.DokanCloudFS {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Composition host already initialized
+        ///   Looks up a localized string similar to Composition host already initialized.
         /// </summary>
         internal static string CompositionHostAlreadyInitialized {
             get {
@@ -69,11 +69,20 @@ namespace IgorSoft.DokanCloudFS {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Composition host not initialized
+        ///   Looks up a localized string similar to Composition host not initialized.
         /// </summary>
         internal static string CompositionHostNotInitialized {
             get {
                 return ResourceManager.GetString("CompositionHostNotInitialized", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Cross drive operation {0}: &apos;{1}&apos; -&gt; &apos;{2}&apos; not supported.
+        /// </summary>
+        internal static string CrossDriveOperation {
+            get {
+                return ResourceManager.GetString("CrossDriveOperation", resourceCulture);
             }
         }
 
@@ -87,7 +96,7 @@ namespace IgorSoft.DokanCloudFS {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Cannot resolve ProxyFileInfo &apos;{0}&apos; with FileInfo &apos;{1}&apos;.
+        ///   Looks up a localized string similar to Cannot resolve ProxyFileInfo &apos;{0}&apos; with {1} &apos;{2}&apos;.
         /// </summary>
         internal static string InvalidProxyResolution {
             get {
@@ -113,7 +122,7 @@ namespace IgorSoft.DokanCloudFS {
             }
         }
         /// <summary>
-        ///   Looks up a localized string similar to Unknown item type &apos;{0}&apos;
+        ///   Looks up a localized string similar to Unknown item type &apos;{0}&apos;.
         /// </summary>
         internal static string UnknownItemType {
             get {

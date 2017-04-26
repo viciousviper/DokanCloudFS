@@ -34,8 +34,9 @@ using DokanNet;
 using FileAccess = DokanNet.FileAccess;
 using NLog;
 using IgorSoft.CloudFS.Interface.IO;
-using IgorSoft.DokanCloudFS.Extensions;
 using IgorSoft.DokanCloudFS.IO;
+using IgorSoft.DokanCloudFS.Drives;
+using IgorSoft.DokanCloudFS.Nodes;
 
 namespace IgorSoft.DokanCloudFS
 {
@@ -96,12 +97,12 @@ namespace IgorSoft.DokanCloudFS
 
         private CloudItemNode GetItem(string fileName)
         {
-            var result = root ?? (root = new CloudDirectoryNode(drive.GetRoot())) as CloudItemNode;
+            var result = root ?? (root = new CloudDirectoryNode(drive.GetRoot(), drive)) as CloudItemNode;
 
             var pathSegments = new Queue<string>(fileName.Split(new[] { Path.DirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries));
 
             while (result != null && pathSegments.Count > 0)
-                result = (result as CloudDirectoryNode)?.GetChildItemByName(drive, pathSegments.Dequeue());
+                result = (result as CloudDirectoryNode)?.GetChildItemByName(pathSegments.Dequeue());
 
             return result;
         }
@@ -112,17 +113,17 @@ namespace IgorSoft.DokanCloudFS
                 throw new ArgumentNullException(nameof(info));
 
             if (info.DeleteOnClose) {
-                (GetItem(fileName) as CloudFileNode)?.Remove(drive);
+                (GetItem(fileName) as CloudFileNode)?.Remove();
             } else if (!info.IsDirectory) {
                 var context = info.Context as StreamContext;
                 if (context?.CanWriteDelayed ?? false) {
                     context.Stream.Seek(0, SeekOrigin.Begin);
                     context.Task = Task.Run(() => {
                             try {
-                                context.File.SetContent(drive, context.Stream);
+                                context.File.SetContent(context.Stream);
                             } catch (Exception ex) {
                                 if (!(ex is UnauthorizedAccessException) && !((uint)((ex as IOException)?.HResult ?? 0) == 0x80070020))
-                                    context.File.Remove(drive);
+                                    context.File.Remove();
                                 logger?.Error($"{nameof(context.File.SetContent)} failed on file '{fileName}' with {ex.GetType().Name} '{ex.Message}'".ToString(CultureInfo.CurrentCulture));
                                 throw;
                             }
@@ -181,15 +182,15 @@ namespace IgorSoft.DokanCloudFS
                 return AsDebug(nameof(CreateFile), fileName, info, access, share, mode, options, attributes, DokanResult.PathNotFound);
 
             var itemName = Path.GetFileName(fileName);
-            var item = parent.GetChildItemByName(drive, itemName);
+            var item = parent.GetChildItemByName(itemName);
             var fileItem = default(CloudFileNode);
             switch (mode) {
                 case FileMode.Create:
                     fileItem = item as CloudFileNode;
                     if (fileItem != null)
-                        fileItem.Truncate(drive);
+                        fileItem.Truncate();
                     else
-                        fileItem = parent.NewFileItem(drive, itemName);
+                        fileItem = parent.NewFileItem(itemName);
 
                     info.Context = new StreamContext(fileItem, FileAccess.WriteData);
 
@@ -215,7 +216,7 @@ namespace IgorSoft.DokanCloudFS
                     else
                         return AsError(nameof(CreateFile), fileName, info, access, share, mode, options, attributes, DokanResult.FileNotFound);
                 case FileMode.OpenOrCreate:
-                    fileItem = item as CloudFileNode ?? parent.NewFileItem(drive, itemName);
+                    fileItem = item as CloudFileNode ?? parent.NewFileItem(itemName);
 
                     if (access.HasFlag(FileAccess.ReadData) && !access.HasFlag(FileAccess.WriteData))
                         info.Context = new StreamContext(fileItem, FileAccess.ReadData);
@@ -228,9 +229,9 @@ namespace IgorSoft.DokanCloudFS
                         return AsDebug(nameof(CreateFile), fileName, info, access, share, mode, options, attributes, info.IsDirectory ? DokanResult.AlreadyExists : DokanResult.FileExists);
 
                     if (info.IsDirectory) {
-                        parent.NewDirectoryItem(drive, itemName);
+                        parent.NewDirectoryItem(itemName);
                     } else {
-                        fileItem = parent.NewFileItem(drive, itemName);
+                        fileItem = parent.NewFileItem(itemName);
 
                         info.Context = new StreamContext(fileItem, FileAccess.WriteData);
                     }
@@ -258,10 +259,10 @@ namespace IgorSoft.DokanCloudFS
             var item = GetItem(fileName) as CloudDirectoryNode;
             if (item == null)
                 return AsDebug(nameof(DeleteDirectory), fileName, info, DokanResult.PathNotFound);
-            if (item.GetChildItems(drive).Any())
+            if (item.GetChildItems().Any())
                 return AsDebug(nameof(DeleteDirectory), fileName, info, DokanResult.DirectoryNotEmpty);
 
-            item.Remove(drive);
+            item.Remove();
 
             return AsTrace(nameof(DeleteDirectory), fileName, info, DokanResult.Success);
         }
@@ -271,7 +272,7 @@ namespace IgorSoft.DokanCloudFS
             if (info == null)
                 throw new ArgumentNullException(nameof(info));
 
-            ((StreamContext)info.Context).File.Remove(drive);
+            ((StreamContext)info.Context).File.Remove();
 
             return AsTrace(nameof(DeleteFile), fileName, info, DokanResult.Success);
         }
@@ -280,12 +281,12 @@ namespace IgorSoft.DokanCloudFS
         {
             var parent = GetItem(fileName) as CloudDirectoryNode;
 
-            var childItems = parent.GetChildItems(drive).Where(i => i.IsResolved).ToList();
+            var childItems = parent.GetChildItems().Where(i => i.IsResolved).ToList();
             files = childItems.Any()
                 ? childItems.Select(i => new FileInformation() {
-                    FileName = i.Name, Length = (i as CloudFileNode)?.Contract.Size ?? FileSize.Empty,
+                    FileName = i.Name, Length = (i as CloudFileNode)?.FileSystemInfo.Size ?? FileSize.Empty,
                     Attributes = i is CloudDirectoryNode ? FileAttributes.Directory : FileAttributes.NotContentIndexed,
-                    CreationTime = i.Contract.Created.DateTime, LastWriteTime = i.Contract.Updated.DateTime, LastAccessTime = i.Contract.Updated.DateTime
+                    CreationTime = i.FileSystemInfo.Created.DateTime, LastWriteTime = i.FileSystemInfo.Updated.DateTime, LastAccessTime = i.FileSystemInfo.Updated.DateTime
                 }).ToList()
                 : emptyDirectoryDefaultFiles;
 
@@ -299,14 +300,14 @@ namespace IgorSoft.DokanCloudFS
 
             var parent = GetItem(fileName) as CloudDirectoryNode;
 
-            var childItems = parent.GetChildItems(drive).Where(i => i.IsResolved).ToList();
+            var childItems = parent.GetChildItems().Where(i => i.IsResolved).ToList();
             files = childItems.Any()
                 ? childItems
                     .Where(i => Regex.IsMatch(i.Name, searchPattern.Contains('?') || searchPattern.Contains('*') ? searchPattern.Replace('?', '.').Replace("*", ".*") : "^" + searchPattern + "$"))
                     .Select(i => new FileInformation() {
-                        FileName = i.Name, Length = (i as CloudFileNode)?.Contract.Size ?? FileSize.Empty,
+                        FileName = i.Name, Length = (i as CloudFileNode)?.FileSystemInfo.Size ?? FileSize.Empty,
                         Attributes = i is CloudDirectoryNode ? FileAttributes.Directory : FileAttributes.NotContentIndexed,
-                        CreationTime = i.Contract.Created.DateTime, LastWriteTime = i.Contract.Updated.DateTime, LastAccessTime = i.Contract.Updated.DateTime
+                        CreationTime = i.FileSystemInfo.Created.DateTime, LastWriteTime = i.FileSystemInfo.Updated.DateTime, LastAccessTime = i.FileSystemInfo.Updated.DateTime
                     }).ToList()
                 : emptyDirectoryDefaultFiles;
 
@@ -354,9 +355,9 @@ namespace IgorSoft.DokanCloudFS
             }
 
             fileInfo = new FileInformation() {
-                FileName = fileName, Length = (info.Context as StreamContext)?.Stream?.Length ?? (item as CloudFileNode)?.Contract.Size ?? FileSize.Empty,
+                FileName = fileName, Length = (info.Context as StreamContext)?.Stream?.Length ?? (item as CloudFileNode)?.FileSystemInfo.Size ?? FileSize.Empty,
                 Attributes = item is CloudDirectoryNode ? FileAttributes.Directory : FileAttributes.NotContentIndexed,
-                CreationTime = item.Contract.Created.DateTime, LastWriteTime = item.Contract.Updated.DateTime, LastAccessTime = item.Contract.Updated.DateTime
+                CreationTime = item.FileSystemInfo.Created.DateTime, LastWriteTime = item.FileSystemInfo.Updated.DateTime, LastAccessTime = item.FileSystemInfo.Updated.DateTime
             };
 
             return AsTrace(nameof(GetFileInformation), fileName, info, DokanResult.Success, $"out {{{fileInfo.FileName}, [{fileInfo.Length}], [{fileInfo.Attributes}], {fileInfo.CreationTime}, {fileInfo.LastWriteTime}, {fileInfo.LastAccessTime}}}".ToString(CultureInfo.CurrentCulture));
@@ -414,7 +415,7 @@ namespace IgorSoft.DokanCloudFS
             if (destinationDirectory == null)
                 return AsWarn(nameof(MoveFile), oldName, info, DokanResult.PathNotFound, newName, replace.ToString(CultureInfo.InvariantCulture));
 
-            item.Move(drive, Path.GetFileName(newName), destinationDirectory);
+            item.Move(Path.GetFileName(newName), destinationDirectory);
 
             return AsTrace(nameof(MoveFile), oldName, info, DokanResult.Success, newName, replace.ToString(CultureInfo.InvariantCulture));
         }
@@ -443,7 +444,7 @@ namespace IgorSoft.DokanCloudFS
             lock (context) {
                 if (context.Stream == null)
                     try {
-                        context.Stream = Stream.Synchronized(context.File.GetContent(drive));
+                        context.Stream = Stream.Synchronized(context.File.GetContent());
                     } catch (Exception ex) {
                         bytesRead = 0;
                         return AsError(nameof(ReadFile), fileName, info, DokanResult.Error, offset.ToString(CultureInfo.InvariantCulture), $"out {bytesRead}".ToString(CultureInfo.InvariantCulture), $"{ex.GetType().Name} '{ex.Message}'".ToString(CultureInfo.CurrentCulture));
@@ -472,10 +473,10 @@ namespace IgorSoft.DokanCloudFS
 
                     context.Task = Task.Run(() => {
                         try {
-                            context.File.SetContent(drive, gatherStreams[0]);
+                            context.File.SetContent(gatherStreams[0]);
                         } catch (Exception ex) {
                             if (!(ex is UnauthorizedAccessException))
-                                context.File.Remove(drive);
+                                context.File.Remove();
                             logger.Error($"{nameof(context.File.SetContent)} failed on file '{fileName}' with {ex.GetType().Name} '{ex.Message}'".ToString(CultureInfo.CurrentCulture));
                             throw;
                         }

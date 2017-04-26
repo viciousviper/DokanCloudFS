@@ -38,6 +38,7 @@ using IgorSoft.CloudFS.Authentication;
 using IgorSoft.CloudFS.Interface;
 using IgorSoft.DokanCloudFS.Configuration;
 using IgorSoft.DokanCloudFS.Mounter.Config;
+using IgorSoft.DokanCloudFS.Drives;
 
 namespace IgorSoft.DokanCloudFS.Mounter
 {

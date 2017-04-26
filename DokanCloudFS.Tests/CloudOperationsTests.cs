@@ -32,6 +32,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NLog;
 using IgorSoft.CloudFS.Interface.IO;
+using IgorSoft.DokanCloudFS.Drives;
 
 namespace IgorSoft.DokanCloudFS.Tests
 {

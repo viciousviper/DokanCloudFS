@@ -1,7 +1,7 @@
 ﻿/*
 The MIT License(MIT)
 
-Copyright(c) 2016 IgorSoft
+Copyright(c) 2017 IgorSoft
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -23,29 +23,20 @@ SOFTWARE.
 */
 
 using System;
-using System.Composition;
-using NLog;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace IgorSoft.DokanCloudFS.Tests
 {
-    internal sealed class ExportProvider
+    internal static class DictionaryExtensions
     {
-        private static ILogger logger;
-
-        [Export]
-        public ILogger Logger => logger;
-
-        static ExportProvider()
+        [System.Diagnostics.DebuggerStepThrough]
+        public static void ForEach<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, Action<TKey, TValue> action)
         {
-            using (var logFactory = new LogFactory()) {
-                logger = logFactory.GetCurrentClassLogger();
-            }
-        }
+            if (action == null)
+                throw new ArgumentNullException(nameof(action));
 
-        public static void ResetComposition()
-        {
-            typeof(CompositionInitializer).GetField("host", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic).SetValue(null, null);
-            CompositionInitializer.Initialize(new[] { typeof(CloudOperationsTests).Assembly });
+            dictionary.ToList().ForEach(kvp => action(kvp.Key, kvp.Value));
         }
     }
 }

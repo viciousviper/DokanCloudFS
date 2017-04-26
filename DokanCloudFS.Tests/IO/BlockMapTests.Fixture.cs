@@ -1,7 +1,7 @@
 ﻿/*
 The MIT License(MIT)
 
-Copyright(c) 2016 IgorSoft
+Copyright(c) 2015 IgorSoft
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -23,29 +23,15 @@ SOFTWARE.
 */
 
 using System;
-using System.Composition;
-using NLog;
+using IgorSoft.DokanCloudFS.IO;
 
-namespace IgorSoft.DokanCloudFS.Tests
+namespace IgorSoft.DokanCloudFS.Tests.IO
 {
-    internal sealed class ExportProvider
+    public partial class BlockMapTests
     {
-        private static ILogger logger;
-
-        [Export]
-        public ILogger Logger => logger;
-
-        static ExportProvider()
+        private static class Fixture
         {
-            using (var logFactory = new LogFactory()) {
-                logger = logFactory.GetCurrentClassLogger();
-            }
-        }
-
-        public static void ResetComposition()
-        {
-            typeof(CompositionInitializer).GetField("host", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic).SetValue(null, null);
-            CompositionInitializer.Initialize(new[] { typeof(CloudOperationsTests).Assembly });
+            public static BlockMap CreateMap() => new BlockMap(20);
         }
     }
 }

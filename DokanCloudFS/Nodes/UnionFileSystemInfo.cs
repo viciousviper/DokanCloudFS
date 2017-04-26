@@ -1,7 +1,7 @@
 ﻿/*
 The MIT License(MIT)
 
-Copyright(c) 2016 IgorSoft
+Copyright(c) 2017 IgorSoft
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -23,29 +23,26 @@ SOFTWARE.
 */
 
 using System;
-using System.Composition;
-using NLog;
+using System.Collections.Generic;
+using System.Linq;
+using IgorSoft.CloudFS.Interface.IO;
+using IgorSoft.DokanCloudFS.Configuration;
 
-namespace IgorSoft.DokanCloudFS.Tests
+namespace IgorSoft.DokanCloudFS.Nodes
 {
-    internal sealed class ExportProvider
+    internal abstract class UnionFileSystemInfo
     {
-        private static ILogger logger;
+        public string Name { get; }
 
-        [Export]
-        public ILogger Logger => logger;
+        public abstract string FullName { get; }
 
-        static ExportProvider()
+        protected internal IDictionary<CloudDriveConfiguration, FileSystemInfoContract> FileSystemInfos { get; }
+
+        protected UnionFileSystemInfo(IDictionary<CloudDriveConfiguration, FileSystemInfoContract> fileSystemInfos)
         {
-            using (var logFactory = new LogFactory()) {
-                logger = logFactory.GetCurrentClassLogger();
-            }
-        }
+            FileSystemInfos = fileSystemInfos ?? throw new ArgumentNullException(nameof(fileSystemInfos));
 
-        public static void ResetComposition()
-        {
-            typeof(CompositionInitializer).GetField("host", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic).SetValue(null, null);
-            CompositionInitializer.Initialize(new[] { typeof(CloudOperationsTests).Assembly });
+            Name = FileSystemInfos.Values.Select(f => f.Name).Distinct().Single();
         }
     }
 }

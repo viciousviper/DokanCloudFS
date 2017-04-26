@@ -1,7 +1,7 @@
 ﻿/*
 The MIT License(MIT)
 
-Copyright(c) 2016 IgorSoft
+Copyright(c) 2017 IgorSoft
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -23,29 +23,27 @@ SOFTWARE.
 */
 
 using System;
-using System.Composition;
-using NLog;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using IgorSoft.CloudFS.Interface.IO;
+using IgorSoft.DokanCloudFS.Configuration;
 
-namespace IgorSoft.DokanCloudFS.Tests
+namespace IgorSoft.DokanCloudFS.Nodes
 {
-    internal sealed class ExportProvider
+    [System.Diagnostics.DebuggerDisplay("{DebuggerDisplay,nq}")]
+    internal sealed class UnionRootDirectoryInfo : UnionDirectoryInfo
     {
-        private static ILogger logger;
+        public DriveInfoContract Drive { get; set; }
 
-        [Export]
-        public ILogger Logger => logger;
+        public override string FullName => $"{Drive?.Name}{base.Name}";
 
-        static ExportProvider()
+        public UnionRootDirectoryInfo(IDictionary<CloudDriveConfiguration, RootDirectoryInfoContract> rootDirectoryInfos) : base(rootDirectoryInfos.ToDictionary(i => i.Key, i => i.Value as DirectoryInfoContract))
         {
-            using (var logFactory = new LogFactory()) {
-                logger = logFactory.GetCurrentClassLogger();
-            }
         }
 
-        public static void ResetComposition()
-        {
-            typeof(CompositionInitializer).GetField("host", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic).SetValue(null, null);
-            CompositionInitializer.Initialize(new[] { typeof(CloudOperationsTests).Assembly });
-        }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Debugger Display")]
+        [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+        private string DebuggerDisplay => $"{nameof(UnionDirectoryInfo)} {{{string.Join(",", FileSystemInfos.Select(i => i.Key.RootName))}}}".ToString(CultureInfo.CurrentCulture);
     }
 }

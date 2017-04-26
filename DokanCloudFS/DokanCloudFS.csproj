@@ -96,21 +96,27 @@
     <Compile Include="CloudOperations.Logging.cs">
       <DependentUpon>CloudOperations.cs</DependentUpon>
     </Compile>
-    <Compile Include="Configuration\CloudDriveParameters.cs" />
     <Compile Include="Extensions\DokanFileInfoExtensions.cs" />
     <Compile Include="Configuration\CloudDriveConfiguration.cs" />
     <Compile Include="IO\BlockMap.cs" />
-    <Compile Include="CloudDirectoryNode.cs" />
+    <Compile Include="Nodes\UnionRootDirectoryInfo.cs" />
+    <Compile Include="Nodes\UnionFileInfo.cs" />
+    <Compile Include="Nodes\UnionDirectoryInfo .cs" />
+    <Compile Include="Nodes\UnionFileSystemInfo.cs" />
+    <Compile Include="Nodes\UnionCloudItemNode.cs" />
+    <Compile Include="Nodes\UnionCloudDirectoryNode.cs" />
+    <Compile Include="Nodes\CloudDirectoryNode.cs" />
     <Compile Include="CloudOperations.cs" />
-    <Compile Include="CloudDrive.cs" />
-    <Compile Include="AsyncCloudDrive.cs" />
-    <Compile Include="CloudDriveBase.cs" />
-    <Compile Include="CloudDriveFactory.cs" />
-    <Compile Include="CloudFileNode.cs" />
-    <Compile Include="CloudItemNode.cs" />
+    <Compile Include="Drives\CloudDrive.cs" />
+    <Compile Include="Drives\AsyncCloudDrive.cs" />
+    <Compile Include="Drives\CloudDriveBase.cs" />
+    <Compile Include="Drives\CloudDriveFactory.cs" />
+    <Compile Include="Nodes\UnionCloudFileNode.cs" />
+    <Compile Include="Nodes\CloudFileNode.cs" />
+    <Compile Include="Nodes\CloudItemNode.cs" />
     <Compile Include="CompositionInitializer.cs" />
     <Compile Include="GatewayManager.cs" />
-    <Compile Include="ICloudDrive.cs" />
+    <Compile Include="Drives\ICloudDrive.cs" />
     <Compile Include="IGatewayManager.cs" />
     <Compile Include="IO\ReadWriteSegregatingStream.cs" />
     <Compile Include="IO\TraceStream.cs" />
@@ -124,7 +130,7 @@
     <Compile Include="IO\GatherStream.cs" />
     <Compile Include="IO\ScatterGatherStreamFactory.cs" />
     <Compile Include="IO\StreamExtensions.cs" />
-    <Compile Include="UnionCloudDrive.cs" />
+    <Compile Include="Drives\UnionCloudDrive.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config">
@@ -137,6 +143,7 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

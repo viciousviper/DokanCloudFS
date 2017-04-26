@@ -123,11 +123,14 @@
   <data name="CompositionHostNotInitialized" xml:space="preserve">
     <value>Composition host not initialized</value>
   </data>
+  <data name="CrossDriveOperation" xml:space="preserve">
+    <value>Cross drive operation {0}: '{1}' -&gt; '{2}' not supported</value>
+  </data>
   <data name="InvalidNonProxyResolution" xml:space="preserve">
     <value>{0} '{1}' is not a resolvable FileSystemInfo type</value>
   </data>
   <data name="InvalidProxyResolution" xml:space="preserve">
-    <value>Cannot resolve ProxyFileInfo '{0}' with FileInfo '{1}'</value>
+    <value>Cannot resolve ProxyFileInfo '{0}' with {1} '{2}'</value>
   </data>
   <data name="NoGatewayForSchema" xml:space="preserve">
     <value>No gateway is registered for schema '{0}'</value>

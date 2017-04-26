@@ -99,6 +99,10 @@
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Transactions" />
+    <Reference Include="System.ValueTuple, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\System.ValueTuple.4.3.0\lib\portable-net40+sl4+win8+wp8\System.ValueTuple.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml" />
   </ItemGroup>
   <Choose>
@@ -117,38 +121,39 @@
     <Compile Include="..\CommonAssemblyInfo.cs">
       <Link>CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="BlockMapRandomizedTests.Fixture.cs">
+    <Compile Include="DictionaryExtensions.cs" />
+    <Compile Include="IO\BlockMapRandomizedTests.Fixture.cs">
       <DependentUpon>BlockMapRandomizedTests.cs</DependentUpon>
     </Compile>
-    <Compile Include="CloudDriveBaseTests.cs" />
-    <Compile Include="AsyncCloudDriveTests.Fixture.cs">
+    <Compile Include="Drives\CloudDriveBaseTests.cs" />
+    <Compile Include="Drives\AsyncCloudDriveTests.Fixture.cs">
       <DependentUpon>AsyncCloudDriveTests.cs</DependentUpon>
     </Compile>
-    <Compile Include="BlockMapExtensions.cs">
+    <Compile Include="IO\BlockMapExtensions.cs">
       <DependentUpon>BlockMapTests.cs</DependentUpon>
     </Compile>
-    <Compile Include="BlockMapTests.cs" />
-    <Compile Include="BlockMapTests.Fixture.cs">
+    <Compile Include="IO\BlockMapTests.cs" />
+    <Compile Include="IO\BlockMapTests.Fixture.cs">
       <DependentUpon>BlockMapTests.cs</DependentUpon>
     </Compile>
-    <Compile Include="CloudDirectoryNodeTests.cs" />
-    <Compile Include="CloudDirectoryNodeTests.Fixture.cs">
+    <Compile Include="Nodes\CloudDirectoryNodeTests.cs" />
+    <Compile Include="Nodes\CloudDirectoryNodeTests.Fixture.cs">
       <DependentUpon>CloudDirectoryNodeTests.cs</DependentUpon>
     </Compile>
-    <Compile Include="AsyncCloudDriveTests.cs" />
-    <Compile Include="CloudDriveBaseTests.Fixture.cs">
+    <Compile Include="Drives\AsyncCloudDriveTests.cs" />
+    <Compile Include="Drives\CloudDriveBaseTests.Fixture.cs">
       <DependentUpon>CloudDriveBaseTests.cs</DependentUpon>
     </Compile>
-    <Compile Include="CloudDriveFactoryTests.Fixture.cs">
+    <Compile Include="Drives\CloudDriveFactoryTests.Fixture.cs">
       <DependentUpon>CloudDriveFactoryTests.cs</DependentUpon>
     </Compile>
-    <Compile Include="CloudDriveTests.cs" />
-    <Compile Include="CloudDriveTests.Fixture.cs">
+    <Compile Include="Drives\CloudDriveTests.cs" />
+    <Compile Include="Drives\CloudDriveTests.Fixture.cs">
       <DependentUpon>CloudDriveTests.cs</DependentUpon>
     </Compile>
-    <Compile Include="CloudDriveFactoryTests.cs" />
-    <Compile Include="CloudItemNodeTests.cs" />
-    <Compile Include="CloudItemNodeTests.Fixture.cs">
+    <Compile Include="Drives\CloudDriveFactoryTests.cs" />
+    <Compile Include="Nodes\CloudItemNodeTests.cs" />
+    <Compile Include="Nodes\CloudItemNodeTests.Fixture.cs">
       <DependentUpon>CloudItemNodeTests.cs</DependentUpon>
     </Compile>
     <Compile Include="CloudOperationsTests.cs" />
@@ -162,19 +167,19 @@
       <DependentUpon>GatewayManagerTests.cs</DependentUpon>
     </Compile>
     <Compile Include="GlobalSuppressions.cs" />
-    <Compile Include="LinearReadMemoryStream.cs" />
-    <Compile Include="ReadWriteSegregatingStreamTest.Fixture.cs">
+    <Compile Include="IO\LinearReadMemoryStream.cs" />
+    <Compile Include="IO\ReadWriteSegregatingStreamTest.Fixture.cs">
       <DependentUpon>ReadWriteSegregatingStreamTest.cs</DependentUpon>
     </Compile>
-    <Compile Include="ScatterGatherStreamRandomizedTests.cs" />
-    <Compile Include="BlockMapRandomizedTests.cs" />
-    <Compile Include="ScatterGatherStreamRandomizedTests.Fixture.cs">
+    <Compile Include="IO\ScatterGatherStreamRandomizedTests.cs" />
+    <Compile Include="IO\BlockMapRandomizedTests.cs" />
+    <Compile Include="IO\ScatterGatherStreamRandomizedTests.Fixture.cs">
       <DependentUpon>ScatterGatherStreamRandomizedTests.cs</DependentUpon>
     </Compile>
-    <Compile Include="ReadWriteSegregatingStreamTest.cs" />
+    <Compile Include="IO\ReadWriteSegregatingStreamTest.cs" />
     <Compile Include="StreamExtensionsTest.cs" />
-    <Compile Include="CloudFileNodeTests.cs" />
-    <Compile Include="CloudFileNodeTests.Fixture.cs">
+    <Compile Include="Nodes\CloudFileNodeTests.cs" />
+    <Compile Include="Nodes\CloudFileNodeTests.Fixture.cs">
       <DependentUpon>CloudFileNodeTests.cs</DependentUpon>
     </Compile>
     <Compile Include="FileSystemTests.cs" />
@@ -182,16 +187,16 @@
       <DependentUpon>FileSystemTests.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ScatterGatherStreamTests.cs" />
-    <Compile Include="ScatterGatherStreamTests.Fixture.cs">
+    <Compile Include="IO\ScatterGatherStreamTests.cs" />
+    <Compile Include="IO\ScatterGatherStreamTests.Fixture.cs">
       <DependentUpon>ScatterGatherStreamTests.cs</DependentUpon>
     </Compile>
     <Compile Include="ArrayExtensions.cs" />
     <Compile Include="StreamExtensions.cs" />
     <Compile Include="StringExtensions.cs" />
     <Compile Include="TestCategories.cs" />
-    <Compile Include="UnionCloudDriveTests.cs" />
-    <Compile Include="UnionCloudDriveTests.Fixture.cs">
+    <Compile Include="Drives\UnionCloudDriveTests.cs" />
+    <Compile Include="Drives\UnionCloudDriveTests.Fixture.cs">
       <DependentUpon>UnionCloudDriveTests.cs</DependentUpon>
     </Compile>
   </ItemGroup>
