@@ -173,7 +173,7 @@ namespace IgorSoft.DokanCloudFS.Drives
                 CompositionInitializer.SatisfyImports(gatewayContent = new TraceStream(nameof(target), target.Name, gatewayContent));
 #endif
                 if (asyncConfigs.TryGetValue(config, out IAsyncCloudGateway asyncGateway))
-                    asyncGateway.SetContentAsync(rootName, fileInfo.Id, gatewayContent, null, () => new FileSystemInfoLocator(fileInfo));
+                    asyncGateway.SetContentAsync(rootName, fileInfo.Id, gatewayContent, null, () => new FileSystemInfoLocator(fileInfo)).Wait();
                 else if (configs.TryGetValue(config, out ICloudGateway gateway))
                     gateway.SetContent(rootName, fileInfo.Id, gatewayContent, null);
                 else
@@ -184,22 +184,22 @@ namespace IgorSoft.DokanCloudFS.Drives
             }, nameof(SetContent), true);
         }
 
-        public UnionFileSystemInfo MoveItem(FileSystemInfoContract source, string movePath, DirectoryInfoContract destination)
+        public UnionFileSystemInfo MoveItem(UnionFileSystemInfo source, string movePath, UnionDirectoryInfo destination)
         {
             throw new NotImplementedException();
         }
 
-        public DirectoryInfoContract NewDirectoryItem(DirectoryInfoContract parent, string name)
+        public DirectoryInfoContract NewDirectoryItem(UnionDirectoryInfo parent, string name)
         {
             throw new NotImplementedException();
         }
 
-        public FileInfoContract NewFileItem(DirectoryInfoContract parent, string name, Stream content)
+        public FileInfoContract NewFileItem(UnionDirectoryInfo parent, CloudDriveConfiguration config, string name, Stream content)
         {
             throw new NotImplementedException();
         }
 
-        public void RemoveItem(FileSystemInfoContract target, bool recurse)
+        public void RemoveItem(UnionFileSystemInfo target, bool recurse)
         {
             throw new NotImplementedException();
         }

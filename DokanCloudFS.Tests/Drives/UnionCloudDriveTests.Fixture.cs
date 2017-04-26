@@ -70,12 +70,16 @@ namespace IgorSoft.DokanCloudFS.Tests.Drives
 
             private readonly MockRepository mockRepository = new MockRepository(MockBehavior.Strict);
 
+            private readonly Func<RootDirectoryInfoContract, DirectoryInfoContract> targetDirectoryFactory = rootDirectory => new DirectoryInfoContract(@"\SubDir", "SubDir", "2015-01-01 10:11:12".ToDateTime(), "2015-01-01 20:21:22".ToDateTime()) { Parent = rootDirectory };
+
             private readonly Func<string, FileSystemInfoContract[]> driveRootDirectoryItems = id => new FileSystemInfoContract[] {
                 new DirectoryInfoContract("\\SharedDir", "SharedDir", "2017-01-01 10:11:12".ToDateTime(), "2017-01-01 20:21:22".ToDateTime()),
                 new DirectoryInfoContract($"\\IndividualDir_{id}", $"IndividualDir_{id}", "2017-01-01 13:14:15".ToDateTime(), "2017-01-01 23:24:25".ToDateTime()),
                 new FileInfoContract("\\SharedFile.ext", "SharedFile.ext", "2017-01-02 10:11:12".ToDateTime(), "2017-01-02 20:21:22".ToDateTime(), new FileSize("16kB"), "16384".ToHash()),
                 new FileInfoContract($"\\IndividualFile_{id}.ext", $"IndividualFile_{id}.ext", "2017-01-03 10:11:12".ToDateTime(), "2017-01-03 20:21:22".ToDateTime(), new FileSize("32kB"), "32768".ToHash())
             };
+
+            public UnionDirectoryInfo TargetDirectory { get; }
 
             public IDictionary<CloudDriveConfiguration, FileSystemInfoContract[]> RootDirectoryItems { get; } = new Dictionary<CloudDriveConfiguration, FileSystemInfoContract[]>();
 
@@ -94,23 +98,25 @@ namespace IgorSoft.DokanCloudFS.Tests.Drives
                 int asyncIndex = 0;
                 foreach (var asyncConfig in asyncConfigurations.Keys) {
                     var driveName = $"AsyncDrive_{asyncIndex}";
-                    rootDirectories.Add(asyncConfig, new RootDirectoryInfoContract(Path.DirectorySeparatorChar.ToString(), defaultTime, defaultTime)
-                    {
+                    var rootDirectory = new RootDirectoryInfoContract(Path.DirectorySeparatorChar.ToString(), defaultTime, defaultTime) {
                         Drive = new DriveInfoContract(driveName, ASYNC_DRIVE_FREE_SPACE << asyncIndex, ASYNC_DRIVE_USED_SPACE << asyncIndex)
-                    });
+                    };
+                    rootDirectories.Add(asyncConfig, rootDirectory);
                     RootDirectoryItems.Add(asyncConfig, driveRootDirectoryItems(driveName));
                     ++asyncIndex;
                 }
                 int index = 0;
                 foreach (var config in configurations.Keys) {
                     var driveName = $"Drive_{index}";
-                    rootDirectories.Add(config, new RootDirectoryInfoContract(Path.DirectorySeparatorChar.ToString(), defaultTime, defaultTime)
-                    {
+                    var rootDirectory = new RootDirectoryInfoContract(Path.DirectorySeparatorChar.ToString(), defaultTime, defaultTime) {
                         Drive = new DriveInfoContract(driveName, DRIVE_FREE_SPACE << index, DRIVE_USED_SPACE << index)
-                    });
+                    };
+                    rootDirectories.Add(config, rootDirectory);
                     RootDirectoryItems.Add(config, driveRootDirectoryItems(driveName));
                     ++index;
                 }
+
+                TargetDirectory = new UnionDirectoryInfo(asyncConfigurations.Keys.Concat(configurations.Keys).Select(c => (c, targetDirectoryFactory(rootDirectories[c]))).ToDictionary(t => t.Item1, t => t.Item2));
             }
 
             private CloudDriveConfiguration CreateConfiguration(int index, string gatewayKind, string rootNamePattern, string apiKeyPattern, string encryptionKeyPattern)
@@ -124,8 +130,8 @@ namespace IgorSoft.DokanCloudFS.Tests.Drives
 
             public void ForEachConfiguration(Action<CloudDriveConfiguration> action)
             {
-                asyncConfigurations.ForEach((cfg, mock) => action(cfg));
-                configurations.ForEach((cfg, mock) => action(cfg));
+                asyncConfigurations.ForEach((cfg, gateway) => action(cfg));
+                configurations.ForEach((cfg, gateway) => action(cfg));
             }
 
             public IDictionary<CloudDriveConfiguration, TValue> SelectByConfiguration<TValue>(Func<CloudDriveConfiguration, TValue> func)
@@ -179,13 +185,13 @@ namespace IgorSoft.DokanCloudFS.Tests.Drives
 
             public void SetupTryAuthenticate(bool result = true)
             {
-                asyncConfigurations.ForEach((cfg, mock) =>
-                    mock
+                asyncConfigurations.ForEach((cfg, gateway) =>
+                    gateway
                         .Setup(g => g.TryAuthenticateAsync(rootName, cfg.ApiKey, cfg.Parameters))
                         .Returns(Task.FromResult(result))
                 );
-                configurations.ForEach((cfg, mock) =>
-                    mock
+                configurations.ForEach((cfg, gateway) =>
+                    gateway
                         .Setup(g => g.TryAuthenticate(rootName, cfg.ApiKey, cfg.Parameters))
                         .Returns(result)
                 );
@@ -193,13 +199,13 @@ namespace IgorSoft.DokanCloudFS.Tests.Drives
 
             public void SetupGetDrive()
             {
-                asyncConfigurations.ForEach((cfg, mock) =>
-                    mock
+                asyncConfigurations.ForEach((cfg, gateway) =>
+                    gateway
                         .Setup(g => g.GetDriveAsync(rootName, cfg.ApiKey, cfg.Parameters))
                         .Returns(Task.FromResult(rootDirectories[cfg].Drive))
                 );
-                configurations.ForEach((cfg, mock) =>
-                    mock
+                configurations.ForEach((cfg, gateway) =>
+                    gateway
                         .Setup(g => g.GetDrive(rootName, cfg.ApiKey, cfg.Parameters))
                         .Returns(rootDirectories[cfg].Drive)
                 );
@@ -208,13 +214,13 @@ namespace IgorSoft.DokanCloudFS.Tests.Drives
             public void SetupGetDriveThrows<TException>()
                 where TException : Exception, new()
             {
-                asyncConfigurations.ForEach((cfg, mock) =>
-                    mock
+                asyncConfigurations.ForEach((cfg, gateway) =>
+                    gateway
                         .Setup(g => g.GetDriveAsync(rootName, cfg.ApiKey, cfg.Parameters))
                         .Throws(new AggregateException(Activator.CreateInstance<TException>()))
                 );
-                configurations.ForEach((cfg, mock) =>
-                    mock
+                configurations.ForEach((cfg, gateway) =>
+                    gateway
                         .Setup(g => g.GetDrive(rootName, cfg.ApiKey, cfg.Parameters))
                         .Throws(new AggregateException(Activator.CreateInstance<TException>()))
                 );
@@ -222,13 +228,13 @@ namespace IgorSoft.DokanCloudFS.Tests.Drives
 
             public void SetupGetRoot()
             {
-                asyncConfigurations.ForEach((cfg, mock) =>
-                    mock
+                asyncConfigurations.ForEach((cfg, gateway) =>
+                    gateway
                         .Setup(g => g.GetRootAsync(rootName, cfg.ApiKey, cfg.Parameters))
                         .Returns(Task.FromResult(rootDirectories[cfg]))
                 );
-                configurations.ForEach((cfg, mock) =>
-                    mock
+                configurations.ForEach((cfg, gateway) =>
+                    gateway
                         .Setup(g => g.GetRoot(rootName, cfg.ApiKey, cfg.Parameters))
                         .Returns(rootDirectories[cfg])
                 );
@@ -236,25 +242,25 @@ namespace IgorSoft.DokanCloudFS.Tests.Drives
 
             public void SetupGetRootDirectoryItems()
             {
-                asyncConfigurations.ForEach((cfg, mock) => {
-                    mock
+                asyncConfigurations.ForEach((cfg, gateway) => {
+                    gateway
                         .Setup(g => g.GetChildItemAsync(rootName, new DirectoryId(Path.DirectorySeparatorChar.ToString())))
                         .Returns(Task.FromResult(RootDirectoryItems[cfg].AsEnumerable()));
                     if (!string.IsNullOrEmpty(cfg.EncryptionKey))
                         foreach (var fileInfo in RootDirectoryItems[cfg].OfType<FileInfoContract>())
                             using (var rawStream = new MemoryStream(Enumerable.Repeat<byte>(0, (int)fileInfo.Size).ToArray()))
-                                mock
+                                gateway
                                     .SetupSequence(g => g.GetContentAsync(rootName, fileInfo.Id))
                                     .Returns(Task.FromResult(rawStream.EncryptOrPass(cfg.EncryptionKey)));
                 });
-                configurations.ForEach((cfg, mock) => {
-                    mock
+                configurations.ForEach((cfg, gateway) => {
+                    gateway
                         .Setup(g => g.GetChildItem(rootName, new DirectoryId(Path.DirectorySeparatorChar.ToString())))
                         .Returns(RootDirectoryItems[cfg]);
                     if (!string.IsNullOrEmpty(cfg.EncryptionKey))
                         foreach (var fileInfo in RootDirectoryItems[cfg].OfType<FileInfoContract>())
                             using (var rawStream = new MemoryStream(Enumerable.Repeat<byte>(0, (int)fileInfo.Size).ToArray()))
-                                mock
+                                gateway
                                     .SetupSequence(g => g.GetContent(rootName, fileInfo.Id))
                                     .Returns(rawStream.EncryptOrPass(cfg.EncryptionKey));
                 });
@@ -262,33 +268,50 @@ namespace IgorSoft.DokanCloudFS.Tests.Drives
 
             public void SetupGetContent(UnionFileInfo source, IDictionary<CloudDriveConfiguration, byte[]> contents, IDictionary<CloudDriveConfiguration, string> encryptionKeys = null, bool canSeek = true)
             {
-                asyncConfigurations.ForEach((cfg, mock) => {
-                    var stream = new MemoryStream(contents[cfg]);
-                    if (encryptionKeys != null && !string.IsNullOrEmpty(encryptionKeys[cfg])) {
+                Func<string, byte[], Stream> createStream = (encryptionKey, content) => {
+                    var stream = new MemoryStream(content);
+                    if (!string.IsNullOrEmpty(encryptionKey))
+                    {
                         var buffer = new MemoryStream();
-                        SharpAESCrypt.SharpAESCrypt.Encrypt(encryptionKeys[cfg], stream, buffer);
+                        SharpAESCrypt.SharpAESCrypt.Encrypt(encryptionKey, stream, buffer);
                         buffer.Seek(0, SeekOrigin.Begin);
                         stream = buffer;
                     }
                     if (!canSeek)
                         stream = new LinearReadMemoryStream(stream);
-                    mock
+                    return stream;
+                };
+                asyncConfigurations.ForEach((cfg, gateway) => {
+                    gateway
                         .Setup(g => g.GetContentAsync(rootName, ((FileInfoContract)source.FileSystemInfos[cfg]).Id))
-                        .Returns(Task.FromResult<Stream>(stream));
+                        .Returns(Task.FromResult(createStream(encryptionKeys?[cfg], contents[cfg])));
                 });
-                configurations.ForEach((cfg, mock) => {
-                    var stream = new MemoryStream(contents[cfg]);
-                    if (encryptionKeys != null && !string.IsNullOrEmpty(encryptionKeys[cfg])) {
-                        var buffer = new MemoryStream();
-                        SharpAESCrypt.SharpAESCrypt.Encrypt(encryptionKeys[cfg], stream, buffer);
-                        buffer.Seek(0, SeekOrigin.Begin);
-                        stream = buffer;
-                    }
-                    if (!canSeek)
-                        stream = new LinearReadMemoryStream(stream);
-                    mock
+                configurations.ForEach((cfg, gateway) => {
+                    gateway
                         .Setup(g => g.GetContent(rootName, ((FileInfoContract)source.FileSystemInfos[cfg]).Id))
-                        .Returns(stream);
+                        .Returns(createStream(encryptionKeys?[cfg], contents[cfg]));
+                });
+            }
+
+            public void SetupSetContent(UnionFileInfo target, IDictionary<CloudDriveConfiguration, byte[]> contents, IDictionary<CloudDriveConfiguration, string> encryptionKeys = null)
+            {
+                Func<Stream, string, byte[], bool> checkContent = (stream, encryptionKey, content) => {
+                    if (!string.IsNullOrEmpty(encryptionKey)) {
+                        var buffer = new MemoryStream();
+                        SharpAESCrypt.SharpAESCrypt.Decrypt(encryptionKey, stream, buffer);
+                        buffer.Seek(0, SeekOrigin.Begin);
+                        return buffer.Contains(content);
+                    }
+                    return stream.Contains(content);
+                };
+                asyncConfigurations.ForEach((cfg, gateway) => {
+                    gateway
+                        .Setup(g => g.SetContentAsync(rootName, ((FileInfoContract)target.FileSystemInfos[cfg]).Id, It.Is<Stream>(s => checkContent(s, encryptionKeys[cfg], contents[cfg])), It.IsAny<IProgress<ProgressValue>>(), It.IsAny<Func<FileSystemInfoLocator>>()))
+                        .Returns(Task.FromResult(true));
+                });
+                configurations.ForEach((cfg, gateway) => {
+                    gateway
+                        .Setup(g => g.SetContent(rootName, ((FileInfoContract)target.FileSystemInfos[cfg]).Id, It.Is<Stream>(s => checkContent(s, encryptionKeys[cfg], contents[cfg])), It.IsAny<IProgress<ProgressValue>>()));
                 });
             }
 

@@ -285,5 +285,97 @@ namespace IgorSoft.DokanCloudFS.Tests.Drives
 
             fixture.VerifyAll();
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(NotImplementedException))]
+        public void CloudDrive_MoveDirectoryItem_Throws()
+        {
+            var sutContract = new UnionDirectoryInfo(fixture.SelectByConfiguration(cfg => fixture.RootDirectoryItems[cfg].OfType<DirectoryInfoContract>().First()));
+            var directory = fixture.TargetDirectory;
+
+            using (var sut = fixture.Create()) {
+                sut.MoveItem(sutContract, sutContract.Name, directory);
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(NotImplementedException))]
+        public void CloudDrive_MoveFileItem_Throws()
+        {
+            var sutContract = new UnionFileInfo(fixture.SelectByConfiguration(cfg => fixture.RootDirectoryItems[cfg].OfType<FileInfoContract>().First()));
+            var directory = fixture.TargetDirectory;
+
+            using (var sut = fixture.Create()) {
+                sut.MoveItem(sutContract, sutContract.Name, directory);
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(NotImplementedException))]
+        public void CloudDrive_NewDirectoryItem_Throws()
+        {
+            const string newName = "NewDirectory";
+            var directory = fixture.TargetDirectory;
+
+            using (var sut = fixture.Create()) {
+                sut.NewDirectoryItem(directory, newName);
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(NotImplementedException))]
+        public void CloudDrive_NewFileItem_Throws()
+        {
+            const string newName = "NewFile.ext";
+            var fileContent = Encoding.Default.GetBytes("Why did the chicken cross the road?");
+            var directory = fixture.TargetDirectory;
+
+            using (var sut = fixture.Create())
+            using (var stream = new MemoryStream(fileContent)) {
+                sut.NewFileItem(directory, directory.FileSystemInfos.Keys.First(), newName, stream);
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(NotImplementedException))]
+        public void CloudDrive_RemoveDirectoryItem_Throws()
+        {
+            var sutContract = new UnionDirectoryInfo(fixture.SelectByConfiguration(cfg => fixture.RootDirectoryItems[cfg].OfType<DirectoryInfoContract>().First()));
+
+            using (var sut = fixture.Create()) {
+                sut.RemoveItem(sutContract, true);
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(NotImplementedException))]
+        public void CloudDrive_RemoveFileItem_Throws()
+        {
+            var sutContract = new UnionFileInfo(fixture.SelectByConfiguration(cfg => fixture.RootDirectoryItems[cfg].OfType<FileInfoContract>().First()));
+
+            using (var sut = fixture.Create()) {
+                sut.RemoveItem(sutContract, false);
+            }
+        }
+
+        [TestMethod]
+        public void CloudDrive_SetContent_Succeeds()
+        {
+            var fileContents = fixture.SelectByConfiguration(cfg => Encoding.Default.GetBytes($"Why did the chicken cross the road?:{cfg.RootName}"));
+            var encryptionKeys = fixture.SelectByConfiguration(cfg => cfg.EncryptionKey);
+            var sutContract = new UnionFileInfo(fixture.SelectByConfiguration(cfg => fixture.RootDirectoryItems[cfg].OfType<FileInfoContract>().First()));
+
+            fixture.SetupSetContent(sutContract, fileContents, encryptionKeys);
+
+            using (var sut = fixture.Create()) {
+                fixture.ForEachConfiguration(cfg => {
+                    using (var stream = new MemoryStream(fileContents[cfg])) {
+                        sut.SetContent(sutContract, cfg, stream);
+                    }
+                });
+            }
+
+            fixture.VerifyAll();
+        }
     }
 }
