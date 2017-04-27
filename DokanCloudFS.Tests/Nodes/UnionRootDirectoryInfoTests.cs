@@ -36,6 +36,21 @@ namespace IgorSoft.DokanCloudFS.Tests.Nodes
     public sealed class UnionRootDirectoryInfoTests
     {
         [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void UnionRootDirectoryInfo_SetParent_Throws()
+        {
+            var configs = Enumerable.Range(0, 5).Select(i => new CloudDriveConfiguration(new RootName($"root_{i}"))).ToArray();
+            var rootInfos = Enumerable.Range(0, 5).ToDictionary(
+                i => configs[i],
+                i => new RootDirectoryInfoContract(@"\", DateTimeOffset.FromFileTime(0), DateTimeOffset.FromFileTime(0))
+            );
+
+            var sut = new UnionRootDirectoryInfo(rootInfos);
+
+            sut.SetParent(null);
+        }
+
+        [TestMethod]
         public void UnionRootDirectoryInfo_GetFullName_WhereDriveIsUnassigned_ReturnsFullName()
         {
             var configs = Enumerable.Range(0, 5).Select(i => new CloudDriveConfiguration(new RootName($"root_{i}"))).ToArray();
