@@ -44,7 +44,7 @@ namespace IgorSoft.DokanCloudFS.Nodes
         {
             base.SetParent(parent);
 
-            FileSystemInfo.SetParent(parent?.FileSystemInfo);
+            FileSystemInfo.SetDirectory(parent?.FileSystemInfo);
         }
 
         public Stream GetContent(CloudDriveConfiguration config)

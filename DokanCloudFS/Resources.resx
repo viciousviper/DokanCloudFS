@@ -123,8 +123,14 @@
   <data name="CompositionHostNotInitialized" xml:space="preserve">
     <value>Composition host not initialized</value>
   </data>
+  <data name="ConfigurationEntryMissing" xml:space="preserve">
+    <value>Entry missing for CloudDriveConfiguration '{0}'</value>
+  </data>
   <data name="CrossDriveOperation" xml:space="preserve">
     <value>Cross drive operation {0}: '{1}' -&gt; '{2}' not supported</value>
+  </data>
+  <data name="InconsistentNames" xml:space="preserve">
+    <value>Inconsistent names specified in {0}</value>
   </data>
   <data name="InvalidNonProxyResolution" xml:space="preserve">
     <value>{0} '{1}' is not a resolvable FileSystemInfo type</value>

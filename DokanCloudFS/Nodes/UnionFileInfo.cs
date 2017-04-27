@@ -34,16 +34,25 @@ namespace IgorSoft.DokanCloudFS.Nodes
     [System.Diagnostics.DebuggerDisplay("{DebuggerDisplay,nq}")]
     internal class UnionFileInfo : UnionFileSystemInfo
     {
-        public override string FullName => (FileSystemInfos.Values.Select(f => ((FileInfoContract)f).Directory?.FullName).Distinct().Single() ?? string.Empty) + base.Name;
+        private UnionDirectoryInfo directory;
 
-        public void SetParent(UnionDirectoryInfo parent)
-        {
-            foreach (var fileSystemInfo in FileSystemInfos)
-                ((FileInfoContract)fileSystemInfo.Value).Directory = (DirectoryInfoContract)parent?.FileSystemInfos[fileSystemInfo.Key];
-        }
+        public override string FullName => directory != null ? $"{directory.FullName.TrimEnd('\\')}\\{Name}" : Name;
 
         public UnionFileInfo(IDictionary<CloudDriveConfiguration, FileInfoContract> fileInfos) : base(fileInfos.ToDictionary(i => i.Key, i => i.Value as FileSystemInfoContract))
         {
+        }
+
+        public void SetDirectory(UnionDirectoryInfo directory)
+        {
+            this.directory = directory;
+
+            foreach (var fileSystemInfo in FileSystemInfos) {
+                var directoryByConfiguration = default(FileSystemInfoContract);
+                if (!directory?.FileSystemInfos.TryGetValue(fileSystemInfo.Key, out directoryByConfiguration) ?? false)
+                    throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, Resources.ConfigurationEntryMissing, fileSystemInfo.Key.RootName.Value));
+
+                ((FileInfoContract)fileSystemInfo.Value).Directory = (DirectoryInfoContract)directoryByConfiguration;
+            }
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Debugger Display")]

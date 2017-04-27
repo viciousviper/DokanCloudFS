@@ -78,11 +78,31 @@ namespace IgorSoft.DokanCloudFS {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Entry missing for CloudDriveConfiguration &apos;{0}&apos;.
+        /// </summary>
+        internal static string ConfigurationEntryMissing
+        {
+            get {
+                return ResourceManager.GetString("ConfigurationEntryMissing", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Cross drive operation {0}: &apos;{1}&apos; -&gt; &apos;{2}&apos; not supported.
         /// </summary>
         internal static string CrossDriveOperation {
             get {
                 return ResourceManager.GetString("CrossDriveOperation", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Inconsistent names specified in {0}.
+        /// </summary>
+        internal static string InconsistentNames
+        {
+            get {
+                return ResourceManager.GetString("InconsistentNames", resourceCulture);
             }
         }
 

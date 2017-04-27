@@ -24,6 +24,7 @@ SOFTWARE.
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using IgorSoft.CloudFS.Interface.IO;
 using IgorSoft.DokanCloudFS.Configuration;
@@ -40,9 +41,15 @@ namespace IgorSoft.DokanCloudFS.Nodes
 
         protected UnionFileSystemInfo(IDictionary<CloudDriveConfiguration, FileSystemInfoContract> fileSystemInfos)
         {
-            FileSystemInfos = fileSystemInfos ?? throw new ArgumentNullException(nameof(fileSystemInfos));
+            if (fileSystemInfos == null || !fileSystemInfos.Any())
+                throw new ArgumentNullException(nameof(fileSystemInfos));
 
-            Name = FileSystemInfos.Values.Select(f => f.Name).Distinct().Single();
+            var distinctNames = fileSystemInfos.Values.Select(f => f.Name).Distinct().ToArray();
+            if (distinctNames.Length > 1)
+                throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, Resources.InconsistentNames, nameof(fileSystemInfos)));
+
+            FileSystemInfos = fileSystemInfos;
+            Name = distinctNames.Single();
         }
     }
 }

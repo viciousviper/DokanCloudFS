@@ -24,31 +24,41 @@ SOFTWARE.
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using IgorSoft.CloudFS.Interface.IO;
 using IgorSoft.DokanCloudFS.Configuration;
+using IgorSoft.DokanCloudFS.Nodes;
 
-namespace IgorSoft.DokanCloudFS.Nodes
+namespace IgorSoft.DokanCloudFS.Tests.Nodes
 {
-    [System.Diagnostics.DebuggerDisplay("{DebuggerDisplay,nq}")]
-    internal sealed class UnionRootDirectoryInfo : UnionDirectoryInfo
+    public partial class UnionFileSystemInfoTests
     {
-        public DriveInfoContract Drive { get; set; }
-
-        public override string FullName => Drive != null ? $"{Drive.Name}{Name}" : Name;
-
-        public UnionRootDirectoryInfo(IDictionary<CloudDriveConfiguration, RootDirectoryInfoContract> rootDirectoryInfos) : base(rootDirectoryInfos.ToDictionary(i => i.Key, i => i.Value as DirectoryInfoContract))
+        private class TestUnionFileSystemInfo : UnionFileSystemInfo
         {
+            public override string FullName => throw new NotImplementedException();
+
+            public TestUnionFileSystemInfo(IDictionary<CloudDriveConfiguration, TestFileSystemInfoContract> testFileSystemInfos) : base(testFileSystemInfos.ToDictionary(i => i.Key, i => i.Value as FileSystemInfoContract))
+            {
+            }
         }
 
-        public override void SetParent(UnionDirectoryInfo parent)
+        private class TestFileSystemInfoContract : FileSystemInfoContract
         {
-            throw new InvalidOperationException();
+            public override string FullName => throw new NotImplementedException();
+
+            [Obsolete]
+            public override string Mode => throw new NotImplementedException();
+
+            public TestFileSystemInfoContract(FileSystemId id, string name, DateTimeOffset created, DateTimeOffset updated) : base(id, name, created, updated)
+            {
+            }
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Debugger Display")]
-        [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        private string DebuggerDisplay => $"{nameof(UnionDirectoryInfo)} {{{string.Join(",", FileSystemInfos.Select(i => i.Key.RootName))}}}".ToString(CultureInfo.CurrentCulture);
+        private class TestFileSystemId : FileSystemId
+        {
+            public TestFileSystemId(string id) : base(id)
+            {
+            }
+        }
     }
 }
