@@ -44,7 +44,7 @@ build_script:
 
     rem set PATH=.\SonarQube;%PATH%
 
-    set PATH="C:\Program Files\PackageManagement\NuGet\Packages\MSBuild.SonarQube.Runner.Tool.2.3.1\tools"
+    set PATH="C:\Program Files\PackageManagement\NuGet\Packages\MSBuild.SonarQube.Runner.Tool.2.3.1\tools";%PATH%
 
     MSBuild.SonarQube.Runner.exe begin /k:"DokanCloudFS" /o:"viciousviper-github" /n:"DokanCloudFS" /v:"%APPVEYOR_BUILD_VERSION%" /d:"sonar.language=cs" /d:"sonar.cs.vstest.reportsPaths=DokanCloudFS_testresults.trx" /d:"sonar.cs.opencover.reportsPaths=DokanCloudFS_coverage.xml" /d:"sonar.host.url=https://sonarqube.com" /d:"sonar.login=%SONARQUBE_TOKEN%"
 
