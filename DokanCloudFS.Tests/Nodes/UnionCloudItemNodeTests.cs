@@ -34,38 +34,32 @@ namespace IgorSoft.DokanCloudFS.Tests.Nodes
     [TestClass]
     public sealed partial class UnionCloudItemNodeTests
     {
-        private CloudDriveConfiguration defaultConfig;
-        private UnionCloudDrive defaultDrive;
-        private UnionDirectoryInfo defaultDirectory;
+        private Fixture fixture;
 
         [TestInitialize]
         public void Initialize()
         {
-            const string defaultRootName = "default_root";
-
-            defaultConfig = Fixture.GetCloudDriveConfiguration(defaultRootName);
-            defaultDrive = Fixture.GetUnionCloudDrive(defaultRootName);
-            defaultDirectory = Fixture.GetUnionDirectoryInfo(defaultConfig, "defaultDir");
+            fixture = new Fixture();
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void UnionCloudItemNode_Create_WhereFileSystemInfosAreMissing_Throws()
         {
-            var sut = new TestUnionCloudItemNode(null, defaultDrive);
+            var sut = new TestUnionCloudItemNode(null, fixture.DefaultDrive);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void UnionCloudItemNode_Create_WhereCloudDriveIsMissing_Throws()
         {
-            var sut = new TestUnionCloudItemNode(defaultDirectory, null);
+            var sut = new TestUnionCloudItemNode(fixture.DefaultDirectory, null);
         }
 
         [TestMethod]
         public void UnionCloudItemNode_Create_WhereFileSystemInfosAndCloudDriveAreSpecified_Succeeds()
         {
-            var sut = new TestUnionCloudItemNode(defaultDirectory, defaultDrive);
+            var sut = new TestUnionCloudItemNode(fixture.DefaultDirectory, fixture.DefaultDrive);
 
             Assert.IsNotNull(sut, "Item node creation failed");
         }
@@ -75,15 +69,15 @@ namespace IgorSoft.DokanCloudFS.Tests.Nodes
         {
             const string directoryName = "testDirectory";
 
-            var directoryInfo = Fixture.GetUnionDirectoryInfo(defaultConfig, directoryName);
+            var directoryInfo = Fixture.GetUnionDirectoryInfo(fixture.DefaultConfig, directoryName);
 
-            var sut = new TestUnionCloudItemNode(defaultDirectory, defaultDrive);
+            var sut = new TestUnionCloudItemNode(fixture.DefaultDirectory, fixture.DefaultDrive);
 
             var itemNode = sut.CreateNew(directoryInfo);
 
             Assert.IsInstanceOfType(itemNode, typeof(UnionCloudDirectoryNode), "Unexpected node type");
             Assert.AreEqual(directoryName, itemNode.Name, "Unexpected node name");
-            Assert.AreSame(defaultDrive, itemNode.Drive, "Invalid node drive");
+            Assert.AreSame(fixture.DefaultDrive, itemNode.Drive, "Invalid node drive");
             Assert.IsNull(((UnionCloudDirectoryNode)itemNode).Parent, "Unexpected node parent");
         }
 
@@ -92,15 +86,15 @@ namespace IgorSoft.DokanCloudFS.Tests.Nodes
         {
             const string fileName = "testFile.ext";
 
-            var fileInfo = Fixture.GetUnionFileInfo(defaultConfig, fileName);
+            var fileInfo = Fixture.GetUnionFileInfo(fixture.DefaultConfig, fileName);
 
-            var sut = new TestUnionCloudItemNode(defaultDirectory, defaultDrive);
+            var sut = new TestUnionCloudItemNode(fixture.DefaultDirectory, fixture.DefaultDrive);
 
             var itemNode = sut.CreateNew(fileInfo);
 
             Assert.IsInstanceOfType(itemNode, typeof(UnionCloudFileNode), "Unexpected node type");
             Assert.AreEqual(fileName, itemNode.Name, "Unexpected node name");
-            Assert.AreSame(defaultDrive, itemNode.Drive, "Invalid node drive");
+            Assert.AreSame(fixture.DefaultDrive, itemNode.Drive, "Invalid node drive");
             Assert.IsNull(((UnionCloudFileNode)itemNode).Parent, "Unexpected node parent");
         }
 
@@ -110,7 +104,7 @@ namespace IgorSoft.DokanCloudFS.Tests.Nodes
         {
             var unknownInfo = new UnknownUnionFileSystemInfo();
 
-            var sut = new TestUnionCloudItemNode(defaultDirectory, defaultDrive);
+            var sut = new TestUnionCloudItemNode(fixture.DefaultDirectory, fixture.DefaultDrive);
 
             var itemNode = sut.CreateNew(unknownInfo);
         }
@@ -120,9 +114,9 @@ namespace IgorSoft.DokanCloudFS.Tests.Nodes
         {
             const string parentName = "parentDirectory";
 
-            var parentDirectory = new UnionCloudDirectoryNode(Fixture.GetUnionDirectoryInfo(defaultConfig, parentName), defaultDrive);
+            var parentDirectory = new UnionCloudDirectoryNode(Fixture.GetUnionDirectoryInfo(fixture.DefaultConfig, parentName), fixture.DefaultDrive);
 
-            var sut = new TestUnionCloudItemNode(defaultDirectory, defaultDrive);
+            var sut = new TestUnionCloudItemNode(fixture.DefaultDirectory, fixture.DefaultDrive);
 
             sut.SetParent(parentDirectory);
 
@@ -136,9 +130,9 @@ namespace IgorSoft.DokanCloudFS.Tests.Nodes
             const string parentName = "parentDirectory";
 
             var otherConfig = new CloudDriveConfiguration(new RootName("other_root"));
-            var parentDirectory = new UnionCloudDirectoryNode(Fixture.GetUnionDirectoryInfo(otherConfig, parentName), defaultDrive);
+            var parentDirectory = new UnionCloudDirectoryNode(Fixture.GetUnionDirectoryInfo(otherConfig, parentName), fixture.DefaultDrive);
 
-            var sut = new TestUnionCloudItemNode(defaultDirectory, defaultDrive);
+            var sut = new TestUnionCloudItemNode(fixture.DefaultDirectory, fixture.DefaultDrive);
 
             sut.SetParent(parentDirectory);
 
@@ -151,9 +145,9 @@ namespace IgorSoft.DokanCloudFS.Tests.Nodes
         {
             const string directoryName = "targetDirectory";
 
-            var targetDirectory = new UnionCloudDirectoryNode(Fixture.GetUnionDirectoryInfo(defaultConfig, directoryName), defaultDrive);
+            var targetDirectory = new UnionCloudDirectoryNode(Fixture.GetUnionDirectoryInfo(fixture.DefaultConfig, directoryName), fixture.DefaultDrive);
 
-            var sut = new TestUnionCloudItemNode(defaultDirectory, defaultDrive);
+            var sut = new TestUnionCloudItemNode(fixture.DefaultDirectory, fixture.DefaultDrive);
 
             sut.Move(sut.Name, targetDirectory);
         }
@@ -162,7 +156,7 @@ namespace IgorSoft.DokanCloudFS.Tests.Nodes
         [ExpectedException(typeof(NotImplementedException))]
         public void UnionCloudItemNode_Remove_Throws()
         {
-            var sut = new TestUnionCloudItemNode(defaultDirectory, defaultDrive);
+            var sut = new TestUnionCloudItemNode(fixture.DefaultDirectory, fixture.DefaultDrive);
 
             sut.Remove();
         }

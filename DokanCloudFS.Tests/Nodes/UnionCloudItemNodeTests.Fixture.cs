@@ -74,8 +74,16 @@ namespace IgorSoft.DokanCloudFS.Tests.Nodes
             }
         }
 
-        private static class Fixture
+        private class Fixture
         {
+            private const string defaultRootName = "default_root";
+
+            public CloudDriveConfiguration DefaultConfig { get; } = GetCloudDriveConfiguration(defaultRootName);
+
+            public UnionCloudDrive DefaultDrive { get; } = GetUnionCloudDrive(defaultRootName);
+
+            public UnionDirectoryInfo DefaultDirectory => GetUnionDirectoryInfo(DefaultConfig, "defaultDir");
+
             public static CloudDriveConfiguration GetCloudDriveConfiguration(string rootName) => new CloudDriveConfiguration(new RootName(rootName));
 
             public static UnionDirectoryInfo GetUnionDirectoryInfo(CloudDriveConfiguration config, string name) => new UnionDirectoryInfo(new Dictionary<CloudDriveConfiguration, DirectoryInfoContract>() {

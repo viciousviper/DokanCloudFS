@@ -39,7 +39,7 @@ namespace IgorSoft.DokanCloudFS.Nodes
 
         public new UnionDirectoryInfo FileSystemInfo => (UnionDirectoryInfo)base.FileSystemInfo;
 
-        public UnionCloudDirectoryNode(UnionDirectoryInfo directoryInfo, UnionCloudDrive drive) : base(directoryInfo, drive)
+        public UnionCloudDirectoryNode(UnionDirectoryInfo directoryInfo, IUnionCloudDrive drive) : base(directoryInfo, drive)
         {
         }
 

@@ -38,7 +38,7 @@ using IgorSoft.DokanCloudFS.Nodes;
 namespace IgorSoft.DokanCloudFS.Drives
 {
     [System.Diagnostics.DebuggerDisplay("{DebuggerDisplay,nq}")]
-    internal sealed class UnionCloudDrive : CloudDriveBase
+    internal sealed class UnionCloudDrive : CloudDriveBase, IUnionCloudDrive
     {
         private IDictionary<CloudDriveConfiguration, IAsyncCloudGateway> asyncConfigs;
 

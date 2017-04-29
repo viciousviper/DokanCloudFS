@@ -36,7 +36,7 @@ namespace IgorSoft.DokanCloudFS.Nodes
     {
         public new UnionFileInfo FileSystemInfo => (UnionFileInfo)base.FileSystemInfo;
 
-        public UnionCloudFileNode(UnionFileSystemInfo fileSystemInfo, UnionCloudDrive drive) : base(fileSystemInfo, drive)
+        public UnionCloudFileNode(UnionFileInfo fileInfo, IUnionCloudDrive drive) : base(fileInfo, drive)
         {
         }
 
@@ -57,7 +57,7 @@ namespace IgorSoft.DokanCloudFS.Nodes
             Drive.SetContent(FileSystemInfo, config, stream);
         }
 
-        public void Truncate()
+        public void Truncate(CloudDriveConfiguration config)
         {
             throw new NotImplementedException();
         }

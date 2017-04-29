@@ -41,9 +41,9 @@ namespace IgorSoft.DokanCloudFS.Nodes
 
         public virtual bool IsResolved => true;
 
-        public UnionCloudDrive Drive { get; private set; }
+        public IUnionCloudDrive Drive { get; private set; }
 
-        protected UnionCloudItemNode(UnionFileSystemInfo fileSystemInfo, UnionCloudDrive drive)
+        protected UnionCloudItemNode(UnionFileSystemInfo fileSystemInfo, IUnionCloudDrive drive)
         {
             FileSystemInfo = fileSystemInfo ?? throw new ArgumentNullException(nameof(fileSystemInfo));
             Drive = drive ?? throw new ArgumentNullException(nameof(drive));

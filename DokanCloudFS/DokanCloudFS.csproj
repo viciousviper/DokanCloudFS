@@ -96,6 +96,7 @@
     <Compile Include="CloudOperations.Logging.cs">
       <DependentUpon>CloudOperations.cs</DependentUpon>
     </Compile>
+    <Compile Include="Drives\IUnionCloudDrive.cs" />
     <Compile Include="Extensions\DokanFileInfoExtensions.cs" />
     <Compile Include="Configuration\CloudDriveConfiguration.cs" />
     <Compile Include="IO\BlockMap.cs" />
