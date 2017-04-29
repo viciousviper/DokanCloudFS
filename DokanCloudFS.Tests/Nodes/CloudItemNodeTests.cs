@@ -23,12 +23,11 @@ SOFTWARE.
 */
 
 using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using IgorSoft.CloudFS.Interface.IO;
 using IgorSoft.DokanCloudFS.Nodes;
-using IgorSoft.DokanCloudFS.Tests;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace IgorSoft.DokanCloudFSNodes.Tests.Nodes
+namespace IgorSoft.DokanCloudFS.Tests.Nodes
 {
     [TestClass]
     public sealed partial class CloudItemNodeTests

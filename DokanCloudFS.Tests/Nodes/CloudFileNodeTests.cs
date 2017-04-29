@@ -27,9 +27,8 @@ using System.IO;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using IgorSoft.DokanCloudFS.Nodes;
-using IgorSoft.DokanCloudFS.Tests;
 
-namespace IgorSoft.DokanCloudFSNodes.Tests.Nodes
+namespace IgorSoft.DokanCloudFS.Tests.Nodes
 {
     [TestClass]
     public sealed partial class CloudFileNodeTests

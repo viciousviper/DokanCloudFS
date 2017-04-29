@@ -29,9 +29,8 @@ using Moq;
 using IgorSoft.CloudFS.Interface.IO;
 using IgorSoft.DokanCloudFS.Drives;
 using IgorSoft.DokanCloudFS.Nodes;
-using IgorSoft.DokanCloudFS.Tests;
 
-namespace IgorSoft.DokanCloudFSNodes.Tests.Nodes
+namespace IgorSoft.DokanCloudFS.Tests.Nodes
 {
     public sealed partial class CloudDirectoryNodeTests
     {
