@@ -26,14 +26,14 @@ install:
       "$PWD\DokanSetup.exe"
     )
 
-    #Install-Package -Force MSBuild.SonarQube.Runner.Tool
+    Install-Package -Force MSBuild.SonarQube.Runner.Tool
 
-    (New-Object System.Net.WebClient).DownloadFile(
-      "https://repox.sonarsource.com/sonarsource-public-builds/org/sonarsource/scanner/msbuild/sonar-scanner-msbuild/2.3.0.553/sonar-scanner-msbuild-2.3.0.553.zip",
-      "$PWD\sonar-scanner-msbuild.zip"
-    )
-
-    Expand-Archive $PWD\sonar-scanner-msbuild.zip -DestinationPath $PWD\SonarQube
+    #(New-Object System.Net.WebClient).DownloadFile(
+    #  "https://repox.sonarsource.com/sonarsource-public-builds/org/sonarsource/scanner/msbuild/sonar-scanner-msbuild/2.3.0.553/sonar-scanner-msbuild-2.3.0.553.zip",
+    #  "$PWD\sonar-scanner-msbuild.zip"
+    #)
+	#
+    #Expand-Archive $PWD\sonar-scanner-msbuild.zip -DestinationPath $PWD\SonarQube
 
 cache: packages -> **\packages.config
 build_script:
@@ -42,9 +42,9 @@ build_script:
 
     cov-build --dir cov-int msbuild DokanCloudFS.sln /p:UseSharedCompilation=false /verbosity:minimal /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
 
-    rem set PATH="C:\Program Files\PackageManagement\NuGet\Packages\MSBuild.SonarQube.Runner.Tool.1.0.0\tools"
+    rem set PATH=.\SonarQube;%PATH%
 
-    set PATH=.\SonarQube;%PATH%
+    set PATH="C:\Program Files\PackageManagement\NuGet\Packages\MSBuild.SonarQube.Runner.Tool.2.3.1\tools"
 
     MSBuild.SonarQube.Runner.exe begin /k:"DokanCloudFS" /o:"viciousviper-github" /n:"DokanCloudFS" /v:"%APPVEYOR_BUILD_VERSION%" /d:"sonar.language=cs" /d:"sonar.cs.vstest.reportsPaths=DokanCloudFS_testresults.trx" /d:"sonar.cs.opencover.reportsPaths=DokanCloudFS_coverage.xml" /d:"sonar.host.url=https://sonarqube.com" /d:"sonar.login=%SONARQUBE_TOKEN%"
 
