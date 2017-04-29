@@ -24,17 +24,16 @@ SOFTWARE.
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using Moq;
 using IgorSoft.CloudFS.Interface;
 using IgorSoft.CloudFS.Interface.IO;
-using IgorSoft.DokanCloudFS.Configuration;
 using IgorSoft.DokanCloudFS.Drives;
+using IgorSoft.DokanCloudFS.Configuration;
 using IgorSoft.DokanCloudFS.Nodes;
 
 namespace IgorSoft.DokanCloudFS.Tests.Nodes
 {
-    public partial class UnionCloudFileNodeTests
+    public partial class UnionCloudDirectoryNodeTests
     {
         private class Fixture
         {
@@ -48,23 +47,32 @@ namespace IgorSoft.DokanCloudFS.Tests.Nodes
 
             public static CloudDriveConfiguration GetCloudDriveConfiguration(string rootName) => new CloudDriveConfiguration(new RootName(rootName));
 
+            public static UnionDirectoryInfo GetUnionDirectoryInfo(CloudDriveConfiguration config, string name) => new UnionDirectoryInfo(new Dictionary<CloudDriveConfiguration, DirectoryInfoContract>()
+            {
+                [config] = new DirectoryInfoContract($"\\{name}", name, DateTimeOffset.FromFileTime(0), DateTimeOffset.FromFileTime(0))
+            });
+
             public static UnionFileInfo GetUnionFileInfo(CloudDriveConfiguration config, string name) => new UnionFileInfo(new Dictionary<CloudDriveConfiguration, FileInfoContract>()
             {
                 [config] = new FileInfoContract($"\\{name}", name, DateTimeOffset.FromFileTime(0), DateTimeOffset.FromFileTime(0), (FileSize)100, name.ToHash())
             });
 
-            public void SetupGetContent(UnionFileInfo source, CloudDriveConfiguration config, Stream content)
+            public static UnionFileSystemInfo[] GetChildItems()
             {
-                defaultDriveMock
-                    .Setup(d => d.GetContent(source, config))
-                    .Returns(content)
-                    .Verifiable();
+                return new UnionFileSystemInfo[] {
+                    GetUnionDirectoryInfo(DefaultConfig, "subDir1"),
+                    GetUnionDirectoryInfo(DefaultConfig, "subDir2"),
+                    GetUnionFileInfo(DefaultConfig, "subFile1"),
+                    GetUnionFileInfo(DefaultConfig, "subFile2"),
+                    GetUnionFileInfo(DefaultConfig, "subFile3")
+                };
             }
 
-            public void SetupSetContent(UnionFileInfo target, CloudDriveConfiguration config, Stream content)
+            public void SetupGetChildItems(UnionDirectoryInfo parent, IEnumerable<UnionFileSystemInfo> childItems)
             {
                 defaultDriveMock
-                    .Setup(d => d.SetContent(target, config, content))
+                    .Setup(d => d.GetChildItem(parent))
+                    .Returns(() => childItems)
                     .Verifiable();
             }
 

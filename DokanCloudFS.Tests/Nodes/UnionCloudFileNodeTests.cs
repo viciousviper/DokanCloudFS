@@ -24,8 +24,8 @@ SOFTWARE.
 
 using System;
 using System.IO;
-using IgorSoft.DokanCloudFS.Nodes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using IgorSoft.DokanCloudFS.Nodes;
 
 namespace IgorSoft.DokanCloudFS.Tests.Nodes
 {
@@ -66,6 +66,8 @@ namespace IgorSoft.DokanCloudFS.Tests.Nodes
             var sut = new UnionCloudFileNode(fileInfo, fixture.DefaultDrive);
 
             var result = sut.GetContent(config);
+
+            Assert.IsNotNull(result, "GetContent() returned null");
 
             fixture.VerifyAll();
         }

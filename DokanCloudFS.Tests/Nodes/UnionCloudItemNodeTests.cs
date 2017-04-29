@@ -26,7 +26,6 @@ using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using IgorSoft.CloudFS.Interface;
 using IgorSoft.DokanCloudFS.Configuration;
-using IgorSoft.DokanCloudFS.Drives;
 using IgorSoft.DokanCloudFS.Nodes;
 
 namespace IgorSoft.DokanCloudFS.Tests.Nodes
