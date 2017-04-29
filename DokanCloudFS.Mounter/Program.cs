@@ -170,7 +170,12 @@ namespace IgorSoft.DokanCloudFS.Mounter
                         return 0;
                     }
                 }
-            } catch (Exception ex) {
+            } catch (ReflectionTypeLoadException ex) {
+                Console.Error.WriteLine($"{string.Join("\n", ex.LoaderExceptions.Select(lex => lex.Message).Distinct())}");
+                Console.Error.WriteLine();
+                Console.Error.WriteLine("Please ensure that all NuGet dependencies of all compiled projects have been updated.");
+                return -1;
+           } catch (Exception ex) {
                 Console.Error.WriteLine($"{ex.GetType().Name}: {ex.Message}");
                 return -1;
             } finally {
