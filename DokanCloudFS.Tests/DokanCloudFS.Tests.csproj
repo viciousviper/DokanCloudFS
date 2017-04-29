@@ -177,6 +177,10 @@
       <DependentUpon>ScatterGatherStreamRandomizedTests.cs</DependentUpon>
     </Compile>
     <Compile Include="IO\ReadWriteSegregatingStreamTest.cs" />
+    <Compile Include="Nodes\UnionCloudItemNodeTests.cs" />
+    <Compile Include="Nodes\UnionCloudItemNodeTests.Fixture.cs">
+      <DependentUpon>UnionCloudItemNodeTests.cs</DependentUpon>
+    </Compile>
     <Compile Include="Nodes\UnionRootDirectoryInfoTests.cs" />
     <Compile Include="Nodes\UnionDirectoryInfoTests.cs" />
     <Compile Include="Nodes\UnionFileInfoTests.cs" />

@@ -33,7 +33,7 @@ namespace IgorSoft.DokanCloudFS.Nodes
 {
     internal abstract class UnionCloudItemNode
     {
-        protected UnionCloudDirectoryNode Parent { get; private set; }
+        protected internal UnionCloudDirectoryNode Parent { get; private set; }
 
         public UnionFileSystemInfo FileSystemInfo { get; }
 

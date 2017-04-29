@@ -35,6 +35,7 @@ namespace IgorSoft.DokanCloudFS.Tests.Nodes
     {
         private class TestUnionFileSystemInfo : UnionFileSystemInfo
         {
+            [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
             public override string FullName => throw new NotImplementedException();
 
             public TestUnionFileSystemInfo(IDictionary<CloudDriveConfiguration, TestFileSystemInfoContract> testFileSystemInfos) : base(testFileSystemInfos.ToDictionary(i => i.Key, i => i.Value as FileSystemInfoContract))
@@ -44,6 +45,7 @@ namespace IgorSoft.DokanCloudFS.Tests.Nodes
 
         private class TestFileSystemInfoContract : FileSystemInfoContract
         {
+            [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
             public override string FullName => throw new NotImplementedException();
 
             [Obsolete]

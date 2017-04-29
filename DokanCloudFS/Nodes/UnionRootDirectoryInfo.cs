@@ -49,6 +49,6 @@ namespace IgorSoft.DokanCloudFS.Nodes
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Debugger Display")]
         [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        private string DebuggerDisplay => $"{nameof(UnionDirectoryInfo)} {{{string.Join(",", FileSystemInfos.Select(i => i.Key.RootName))}}}".ToString(CultureInfo.CurrentCulture);
+        private string DebuggerDisplay => $"{nameof(UnionRootDirectoryInfo)} {{{string.Join(",", FileSystemInfos.Select(i => i.Key.RootName))}}}".ToString(CultureInfo.CurrentCulture);
     }
 }
