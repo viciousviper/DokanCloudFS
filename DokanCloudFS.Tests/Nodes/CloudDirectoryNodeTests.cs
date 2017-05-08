@@ -100,7 +100,7 @@ namespace IgorSoft.DokanCloudFS.Tests.Nodes
             var sut = fixture.GetDirectory(directory, fixture.Drive);
             var result = sut.GetChildItems();
 
-            CollectionAssert.AreEqual(fixture.SubDirectoryItems, result.Select(i => i.FileSystemInfo).ToArray(), "Mismatched result");
+            CollectionAssert.AreEqual(fixture.SubDirectoryItems, result.Select(i => ((CloudItemNode)i).FileSystemInfo).ToArray(), "Mismatched result");
 
             fixture.VerifyAll();
         }

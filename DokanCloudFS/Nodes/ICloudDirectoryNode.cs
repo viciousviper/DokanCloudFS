@@ -1,7 +1,7 @@
 ﻿/*
 The MIT License(MIT)
 
-Copyright(c) 2015 IgorSoft
+Copyright(c) 2017 IgorSoft
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,30 +24,17 @@ SOFTWARE.
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using IgorSoft.CloudFS.Interface.IO;
 
-namespace IgorSoft.DokanCloudFS.Drives
+namespace IgorSoft.DokanCloudFS.Nodes
 {
-    public interface ICloudDrive : ICloudDriveInfo
+    internal interface ICloudDirectoryNode : ICloudItemNode
     {
-        bool TryAuthenticate();
+        IEnumerable<ICloudItemNode> GetChildItems();
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]
-        RootDirectoryInfoContract GetRoot();
+        ICloudItemNode GetChildItemByName(string fileName);
 
-        IEnumerable<FileSystemInfoContract> GetChildItem(DirectoryInfoContract parent);
+        ICloudDirectoryNode NewDirectoryItem(string itemName);
 
-        Stream GetContent(FileInfoContract source);
-
-        void SetContent(FileInfoContract target, Stream content);
-
-        FileSystemInfoContract MoveItem(FileSystemInfoContract source, string movePath, DirectoryInfoContract destination);
-
-        DirectoryInfoContract NewDirectoryItem(DirectoryInfoContract parent, string name);
-
-        FileInfoContract NewFileItem(DirectoryInfoContract parent, string name, Stream content);
-
-        void RemoveItem(FileSystemInfoContract target, bool recurse);
+        ICloudFileNode NewFileItem(string itemName);
     }
 }

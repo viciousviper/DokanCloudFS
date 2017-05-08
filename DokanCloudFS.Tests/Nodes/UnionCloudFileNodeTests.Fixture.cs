@@ -68,6 +68,13 @@ namespace IgorSoft.DokanCloudFS.Tests.Nodes
                     .Verifiable();
             }
 
+            public void SetupTruncate(UnionFileInfo target, CloudDriveConfiguration config)
+            {
+                defaultDriveMock
+                    .Setup(d => d.SetContent(target, config, It.Is<Stream>(s => s.Length == 0)))
+                    .Verifiable();
+            }
+
             public void VerifyAll()
             {
                 defaultDriveMock.VerifyAll();

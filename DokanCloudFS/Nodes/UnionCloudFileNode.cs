@@ -23,8 +23,10 @@ SOFTWARE.
 */
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Globalization;
+using System.Linq;
 using IgorSoft.CloudFS.Interface.IO;
 using IgorSoft.DokanCloudFS.Drives;
 using IgorSoft.DokanCloudFS.Configuration;
@@ -34,10 +36,67 @@ namespace IgorSoft.DokanCloudFS.Nodes
     [System.Diagnostics.DebuggerDisplay("{DebuggerDisplay,nq}")]
     internal class UnionCloudFileNode : UnionCloudItemNode
     {
+        private class UnionCloudFileShard : ICloudFileNode
+        {
+            private readonly UnionCloudFileNode unionNode;
+
+            private readonly CloudDriveConfiguration config;
+
+            private readonly FileInfoContract fileInfo;
+
+            public FileSize Size => fileInfo.Size;
+
+            public string Name => unionNode.FileSystemInfo.FileSystemInfos.Count == 1 ? unionNode.Name : $"{unionNode.Name} [{config.RootName}]";
+
+            public bool IsResolved => !(fileInfo is ProxyFileInfoContract);
+
+            public DateTimeOffset Created => fileInfo.Created;
+
+            public DateTimeOffset Updated => fileInfo.Updated;
+
+            public UnionCloudFileShard(UnionCloudFileNode unionNode, CloudDriveConfiguration config)
+            {
+                this.unionNode = unionNode ?? throw new ArgumentNullException(nameof(unionNode));
+                this.config = config ?? throw new ArgumentNullException(nameof(config));
+
+                fileInfo = ((FileInfoContract)unionNode.FileSystemInfo.FileSystemInfos[config]);
+            }
+
+            public Stream GetContent()
+            {
+                return unionNode.GetContent(config);
+            }
+
+            public void SetContent(Stream stream)
+            {
+                unionNode.SetContent(config, stream);
+            }
+
+            public void Truncate()
+            {
+                unionNode.Truncate(config);
+            }
+
+            public void Move(string newName, ICloudDirectoryNode destinationDirectory)
+            {
+                unionNode.Move(newName, destinationDirectory);
+            }
+
+            public void Remove()
+            {
+                unionNode.Remove();
+            }
+        }
+
         public new UnionFileInfo FileSystemInfo => (UnionFileInfo)base.FileSystemInfo;
 
         public UnionCloudFileNode(UnionFileInfo fileInfo, IUnionCloudDrive drive) : base(fileInfo, drive)
         {
+        }
+
+        internal IEnumerable<ICloudFileNode> GetShards()
+        {
+            return FileSystemInfo.FileSystemInfos.Select(kvp => new UnionCloudFileShard(this, kvp.Key));
         }
 
         public override void SetParent(UnionCloudDirectoryNode parent)
@@ -59,7 +118,7 @@ namespace IgorSoft.DokanCloudFS.Nodes
 
         public void Truncate(CloudDriveConfiguration config)
         {
-            throw new NotImplementedException();
+            Drive.SetContent(FileSystemInfo, config, Stream.Null);
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Debugger Display")]

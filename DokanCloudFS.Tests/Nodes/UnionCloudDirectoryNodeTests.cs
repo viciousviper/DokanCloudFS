@@ -67,8 +67,8 @@ namespace IgorSoft.DokanCloudFS.Tests.Nodes
             var result = sut.GetChildItems();
 
             Assert.IsNotNull(result, "GetChildItems() returned null");
-            CollectionAssert.AreEqual(childItems, result.Select(i => i.FileSystemInfo).ToList(), "Mismatched result items");
-            Assert.IsTrue(result.All(i => i.Parent == sut), "Invalid parent assignment in result items");
+            CollectionAssert.AreEqual(childItems, result.Select(i => ((UnionCloudItemNode)i).FileSystemInfo).ToList(), "Mismatched result items");
+            Assert.IsTrue(result.All(i => ((UnionCloudItemNode)i).Parent == sut), "Invalid parent assignment in result items");
 
             fixture.VerifyAll();
         }

@@ -26,6 +26,7 @@ using System;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using IgorSoft.DokanCloudFS.Nodes;
+using System.Text;
 
 namespace IgorSoft.DokanCloudFS.Tests.Nodes
 {
@@ -79,7 +80,7 @@ namespace IgorSoft.DokanCloudFS.Tests.Nodes
             var config = Fixture.DefaultConfig;
 
             var fileInfo = Fixture.GetUnionFileInfo(config, fileName);
-            var content = new MemoryStream();
+            var content = new MemoryStream(Encoding.UTF8.GetBytes("Why did the chicken cross the road?"));
 
             fixture.SetupSetContent(fileInfo, config, content);
 
@@ -91,17 +92,20 @@ namespace IgorSoft.DokanCloudFS.Tests.Nodes
         }
 
         [TestMethod]
-        [ExpectedException(typeof(NotImplementedException))]
-        public void UnionCloudFileNode_Truncate_Throws()
+        public void UnionCloudFileNode_Truncate_Succeeds()
         {
             const string fileName = "testFile.ext";
             var config = Fixture.DefaultConfig;
 
             var fileInfo = Fixture.GetUnionFileInfo(config, fileName);
 
+            fixture.SetupTruncate(fileInfo, config);
+
             var sut = new UnionCloudFileNode(fileInfo, fixture.DefaultDrive);
 
             sut.Truncate(config);
+
+            fixture.VerifyAll();
         }
     }
 }

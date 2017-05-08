@@ -31,9 +31,11 @@ using IgorSoft.DokanCloudFS.Drives;
 namespace IgorSoft.DokanCloudFS.Nodes
 {
     [System.Diagnostics.DebuggerDisplay("{DebuggerDisplay,nq}")]
-    internal class CloudFileNode : CloudItemNode
+    internal class CloudFileNode : CloudItemNode, ICloudFileNode
     {
         public new FileInfoContract FileSystemInfo => (FileInfoContract)base.FileSystemInfo;
+
+        public FileSize Size => FileSystemInfo.Size;
 
         public override bool IsResolved => !(FileSystemInfo is ProxyFileInfoContract);
 

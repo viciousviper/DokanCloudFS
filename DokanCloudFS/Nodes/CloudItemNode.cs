@@ -30,13 +30,17 @@ using IgorSoft.DokanCloudFS.Drives;
 
 namespace IgorSoft.DokanCloudFS.Nodes
 {
-    internal abstract class CloudItemNode
+    internal abstract class CloudItemNode : ICloudItemNode
     {
         protected CloudDirectoryNode Parent { get; private set; }
 
         public FileSystemInfoContract FileSystemInfo { get; set; }
 
         public string Name => FileSystemInfo.Name;
+
+        public DateTimeOffset Created => FileSystemInfo.Created;
+
+        public DateTimeOffset Updated => FileSystemInfo.Updated;
 
         public virtual bool IsResolved => true;
 
@@ -75,20 +79,22 @@ namespace IgorSoft.DokanCloudFS.Nodes
             Parent = parent;
         }
 
-        public void Move(string newName, CloudDirectoryNode destinationDirectory)
+        public void Move(string newName, ICloudDirectoryNode destinationDirectory)
         {
             if (string.IsNullOrEmpty(newName))
                 throw new ArgumentNullException(nameof(newName));
             if (destinationDirectory == null)
                 throw new ArgumentNullException(nameof(destinationDirectory));
-            EnsureSameDrive(destinationDirectory);
+
+            var destination = (CloudDirectoryNode)destinationDirectory;
+            EnsureSameDrive(destination);
             if (Parent == null)
                 throw new InvalidOperationException($"{nameof(Parent)} of {GetType().Name} '{Name}' is null".ToString(CultureInfo.CurrentCulture));
 
-            var moveItem = CreateNew(Drive.MoveItem(FileSystemInfo, newName, destinationDirectory.FileSystemInfo));
-            if (destinationDirectory.children != null) {
-                destinationDirectory.children.Add(moveItem.Name, moveItem);
-                moveItem.SetParent(destinationDirectory);
+            var moveItem = CreateNew(Drive.MoveItem(FileSystemInfo, newName, destination.FileSystemInfo));
+            if (destination.children != null) {
+                destination.children.Add(moveItem.Name, moveItem);
+                moveItem.SetParent(destination);
             } else {
                 destinationDirectory.GetChildItems();
             }

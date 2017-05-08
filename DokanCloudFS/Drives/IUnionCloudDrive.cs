@@ -31,10 +31,8 @@ using IgorSoft.DokanCloudFS.Nodes;
 
 namespace IgorSoft.DokanCloudFS.Drives
 {
-    internal interface IUnionCloudDrive
+    internal interface IUnionCloudDrive : ICloudDriveInfo
     {
-        string DisplayRoot { get; }
-
         IEnumerable<UnionFileSystemInfo> GetChildItem(UnionDirectoryInfo parent);
 
         Stream GetContent(UnionFileInfo source, CloudDriveConfiguration config);

@@ -26,18 +26,21 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using IgorSoft.CloudFS.Interface.IO;
 using IgorSoft.DokanCloudFS.Drives;
 
 namespace IgorSoft.DokanCloudFS.Nodes
 {
-    internal abstract class UnionCloudItemNode
+    internal abstract class UnionCloudItemNode : ICloudItemNode
     {
         protected internal UnionCloudDirectoryNode Parent { get; private set; }
 
         public UnionFileSystemInfo FileSystemInfo { get; }
 
         public string Name => FileSystemInfo.Name;
+
+        public DateTimeOffset Created => FileSystemInfo.FileSystemInfos.Values.Min(f => f.Created);
+
+        public DateTimeOffset Updated => FileSystemInfo.FileSystemInfos.Values.Max(f => f.Updated);
 
         public virtual bool IsResolved => true;
 
@@ -76,7 +79,7 @@ namespace IgorSoft.DokanCloudFS.Nodes
             Parent = parent;
         }
 
-        public void Move(string newName, UnionCloudDirectoryNode destinationDirectory)
+        public void Move(string newName, ICloudDirectoryNode destinationDirectory)
         {
             throw new NotImplementedException();
         }

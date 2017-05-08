@@ -95,10 +95,14 @@
     <Compile Include="CloudOperations.Logging.cs">
       <DependentUpon>CloudOperations.cs</DependentUpon>
     </Compile>
+    <Compile Include="Drives\ICloudDriveInfo.cs" />
     <Compile Include="Drives\IUnionCloudDrive.cs" />
     <Compile Include="Extensions\DokanFileInfoExtensions.cs" />
     <Compile Include="Configuration\CloudDriveConfiguration.cs" />
     <Compile Include="IO\BlockMap.cs" />
+    <Compile Include="Nodes\ICloudFileNode.cs" />
+    <Compile Include="Nodes\ICloudDirectoryNode.cs" />
+    <Compile Include="Nodes\ICloudItemNode.cs" />
     <Compile Include="Nodes\UnionRootDirectoryInfo.cs" />
     <Compile Include="Nodes\UnionFileInfo.cs" />
     <Compile Include="Nodes\UnionDirectoryInfo .cs" />
@@ -133,6 +137,9 @@
     <Compile Include="Drives\UnionCloudDrive.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Drives\Drives.cd" />
+    <None Include="Nodes\Nodes.cd" />
+    <None Include="Operations.cd" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>

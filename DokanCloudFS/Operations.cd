@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="IgorSoft.DokanCloudFS.CloudOperations">
+    <Position X="4.25" Y="0.5" Width="1.75" />
+    <Members>
+      <Method Name="AsDebug" Hidden="true" />
+      <Method Name="AsError" Hidden="true" />
+      <Method Name="AsTrace" Hidden="true" />
+      <Method Name="AsWarn" Hidden="true" />
+      <Property Name="DebuggerDisplay" Hidden="true" />
+      <Field Name="emptyDirectoryDefaultFiles" Hidden="true" />
+      <Field Name="logger" Hidden="true" />
+    </Members>
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <NestedTypes>
+      <Class Name="IgorSoft.DokanCloudFS.CloudOperations.StreamContext" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>CloudOperations.cs</NewMemberFileName>
+        </TypeIdentifier>
+        <Lollipop Position="0.2" />
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAQEAEABgIAAQMBCABQgBCDEpAUAQACAAAEAKEABBRI=</HashCode>
+      <FileName>CloudOperations.Logging.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="drive" />
+      <Field Name="root" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Interface Name="IgorSoft.DokanCloudFS.Drives.ICloudDriveInfo">
+    <Position X="7.75" Y="0.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAgAAAAAEI=</HashCode>
+      <FileName>Drives\ICloudDriveInfo.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="IgorSoft.DokanCloudFS.Nodes.ICloudFileNode" Collapsed="true">
+    <Position X="7.75" Y="3.75" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAIAgAAAAAAAAAEAAAAAAAAAACAAAAAAAAA=</HashCode>
+      <FileName>Nodes\ICloudFileNode.cs</FileName>
+      <NewMemberFileName>Nodes\ICloudDirectoryNode.cs</NewMemberFileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="IgorSoft.DokanCloudFS.Nodes.ICloudDirectoryNode" Collapsed="true">
+    <Position X="7.75" Y="2.75" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>CAAAAAAAAAAAAAAAAAAAAAAIgAAAAAAAAAAEAAAAAAA=</HashCode>
+      <FileName>Nodes\ICloudDirectoryNode.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

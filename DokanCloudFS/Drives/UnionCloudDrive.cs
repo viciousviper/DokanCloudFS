@@ -40,6 +40,21 @@ namespace IgorSoft.DokanCloudFS.Drives
     [System.Diagnostics.DebuggerDisplay("{DebuggerDisplay,nq}")]
     internal sealed class UnionCloudDrive : CloudDriveBase, IUnionCloudDrive
     {
+        private class PersistUnionGatewaySettings : IPersistGatewaySettings
+        {
+            private UnionCloudDrive drive;
+
+            public PersistUnionGatewaySettings(UnionCloudDrive drive)
+            {
+                this.drive = drive;
+            }
+
+            public void PurgeSettings(RootName root)
+            {
+                drive.ApplyToConfigurations((c, g) => { (g as IPersistGatewaySettings).PurgeSettings(root); return Task.FromResult(new ValueTuple()); }, (c, g) => { (g as IPersistGatewaySettings).PurgeSettings(root); return new ValueTuple(); });
+            }
+        }
+
         private IDictionary<CloudDriveConfiguration, IAsyncCloudGateway> asyncConfigs;
 
         private IDictionary<CloudDriveConfiguration, ICloudGateway> configs;
@@ -48,7 +63,7 @@ namespace IgorSoft.DokanCloudFS.Drives
 
         private IDictionary<CloudDriveConfiguration, DriveInfoContract> drives = new Dictionary<CloudDriveConfiguration, DriveInfoContract>();
 
-        public (CloudDriveConfiguration, IPersistGatewaySettings)[] PersistSettings => ApplyToConfigurations((c, g) => Task.FromResult(g as IPersistGatewaySettings), (c, g) => g as IPersistGatewaySettings);
+        public IPersistGatewaySettings PersistSettings => new PersistUnionGatewaySettings(this);
 
         public UnionCloudDrive(RootName rootName, IDictionary<CloudDriveConfiguration, IAsyncCloudGateway> asyncConfigs, IDictionary<CloudDriveConfiguration, ICloudGateway> configs) : base(GetUnionConfiguration(rootName, asyncConfigs, configs))
         {

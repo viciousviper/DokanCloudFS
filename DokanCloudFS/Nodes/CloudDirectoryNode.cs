@@ -33,7 +33,7 @@ using IgorSoft.DokanCloudFS.Drives;
 namespace IgorSoft.DokanCloudFS.Nodes
 {
     [System.Diagnostics.DebuggerDisplay("{DebuggerDisplay,nq}")]
-    internal class CloudDirectoryNode : CloudItemNode
+    internal class CloudDirectoryNode : CloudItemNode, ICloudDirectoryNode
     {
         internal IDictionary<string, CloudItemNode> children;
 
@@ -50,7 +50,7 @@ namespace IgorSoft.DokanCloudFS.Nodes
             FileSystemInfo.Parent = parent?.FileSystemInfo;
         }
 
-        public IEnumerable<CloudItemNode> GetChildItems()
+        public IEnumerable<ICloudItemNode> GetChildItems()
         {
             if (children == null) {
                 lock (Drive) {
@@ -66,7 +66,7 @@ namespace IgorSoft.DokanCloudFS.Nodes
             return children.Values;
         }
 
-        public CloudItemNode GetChildItemByName(string fileName)
+        public ICloudItemNode GetChildItemByName(string fileName)
         {
             GetChildItems();
 
@@ -74,7 +74,7 @@ namespace IgorSoft.DokanCloudFS.Nodes
             return result;
         }
 
-        public CloudDirectoryNode NewDirectoryItem(string directoryName)
+        public ICloudDirectoryNode NewDirectoryItem(string directoryName)
         {
             var newItem = new CloudDirectoryNode(Drive.NewDirectoryItem(FileSystemInfo, directoryName), Drive);
             children.Add(newItem.Name, newItem);
@@ -82,7 +82,7 @@ namespace IgorSoft.DokanCloudFS.Nodes
             return newItem;
         }
 
-        public CloudFileNode NewFileItem(string fileName)
+        public ICloudFileNode NewFileItem(string fileName)
         {
             var newItem = new CloudFileNode(Drive.NewFileItem(FileSystemInfo, fileName, Stream.Null), Drive);
             children.Add(newItem.Name, newItem);

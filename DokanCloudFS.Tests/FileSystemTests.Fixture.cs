@@ -37,6 +37,7 @@ using Moq;
 using IgorSoft.CloudFS.Interface;
 using IgorSoft.CloudFS.Interface.IO;
 using IgorSoft.DokanCloudFS.Drives;
+using IgorSoft.DokanCloudFS.Nodes;
 
 namespace IgorSoft.DokanCloudFS.Tests
 {
@@ -376,8 +377,9 @@ namespace IgorSoft.DokanCloudFS.Tests
                 this.currentTestName = currentTestName;
 
                 drive = new Mock<ICloudDrive>(MockBehavior.Strict);
+                var driveInfo = drive.As<ICloudDriveInfo>();
 
-                interceptor.RedirectInvocationsTo(new CloudOperations(drive.Object, logger));
+                interceptor.RedirectInvocationsTo(new CloudOperations(driveInfo.Object, d => new CloudDirectoryNode(((ICloudDrive)d).GetRoot(), (ICloudDrive)d), logger));
 
                 foreach (var directory in RootDirectoryItems.OfType<DirectoryInfoContract>())
                     directory.Parent = rootDirectory;

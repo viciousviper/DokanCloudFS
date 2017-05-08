@@ -46,7 +46,7 @@ namespace IgorSoft.DokanCloudFS
         [System.Diagnostics.DebuggerDisplay("{DebuggerDisplay,nq}")]
         private class StreamContext : IDisposable
         {
-            public CloudFileNode File { get; }
+            public ICloudFileNode File { get; }
 
             public FileAccess Access { get; }
 
@@ -58,7 +58,7 @@ namespace IgorSoft.DokanCloudFS
 
             public bool CanWriteDelayed => Access.HasFlag(FileAccess.WriteData) && (Stream?.CanRead ?? false) && Task == null;
 
-            public StreamContext(CloudFileNode file, FileAccess access)
+            public StreamContext(ICloudFileNode file, FileAccess access)
             {
                 File = file;
                 Access = access;
@@ -76,9 +76,11 @@ namespace IgorSoft.DokanCloudFS
             private string DebuggerDisplay => $"{nameof(StreamContext)} {File.Name} [{Access}] [{nameof(Stream.Length)}={((Stream?.CanSeek ?? false) ? Stream.Length : 0)}] [{nameof(Task.Status)}={Task?.Status}] {nameof(IsLocked)}={IsLocked}".ToString(CultureInfo.CurrentCulture);
         }
 
-        private ICloudDrive drive;
+        private ICloudDriveInfo drive;
 
-        private CloudDirectoryNode root;
+        private Func<ICloudDriveInfo, ICloudDirectoryNode> rootFactory;
+
+        private ICloudDirectoryNode root;
 
         private ILogger logger;
 
@@ -86,23 +88,21 @@ namespace IgorSoft.DokanCloudFS
             new FileInformation() { FileName = fileName, Attributes = FileAttributes.Directory, CreationTime = DateTime.Today, LastWriteTime = DateTime.Today, LastAccessTime = DateTime.Today }
         ).ToList();
 
-        public CloudOperations(ICloudDrive drive, ILogger logger)
+        public CloudOperations(ICloudDriveInfo drive, Func<ICloudDriveInfo, ICloudDirectoryNode> rootFactory, ILogger logger)
         {
-            if (drive == null)
-                throw new ArgumentNullException(nameof(drive));
-
-            this.drive = drive;
+            this.drive = drive ?? throw new ArgumentNullException(nameof(drive));
+            this.rootFactory = rootFactory ?? throw new ArgumentNullException(nameof(rootFactory));
             this.logger = logger;
         }
 
-        private CloudItemNode GetItem(string fileName)
+        private ICloudItemNode GetItem(string fileName)
         {
-            var result = root ?? (root = new CloudDirectoryNode(drive.GetRoot(), drive)) as CloudItemNode;
+            var result = root ?? (root = rootFactory(drive)) as ICloudItemNode;
 
             var pathSegments = new Queue<string>(fileName.Split(new[] { Path.DirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries));
 
             while (result != null && pathSegments.Count > 0)
-                result = (result as CloudDirectoryNode)?.GetChildItemByName(pathSegments.Dequeue());
+                result = (result as ICloudDirectoryNode)?.GetChildItemByName(pathSegments.Dequeue());
 
             return result;
         }
@@ -113,7 +113,7 @@ namespace IgorSoft.DokanCloudFS
                 throw new ArgumentNullException(nameof(info));
 
             if (info.DeleteOnClose) {
-                (GetItem(fileName) as CloudFileNode)?.Remove();
+                (GetItem(fileName) as ICloudFileNode)?.Remove();
             } else if (!info.IsDirectory) {
                 var context = info.Context as StreamContext;
                 if (context?.CanWriteDelayed ?? false) {
@@ -177,16 +177,16 @@ namespace IgorSoft.DokanCloudFS
 
             fileName = fileName.TrimEnd(Path.DirectorySeparatorChar);
 
-            var parent = GetItem(Path.GetDirectoryName(fileName)) as CloudDirectoryNode;
+            var parent = GetItem(Path.GetDirectoryName(fileName)) as ICloudDirectoryNode;
             if (parent == null)
                 return AsDebug(nameof(CreateFile), fileName, info, access, share, mode, options, attributes, DokanResult.PathNotFound);
 
             var itemName = Path.GetFileName(fileName);
             var item = parent.GetChildItemByName(itemName);
-            var fileItem = default(CloudFileNode);
+            var fileItem = default(ICloudFileNode);
             switch (mode) {
                 case FileMode.Create:
-                    fileItem = item as CloudFileNode;
+                    fileItem = item as ICloudFileNode;
                     if (fileItem != null)
                         fileItem.Truncate();
                     else
@@ -196,7 +196,7 @@ namespace IgorSoft.DokanCloudFS
 
                     return AsTrace(nameof(CreateFile), fileName, info, access, share, mode, options, attributes, DokanResult.Success);
                 case FileMode.Open:
-                    fileItem = item as CloudFileNode;
+                    fileItem = item as ICloudFileNode;
                     if (fileItem != null) {
                         if (access.HasFlag(FileAccess.ReadData))
                             info.Context = new StreamContext(fileItem, FileAccess.ReadData);
@@ -216,7 +216,7 @@ namespace IgorSoft.DokanCloudFS
                     else
                         return AsError(nameof(CreateFile), fileName, info, access, share, mode, options, attributes, DokanResult.FileNotFound);
                 case FileMode.OpenOrCreate:
-                    fileItem = item as CloudFileNode ?? parent.NewFileItem(itemName);
+                    fileItem = item as ICloudFileNode ?? parent.NewFileItem(itemName);
 
                     if (access.HasFlag(FileAccess.ReadData) && !access.HasFlag(FileAccess.WriteData))
                         info.Context = new StreamContext(fileItem, FileAccess.ReadData);
@@ -256,7 +256,7 @@ namespace IgorSoft.DokanCloudFS
 
         public NtStatus DeleteDirectory(string fileName, DokanFileInfo info)
         {
-            var item = GetItem(fileName) as CloudDirectoryNode;
+            var item = GetItem(fileName) as ICloudDirectoryNode;
             if (item == null)
                 return AsDebug(nameof(DeleteDirectory), fileName, info, DokanResult.PathNotFound);
             if (item.GetChildItems().Any())
@@ -279,14 +279,14 @@ namespace IgorSoft.DokanCloudFS
 
         public NtStatus FindFiles(string fileName, out IList<FileInformation> files, DokanFileInfo info)
         {
-            var parent = GetItem(fileName) as CloudDirectoryNode;
+            var parent = GetItem(fileName) as ICloudDirectoryNode;
 
             var childItems = parent.GetChildItems().Where(i => i.IsResolved).ToList();
             files = childItems.Any()
                 ? childItems.Select(i => new FileInformation() {
-                    FileName = i.Name, Length = (i as CloudFileNode)?.FileSystemInfo.Size ?? FileSize.Empty,
-                    Attributes = i is CloudDirectoryNode ? FileAttributes.Directory : FileAttributes.NotContentIndexed,
-                    CreationTime = i.FileSystemInfo.Created.DateTime, LastWriteTime = i.FileSystemInfo.Updated.DateTime, LastAccessTime = i.FileSystemInfo.Updated.DateTime
+                    FileName = i.Name, Length = (i as ICloudFileNode)?.Size ?? FileSize.Empty,
+                    Attributes = i is ICloudDirectoryNode ? FileAttributes.Directory : FileAttributes.NotContentIndexed,
+                    CreationTime = i.Created.DateTime, LastWriteTime = i.Updated.DateTime, LastAccessTime = i.Updated.DateTime
                 }).ToList()
                 : emptyDirectoryDefaultFiles;
 
@@ -298,16 +298,16 @@ namespace IgorSoft.DokanCloudFS
             if (searchPattern == null)
                 throw new ArgumentNullException(nameof(searchPattern));
 
-            var parent = GetItem(fileName) as CloudDirectoryNode;
+            var parent = GetItem(fileName) as ICloudDirectoryNode;
 
             var childItems = parent.GetChildItems().Where(i => i.IsResolved).ToList();
             files = childItems.Any()
                 ? childItems
                     .Where(i => Regex.IsMatch(i.Name, searchPattern.Contains('?') || searchPattern.Contains('*') ? searchPattern.Replace('?', '.').Replace("*", ".*") : "^" + searchPattern + "$"))
                     .Select(i => new FileInformation() {
-                        FileName = i.Name, Length = (i as CloudFileNode)?.FileSystemInfo.Size ?? FileSize.Empty,
-                        Attributes = i is CloudDirectoryNode ? FileAttributes.Directory : FileAttributes.NotContentIndexed,
-                        CreationTime = i.FileSystemInfo.Created.DateTime, LastWriteTime = i.FileSystemInfo.Updated.DateTime, LastAccessTime = i.FileSystemInfo.Updated.DateTime
+                        FileName = i.Name, Length = (i as ICloudFileNode)?.Size ?? FileSize.Empty,
+                        Attributes = i is ICloudDirectoryNode ? FileAttributes.Directory : FileAttributes.NotContentIndexed,
+                        CreationTime = i.Created.DateTime, LastWriteTime = i.Updated.DateTime, LastAccessTime = i.Updated.DateTime
                     }).ToList()
                 : emptyDirectoryDefaultFiles;
 
@@ -355,9 +355,9 @@ namespace IgorSoft.DokanCloudFS
             }
 
             fileInfo = new FileInformation() {
-                FileName = fileName, Length = (info.Context as StreamContext)?.Stream?.Length ?? (item as CloudFileNode)?.FileSystemInfo.Size ?? FileSize.Empty,
-                Attributes = item is CloudDirectoryNode ? FileAttributes.Directory : FileAttributes.NotContentIndexed,
-                CreationTime = item.FileSystemInfo.Created.DateTime, LastWriteTime = item.FileSystemInfo.Updated.DateTime, LastAccessTime = item.FileSystemInfo.Updated.DateTime
+                FileName = fileName, Length = (info.Context as StreamContext)?.Stream?.Length ?? (item as ICloudFileNode)?.Size ?? FileSize.Empty,
+                Attributes = item is ICloudDirectoryNode ? FileAttributes.Directory : FileAttributes.NotContentIndexed,
+                CreationTime = item.Created.DateTime, LastWriteTime = item.Updated.DateTime, LastAccessTime = item.Updated.DateTime
             };
 
             return AsTrace(nameof(GetFileInformation), fileName, info, DokanResult.Success, $"out {{{fileInfo.FileName}, [{fileInfo.Length}], [{fileInfo.Attributes}], {fileInfo.CreationTime}, {fileInfo.LastWriteTime}, {fileInfo.LastAccessTime}}}".ToString(CultureInfo.CurrentCulture));
@@ -411,7 +411,7 @@ namespace IgorSoft.DokanCloudFS
             if (item == null)
                 return AsWarn(nameof(MoveFile), oldName, info, DokanResult.FileNotFound, newName, replace.ToString(CultureInfo.InvariantCulture));
 
-            var destinationDirectory = GetItem(Path.GetDirectoryName(newName)) as CloudDirectoryNode;
+            var destinationDirectory = GetItem(Path.GetDirectoryName(newName)) as ICloudDirectoryNode;
             if (destinationDirectory == null)
                 return AsWarn(nameof(MoveFile), oldName, info, DokanResult.PathNotFound, newName, replace.ToString(CultureInfo.InvariantCulture));
 
@@ -422,7 +422,7 @@ namespace IgorSoft.DokanCloudFS
 
         public NtStatus OpenDirectory(string fileName, DokanFileInfo info)
         {
-            var item = GetItem(fileName) as CloudDirectoryNode;
+            var item = GetItem(fileName) as ICloudDirectoryNode;
             if (item == null)
                 return AsDebug(nameof(OpenDirectory), fileName, info, DokanResult.PathNotFound);
 

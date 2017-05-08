@@ -1,0 +1,170 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="IgorSoft.DokanCloudFS.Nodes.CloudDirectoryNode" Collapsed="true">
+    <Position X="4.75" Y="2" Width="1.75" />
+    <Members>
+      <Property Name="DebuggerDisplay" Hidden="true" />
+    </Members>
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+      <Compartment Name="Methods" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>CAAAAAIAgAAAAAQAAAAAAAAIgAAAAAAAAEAEAAAAAAA=</HashCode>
+      <FileName>Nodes\CloudDirectoryNode.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="FileSystemInfo" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="IgorSoft.DokanCloudFS.Nodes.CloudFileNode" Collapsed="true">
+    <Position X="6.75" Y="2" Width="1.75" />
+    <Members>
+      <Property Name="DebuggerDisplay" Hidden="true" />
+    </Members>
+    <AssociationLine Name="FileSystemInfo" Type="IgorSoft.CloudFS.Interface.IO.FileInfoContract" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="7.552" Y="2" />
+        <Point X="7.552" Y="1.469" />
+        <Point X="3.521" Y="1.469" />
+        <Point X="3.521" Y="2" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAIAgAIAgAAAAAAAAAEAAAABAAAAAGAAAAAEAAA=</HashCode>
+      <FileName>Nodes\CloudFileNode.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="FileSystemInfo" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="IgorSoft.DokanCloudFS.Nodes.CloudItemNode" Collapsed="true">
+    <Position X="5.75" Y="3.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAABIAAIAAAAAAAAAARgQAAAABgAQAQEAAAAAAAAA=</HashCode>
+      <FileName>Nodes\CloudItemNode.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="FileSystemInfo" />
+      <Property Name="Drive" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="IgorSoft.CloudFS.Interface.IO.FileInfoContract" Collapsed="true">
+    <Position X="2.5" Y="2" Width="1.75" />
+    <TypeIdentifier />
+  </Class>
+  <Class Name="IgorSoft.CloudFS.Interface.IO.DirectoryInfoContract" Collapsed="true">
+    <Position X="0.5" Y="2" Width="1.75" />
+    <TypeIdentifier />
+  </Class>
+  <Class Name="IgorSoft.CloudFS.Interface.IO.FileSystemInfoContract" Collapsed="true">
+    <Position X="1.5" Y="3.5" Width="1.75" />
+    <TypeIdentifier />
+  </Class>
+  <Class Name="IgorSoft.DokanCloudFS.Nodes.UnionCloudDirectoryNode" Collapsed="true">
+    <Position X="4.75" Y="6.5" Width="1.75" />
+    <Members>
+      <Property Name="DebuggerDisplay" Hidden="true" />
+    </Members>
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>CAAAAAIAgAAAAAQAAAAAAAAIgAAAAAAAAEAEAAAAAAA=</HashCode>
+      <FileName>Nodes\UnionCloudDirectoryNode.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="FileSystemInfo" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="IgorSoft.DokanCloudFS.Nodes.UnionCloudFileNode" Collapsed="true">
+    <Position X="6.75" Y="6.5" Width="1.75" />
+    <Members>
+      <Property Name="DebuggerDisplay" Hidden="true" />
+    </Members>
+    <AssociationLine Name="FileSystemInfo" Type="IgorSoft.DokanCloudFS.Nodes.UnionFileInfo" ManuallyRouted="true">
+      <Path>
+        <Point X="7.625" Y="6.5" />
+        <Point X="7.625" Y="5.969" />
+        <Point X="3.375" Y="5.969" />
+        <Point X="3.375" Y="6.5" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAIAgAIAAACAAAAAAAEAAAAAAAAAAGAAAAAAAAA=</HashCode>
+      <FileName>Nodes\UnionCloudFileNode.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="FileSystemInfo" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="IgorSoft.DokanCloudFS.Nodes.UnionCloudItemNode" Collapsed="true">
+    <Position X="5.75" Y="8" Width="1.75" />
+    <AssociationLine Name="Drive" Type="IgorSoft.DokanCloudFS.Drives.IUnionCloudDrive" FixedToPoint="true">
+      <Path>
+        <Point X="7.5" Y="8.312" />
+        <Point X="9.5" Y="8.312" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAIAAIAAAAgAAAAARgQAAAABgAQAQEAAAAAAAAA=</HashCode>
+      <FileName>Nodes\UnionCloudItemNode.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="FileSystemInfo" />
+      <Property Name="Drive" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="IgorSoft.DokanCloudFS.Nodes.UnionDirectoryInfo" Collapsed="true">
+    <Position X="0.5" Y="6.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAgAAAAIBAAAAAAAAAAAAAAAAAAEAAAAAAAAA=</HashCode>
+      <FileName>Nodes\UnionDirectoryInfo .cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="IgorSoft.DokanCloudFS.Nodes.UnionFileInfo" Collapsed="true">
+    <Position X="2.5" Y="6.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAgAAQAIEAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Nodes\UnionFileInfo.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="IgorSoft.DokanCloudFS.Nodes.UnionFileSystemInfo" Collapsed="true">
+    <Position X="1.5" Y="8" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAIAAAAAAIAAAAAAAAQAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Nodes\UnionFileSystemInfo.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="IgorSoft.DokanCloudFS.Nodes.UnionRootDirectoryInfo" Collapsed="true">
+    <Position X="0.5" Y="5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAgAAAAIAAAAAAAAAAAAAAgAAAAEAAAAAAAAA=</HashCode>
+      <FileName>Nodes\UnionRootDirectoryInfo.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="IgorSoft.CloudFS.Interface.IO.RootDirectoryInfoContract" Collapsed="true">
+    <Position X="0.5" Y="0.5" Width="1.75" />
+    <TypeIdentifier />
+  </Class>
+  <Interface Name="IgorSoft.DokanCloudFS.Drives.IUnionCloudDrive" Collapsed="true">
+    <Position X="9.5" Y="8" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>CAAAAAAAAAIAAAAAAAAAAABAAAAAAAAEACAEBAAAAAA=</HashCode>
+      <FileName>Drives\IUnionCloudDrive.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="IgorSoft.DokanCloudFS.Drives.ICloudDrive" Collapsed="true">
+    <Position X="9.5" Y="3.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>CIAAAAAAAAIAAAAAAAAAAABAAgAAAAAEACAEBAAAAAA=</HashCode>
+      <FileName>Drives\ICloudDrive.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

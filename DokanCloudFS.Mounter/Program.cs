@@ -39,6 +39,7 @@ using IgorSoft.CloudFS.Interface;
 using IgorSoft.DokanCloudFS.Configuration;
 using IgorSoft.DokanCloudFS.Mounter.Config;
 using IgorSoft.DokanCloudFS.Drives;
+using IgorSoft.DokanCloudFS.Nodes;
 
 namespace IgorSoft.DokanCloudFS.Mounter
 {
@@ -145,7 +146,7 @@ namespace IgorSoft.DokanCloudFS.Mounter
                                 continue;
                             }
 
-                            var operations = new CloudOperations(drive, logger);
+                            var operations = new CloudOperations(drive, d => new CloudDirectoryNode(((ICloudDrive)d).GetRoot(), (ICloudDrive)d), logger);
 
                             // HACK: handle non-unique parameter set of DokanOperations.Mount() by explicitly specifying AllocationUnitSize and SectorSize
                             tasks.Add(Task.Run(() => operations.Mount(driveElement.Root, DokanOptions.RemovableDrive | DokanOptions.MountManager | DokanOptions.CurrentSession, mountSection.Threads, 1100, TimeSpan.FromSeconds(driveElement.Timeout != 0 ? driveElement.Timeout : 20), null, 512, 512), tokenSource.Token));

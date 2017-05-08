@@ -24,16 +24,14 @@ SOFTWARE.
 
 using System;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Collections.Generic;
-using IgorSoft.CloudFS.Interface.IO;
 using IgorSoft.DokanCloudFS.Drives;
 
 namespace IgorSoft.DokanCloudFS.Nodes
 {
     [System.Diagnostics.DebuggerDisplay("{DebuggerDisplay,nq}")]
-    internal class UnionCloudDirectoryNode : UnionCloudItemNode
+    internal class UnionCloudDirectoryNode : UnionCloudItemNode, ICloudDirectoryNode
     {
         internal IDictionary<string, UnionCloudItemNode> children;
 
@@ -50,7 +48,7 @@ namespace IgorSoft.DokanCloudFS.Nodes
             FileSystemInfo.SetParent(parent?.FileSystemInfo);
         }
 
-        public IEnumerable<UnionCloudItemNode> GetChildItems()
+        public IEnumerable<ICloudItemNode> GetChildItems()
         {
             if (children == null) {
                 lock (Drive) {
@@ -66,7 +64,7 @@ namespace IgorSoft.DokanCloudFS.Nodes
             return children.Values;
         }
 
-        public UnionCloudItemNode GetChildItemByName(string fileName)
+        public ICloudItemNode GetChildItemByName(string fileName)
         {
             GetChildItems();
 
@@ -74,12 +72,12 @@ namespace IgorSoft.DokanCloudFS.Nodes
             return result;
         }
 
-        public CloudDirectoryNode NewDirectoryItem(string directoryName)
+        public ICloudDirectoryNode NewDirectoryItem(string directoryName)
         {
             throw new NotImplementedException();
         }
 
-        public CloudFileNode NewFileItem(string fileName)
+        public ICloudFileNode NewFileItem(string fileName)
         {
             throw new NotImplementedException();
         }

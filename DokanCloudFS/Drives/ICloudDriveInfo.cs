@@ -23,31 +23,18 @@ SOFTWARE.
 */
 
 using System;
-using System.Collections.Generic;
-using System.IO;
-using IgorSoft.CloudFS.Interface.IO;
+using IgorSoft.CloudFS.Interface;
 
 namespace IgorSoft.DokanCloudFS.Drives
 {
-    public interface ICloudDrive : ICloudDriveInfo
+    public interface ICloudDriveInfo : IDisposable
     {
-        bool TryAuthenticate();
+        string DisplayRoot { get; }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]
-        RootDirectoryInfoContract GetRoot();
+        long? Free { get; }
 
-        IEnumerable<FileSystemInfoContract> GetChildItem(DirectoryInfoContract parent);
+        long? Used { get; }
 
-        Stream GetContent(FileInfoContract source);
-
-        void SetContent(FileInfoContract target, Stream content);
-
-        FileSystemInfoContract MoveItem(FileSystemInfoContract source, string movePath, DirectoryInfoContract destination);
-
-        DirectoryInfoContract NewDirectoryItem(DirectoryInfoContract parent, string name);
-
-        FileInfoContract NewFileItem(DirectoryInfoContract parent, string name, Stream content);
-
-        void RemoveItem(FileSystemInfoContract target, bool recurse);
+        IPersistGatewaySettings PersistSettings { get; }
     }
 }

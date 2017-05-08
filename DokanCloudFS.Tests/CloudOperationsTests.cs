@@ -33,6 +33,7 @@ using Moq;
 using NLog;
 using IgorSoft.CloudFS.Interface.IO;
 using IgorSoft.DokanCloudFS.Drives;
+using IgorSoft.DokanCloudFS.Nodes;
 
 namespace IgorSoft.DokanCloudFS.Tests
 {
@@ -41,13 +42,16 @@ namespace IgorSoft.DokanCloudFS.Tests
     {
         private Mock<ICloudDrive> driveMock;
 
+        private Mock<ICloudDriveInfo> driveInfoMock;
+
         private CloudOperations sut;
 
         [TestInitialize]
         public void Initialize()
         {
             driveMock = new Mock<ICloudDrive>();
-            sut = new CloudOperations(driveMock.Object, new Mock<ILogger>().Object);
+            driveInfoMock = driveMock.As<ICloudDriveInfo>();
+            sut = new CloudOperations(driveInfoMock.Object, d => new CloudDirectoryNode(((ICloudDrive)d).GetRoot(), (ICloudDrive)d), new Mock<ILogger>().Object);
         }
 
         [TestCleanup]
@@ -75,7 +79,14 @@ namespace IgorSoft.DokanCloudFS.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void CloudOperations_New_WhereDriveIsNull_Throws()
         {
-            sut = new CloudOperations(null, new Mock<ILogger>().Object);
+            sut = new CloudOperations(null, d => new CloudDirectoryNode(default(DirectoryInfoContract), (ICloudDrive)d), new Mock<ILogger>().Object);
+        }
+
+        [TestMethod, TestCategory(nameof(TestCategories.Offline))]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void CloudOperations_New_WhereRootFactoryIsNull_Throws()
+        {
+            sut = new CloudOperations(driveInfoMock.Object, null, new Mock<ILogger>().Object);
         }
 
         [TestMethod, TestCategory(nameof(TestCategories.Offline))]
