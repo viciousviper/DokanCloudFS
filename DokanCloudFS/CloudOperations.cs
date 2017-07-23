@@ -88,6 +88,10 @@ namespace IgorSoft.DokanCloudFS
             new FileInformation() { FileName = fileName, Attributes = FileAttributes.Directory, CreationTime = DateTime.Today, LastWriteTime = DateTime.Today, LastAccessTime = DateTime.Today }
         ).ToList();
 
+        public event EventHandler OnMounted;
+
+        public event EventHandler OnUnmounted;
+
         public CloudOperations(ICloudDriveInfo drive, Func<ICloudDriveInfo, ICloudDirectoryNode> rootFactory, ILogger logger)
         {
             this.drive = drive ?? throw new ArgumentNullException(nameof(drive));
@@ -402,7 +406,11 @@ namespace IgorSoft.DokanCloudFS
 
         public NtStatus Mounted(DokanFileInfo info)
         {
-            return AsTrace(nameof(Mounted), null, info, DokanResult.Success);
+            var result = AsTrace(nameof(Mounted), null, info, DokanResult.Success);
+
+            OnMounted?.Invoke(this, EventArgs.Empty);
+
+            return result;
         }
 
         public NtStatus MoveFile(string oldName, string newName, bool replace, DokanFileInfo info)
@@ -536,6 +544,8 @@ namespace IgorSoft.DokanCloudFS
 
             drive = null;
             logger = null;
+
+            OnUnmounted?.Invoke(this, EventArgs.Empty);
 
             return result;
         }

@@ -17,23 +17,25 @@ Mounted cloud storage drives appear as ordinary removable drives in Windows Expl
 
 ![Multiple mounted drives](Images/MultipleMountedDrives.PNG)
 
+Alternatively, a **preexisting and empty** directory may be used as a mount point in which case the cloud storage drive appears in Windows Explorer as a [directory junction](https://msdn.microsoft.com/en-us/library/windows/desktop/aa365006(v=vs.85).aspx).
+
 All content written through DokanCloudFS is transparently AES-encrypted with a user-specified key before handing it off to the cloud storage back-end.
 
 Some limitations apply concerning transfer speed, maximum file size, permissions, and alternate streams depending on parameters of the cloud storage service used as a back-end.
 
 ## Features
 
-- Mounting of cloud storage volumes as removable drives into Windows Explorer
-  - number of mounted volumes only limited by available drive letters
+- Mounting of cloud storage volumes as removable drives (or directory junctions) into Windows Explorer
+  - number of mounted volumes only limited by available drive letters<br />(and virtually unlimited when using directory mount points)
   - mounting of multiple accounts of the same cloud storage service in parallel
   - automatic re-authentication to cloud storage services after first login (optional AES encryption of persisted account credentials and authentication tokens)
 - Full support for interactive file manipulation in Windows Explorer including but not limited to
-  - copying and moving of multiple files and folders between DokanCloudFS drives and other drives
+  - copying and moving of multiple files and folders between DokanCloudFS drives/directories and other drives/directories
   - opening of files in default application via Mouse double click
   - right-click-menu on drive, files, and folders with access to menu commands and drive/file properties
   - thumbnails display for media files
 - Transparent client-side encryption and decryption of all file content via AESCrypt
-  - encryption key configurable per drive
+  - encryption key configurable per cloud drive
   - unencrypted files may be read and will be encrypted on modification
 
 ## Supported Cloud storage services
@@ -92,7 +94,7 @@ The expected gateway interface types and a set of prefabricated gateways are pro
   Usage: Mounter mount [arguments] [options]
 
   Arguments:
-    <userNames>  If specified, mount the drives associated with the specified users; otherwise, mount all configured drives.
+    <userNames>  If specified, mount the cloud drives associated with the specified users; otherwise, mount all configured drives.
 
   Options:
     -p|--passPhrase  The pass phrase used to encrypt persisted user credentials and access tokens
@@ -101,17 +103,18 @@ The expected gateway interface types and a set of prefabricated gateways are pro
   Usage: Mounter reset [arguments] [options]
 
   Arguments:
-    <userNames>  If specified, purge the persisted settings of the drives associated with the specified users; otherwise, purge the persisted settings of all configured drives.
+    <userNames>  If specified, purge the persisted settings of the cloud drives associated with the specified users; otherwise, purge the persisted settings of all configured drives.
 
   Options:
     -?|-h|--help  Show help information
   ```
-    - The **mount** command will mount the drives configured in *IgorSoft.DokanCloudFS.Mounter.exe.config*, optionally filtered by the specified user names.
-      - If you use the **-p|--passPhrase** option for the first time, previously unencrypted persisted settings **of the drives mounted at this time** - and all newly acquired authentication credentials - will be encrypted with the specified pass phrase. Persisted settings of drives not mounted at this time will remain as they are.
+    - The **mount** command will mount the cloud drives configured in *IgorSoft.DokanCloudFS.Mounter.exe.config*, optionally filtered by the specified user names.
+      - If you use the **-p|--passPhrase** option for the first time, previously unencrypted persisted settings **of the cloud drives mounted at this time** - and all newly acquired authentication credentials - will be encrypted with the specified pass phrase. Persisted settings of cloud drives not mounted at this time will remain as they are.
     - The **reset** command will purge all persisted settings and require you to explicitly login on the next start of *IgorSoft.DokanCloudFS.Mounter.exe*.
 
-### Sample configuration
+### Sample configurations
 
+#### ... for drive letter mount points
 ```xml
   <mount libPath="..\..\..\Library" threads="5">
     <drives>
@@ -131,17 +134,38 @@ The expected gateway interface types and a set of prefabricated gateways are pro
   </mount>
 ```
 
+#### ... for directory mount points
+```xml
+  <mount libPath="..\..\..\Library" threads="5">
+    <drives>
+      <drive schema="box" userName="BoxUser" root="C:\Mount\Box" encryptionKey="MyBoxSecret&amp;I" timeout="300" />
+      <!--<drive schema="file" root="C:\Mount\File" encryptionKey="MyFileSecret&amp;I" parameters="root=..\..\..\TestData" />-->
+      <drive schema="gcs" userName="GoogleCloudStorageUser" root="C:\Mount\GCS" encryptionKey="MyGoogleCloudStorageSecret&amp;I" parameters="bucket=-- Insert bucket ID here --" timeout="300"
+             apiKey="-- Insert Google Cloud Storage Credentials here --" />
+      <drive schema="gdrive" userName="GDriveUser" root="C:\Mount\GDrive" encryptionKey="MyGDriveSecret&amp;I" timeout="300" />
+      <drive schema="hubic" userName="hubiCUser" root="C:\Mount\HubiC" encryptionKey="MyhubiCSecret&amp;I" parameters="container=default" timeout="300" />
+      <drive schema="mediafire" userName="MediaFireUser" root="C:\Mount\MediaFire" encryptionKey="MyMediaFireSecret&amp;I" timeout="300" />
+      <drive schema="mega" userName="MegaUser" root="C:\Mount\Mega" encryptionKey="MyMegaSecret&amp;I" timeout="300" />
+      <drive schema="onedrive" userName="OneDriveUser" root="OneDrive" encryptionKey="MyOneDriveSecret&amp;I" timeout="300" />
+      <drive schema="pcloud" userName="pCloudUser" root="C:\Mount\pCloud" encryptionKey="MypCloudSecret&amp;I" timeout="300" />
+      <drive schema="webdav" userName="webDavUser" root="C:\Mount\WebDAV" parameters="baseAddress=https://webdav.magentacloud.de" encryptionKey="MyWebDavSecred&amp;I" timeout="300" />
+      <drive schema="yandex" userName="YandexUser" root="C:\Mount\Yandex" encryptionKey="MyYandexSecret&amp;I" timeout="300" />
+    </drives>
+  </mount>
+```
+*(assuming that all of the directories specified as mount points - i.e. `C:\Mount\[Box|GCS|GDrive|HubiC|MediaFire|Mega|OneDrive|pCloud|WebDAV|Yandex]` - exist and are empty)*
+
 Configuration options:
 
   - Global
     - **libPath**: Path to search for gateway plugin assemblies (relative to the location of *IgorSoft.DokanCloudFS.Mounter.exe*).<br/>All plugin dependencies not covered directly by DokanCloudFS should be placed in this path as well.
     - **threads**: Number of concurrent threads used for each drive by the Dokan driver.<br />Defaults to 5.
-  - Per drive
+  - Per cloud drive
     - **schema**: Selects the cloud storage service gateway to be used.<br />Must correspond to one of the *CloudFS* gateways installed in the *libPath* subdirectory. Presently supports the following values:
       - *box*, *gcs*, *gdrive*, *hubic*, *mediafire*, *mega*, *onedrive*, *pcloud*, *yandex*
       - *file* (mounting of local folders only)
     - **userName**: User account to be displayed in the mounted drive label.
-    - **root**: The drive letter to be used as mount point for the cloud drive.<br />Choose a free drive letter such as *L:*.
+    - **root**: The drive letter or directory to be used as mount point for the cloud drive.<br />Choose a free drive letter such as *L:* **or** an existing *empty* directory.
     - **apiKey**: Persistable credentials to be used for authentication with the cloud storage service in place of an interactive user login.
       - *gcs* gateway - The Google Cloud Service gateway presently requires that the Google credentials be specified in the API key configuration
     - **encryptionKey**: An arbitrary symmetric key for the transparent client-side AES encryption.<br />Leave this empty only if you *really* want to store content without encryption.
@@ -151,7 +175,7 @@ Configuration options:
       - *hubic* gateway - requires a *container*-parameter specifying the desired target container (e.g. `parameters="container=default")`
       - *webdav* gateway - requires a *baseAddress*-parameter specifying the desired WebDAV hoster's access URL (e.g. `parameters="baseAddress=https://webdav.magentacloud.de"`)
       - other gateways - no custom parameters supported so far
-    - **timeout:** The timeout value for file operations on this drive measured in seconds.<br />A value of *300* should suffice for all but the slowest connections.
+    - **timeout:** The timeout value for file operations on this cloud drive measured in seconds.<br />A value of *300* should suffice for all but the slowest connections.
 
 > The Copy cloud storage service was retired after May 1<sup>st</sup> 2016 in response to this [announcement](https://www.copy.com/page/home;cs_login:login;;section:plans).
 
@@ -216,7 +240,7 @@ You have been warned.
 - improve stability
 - improve performance
 - allow alternate encryption schemes
-- allow mounting and unmounting of individual drives without restarting the mounter process
+- allow mounting and unmounting of individual cloud drives without restarting the mounter process
 
 ## References
 

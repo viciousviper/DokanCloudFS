@@ -136,7 +136,8 @@ namespace IgorSoft.DokanCloudFS.Mounter
                     logger = logFactory.GetCurrentClassLogger();
                     var factory = InitializeCloudDriveFactory(mountSection.LibPath);
                     using (var tokenSource = new CancellationTokenSource()) {
-                        var tasks = new List<Task>();
+                        var mountTasks = new List<Task>();
+                        var onMountedHandles = new List<EventWaitHandle>();
                         foreach (var driveElement in mountSection.Drives.Where(d => !userNames.Any() || userNames.Contains(d.UserName))) {
                             var drive = factory.CreateCloudDrive(new CloudDriveConfiguration(new RootName(driveElement.Schema, driveElement.UserName, driveElement.Root), driveElement.ApiKey, driveElement.EncryptionKey, driveElement.GetParameters()));
                             if (!drive.TryAuthenticate()) {
@@ -147,15 +148,18 @@ namespace IgorSoft.DokanCloudFS.Mounter
                             }
 
                             var operations = new CloudOperations(drive, d => new CloudDirectoryNode(((ICloudDrive)d).GetRoot(), (ICloudDrive)d), logger);
+                            var onMountedHandle = new EventWaitHandle(false, EventResetMode.ManualReset);
+                            onMountedHandles.Add(onMountedHandle);
+                            operations.OnMounted += (s, e) => {
+                                logger.Info($"Drive '{drive.DisplayRoot}' mounted successfully.");
+                                onMountedHandle.Set();
+                            };
 
                             // HACK: handle non-unique parameter set of DokanOperations.Mount() by explicitly specifying AllocationUnitSize and SectorSize
-                            tasks.Add(Task.Run(() => operations.Mount(driveElement.Root, DokanOptions.RemovableDrive | DokanOptions.MountManager | DokanOptions.CurrentSession, mountSection.Threads, 1100, TimeSpan.FromSeconds(driveElement.Timeout != 0 ? driveElement.Timeout : 20), null, 512, 512), tokenSource.Token));
-
-                            var driveInfo = new DriveInfo(driveElement.Root);
-                            while (!driveInfo.IsReady)
-                                Thread.Sleep(10);
-                            logger.Info($"Drive '{drive.DisplayRoot}' mounted successfully.");
+                            mountTasks.Add(Task.Run(() => operations.Mount(driveElement.Root, DokanOptions.RemovableDrive | DokanOptions.MountManager | DokanOptions.CurrentSession, mountSection.Threads, 1100, TimeSpan.FromSeconds(driveElement.Timeout != 0 ? driveElement.Timeout : 20), null, 512, 512), tokenSource.Token));
                         }
+
+                        WaitHandle.WaitAll(onMountedHandles.ToArray());
 
                         Console.WriteLine("Press CTRL-BACKSPACE to clear log, any other key to unmount drives");
                         while (true) {
