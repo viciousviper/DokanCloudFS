@@ -46,11 +46,11 @@
       <HintPath>..\packages\DokanNet.1.1.0.3\lib\net46\DokanNet.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="FsCheck, Version=2.9.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\FsCheck.2.9.0\lib\net452\FsCheck.dll</HintPath>
+    <Reference Include="FsCheck, Version=2.10.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\FsCheck.2.10.0\lib\net452\FsCheck.dll</HintPath>
     </Reference>
     <Reference Include="FSharp.Core, Version=4.4.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\FSharp.Core.4.2.1\lib\net45\FSharp.Core.dll</HintPath>
+      <HintPath>..\packages\FSharp.Core.4.2.3\lib\net45\FSharp.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="IgorSoft.AppDomainResolver, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -66,7 +66,7 @@
       <HintPath>..\packages\Moq.4.7.99\lib\net45\Moq.dll</HintPath>
     </Reference>
     <Reference Include="NLog, Version=5.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <HintPath>..\packages\NLog.5.0.0-beta09\lib\net45\NLog.dll</HintPath>
+      <HintPath>..\packages\NLog.5.0.0-beta10\lib\net45\NLog.dll</HintPath>
     </Reference>
     <Reference Include="SemanticTypes, Version=1.0.0.0, Culture=neutral, PublicKeyToken=742e180f6c5ccd0d, processorArchitecture=MSIL">
       <HintPath>..\packages\SemanticTypes.1.1.1\lib\net35\SemanticTypes.dll</HintPath>
@@ -95,7 +95,7 @@
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Transactions" />
     <Reference Include="System.ValueTuple, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.ValueTuple.4.4.0-preview2-25405-01\lib\net461\System.ValueTuple.dll</HintPath>
+      <HintPath>..\packages\System.ValueTuple.4.4.0\lib\net461\System.ValueTuple.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml" />
   </ItemGroup>
